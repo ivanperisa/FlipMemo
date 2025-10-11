@@ -1,4 +1,4 @@
 # FlipMemo
-##Opis projekta
-##Funkcijski zahtjevi
-##Tehnologije
+#Opis projekta
+#Funkcijski zahtjevi
+#Tehnologije
