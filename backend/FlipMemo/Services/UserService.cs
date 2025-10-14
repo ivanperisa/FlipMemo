@@ -13,7 +13,6 @@ public class UserService(ApplicationDbContext context) : IUserService
             .Select(u => new UserDto
             {
                 Id = u.Id,
-                Username = u.Username,
                 Email = u.Email,
             })
             .ToListAsync();
@@ -29,8 +28,7 @@ public class UserService(ApplicationDbContext context) : IUserService
         return new UserDto
         {
             Id = user.Id,
-            Username = user.Username,
-            Email = user.Email,
+            Email = user.Email
         };
     }
 

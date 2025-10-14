@@ -18,16 +18,9 @@ public class ApiExceptionFilter : IExceptionFilter
             ValidationException => new BadRequestObjectResult(response),
             UnauthorizedAccessException => new UnauthorizedObjectResult(response),
             NotFoundException => new NotFoundObjectResult(response),
-            ConflictException => new ObjectResult(response)
-            {
-                StatusCode = (int)HttpStatusCode.Conflict
-            },
+            ConflictException => new ObjectResult(response) { StatusCode = (int)HttpStatusCode.Conflict },
             InvalidOperationException => new BadRequestObjectResult(response),
-
-            _ => new ObjectResult(response)
-            {
-                StatusCode = (int)HttpStatusCode.InternalServerError
-            }
+            _ => new ObjectResult(response) { StatusCode = (int)HttpStatusCode.InternalServerError }
         };
 
         context.ExceptionHandled = true;

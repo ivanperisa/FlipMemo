@@ -13,16 +13,25 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         {
             entity.HasKey(e => e.Id);
 
-            entity.Property(e => e.Username)
-                .HasMaxLength(100)
-                .IsRequired();
-
             entity.Property(e => e.Email)
                 .HasMaxLength(320)
                 .IsRequired();
 
             entity.Property(e => e.HashedPassword)
                 .HasMaxLength(255)
+                .IsRequired();
+
+            entity.Property(e => e.Role)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            entity.Property(e => e.LastLogin)
+                .IsRequired(false);
+
+            entity.Property(e => e.CreatedAt)
+                .IsRequired();
+
+            entity.Property(e => e.MustChangePassword)
                 .IsRequired();
         });
 

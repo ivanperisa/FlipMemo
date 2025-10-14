@@ -10,50 +10,55 @@ namespace FlipMemo.Services;
 
 public class AccountService(ApplicationDbContext context) : IAccountService
 {
-    public async Task<UserDto> RegisterAsync(RegisterDto dto)
+    public async Task<RegisterResponse> RegisterAsync(RegisterDto dto)
     {
-        var now = DateTime.UtcNow;
-
         var userExists = await context.Users
-            .FirstOrDefaultAsync(u => u.Username == dto.Username || u.Email == dto.Email);
+            .FirstOrDefaultAsync(u => u.Email == dto.Email);
 
         if (userExists != null)
-            throw new ConflictException("Account with that username or email already exists.");
+            throw new ConflictException("Account already exists.");
 
-        var hashedPassword = HashPassword(dto.Password);
+        var initialPassword = Guid.NewGuid().ToString("N")[..8];
+
+        var hashedPassword = HashPassword(initialPassword);
 
         var user = new User()
         {
-            Username = dto.Username,
             Email = dto.Email,
             HashedPassword = hashedPassword,
-            CreatedAt = now
+            CreatedAt = DateTime.UtcNow,
+            MustChangePassword = true
         };
 
         context.Users.Add(user);
         await context.SaveChangesAsync();
 
-        return new UserDto
+        return new RegisterResponse
         {
             Id = user.Id,
-            Username = user.Username,
             Email = user.Email,
+            InitialPassword = initialPassword
         };
     }
 
     public async Task<UserDto> LoginAsync(LoginDto dto)
     {
         var user = await context.Users
-            .FirstOrDefaultAsync(u => u.Username == dto.Username)
-            ?? throw new NotFoundException("Account with that username doesn't exist.");
+            .SingleOrDefaultAsync(u => u.Email == dto.Email)
+            ?? throw new NotFoundException("Account doesn't exist.");
 
         if (!Verify(dto.Password, user.HashedPassword))
             throw new UnauthorizedAccessException("Invalid password.");
 
+        if (user.MustChangePassword)
+            throw new ValidationException("Password change required on first login.");
+        
+        user.LastLogin = DateTime.UtcNow;
+        await context.SaveChangesAsync();
+
         return new UserDto
         {
             Id = user.Id,
-            Username = user.Username,
             Email = user.Email
         };
     }
@@ -71,6 +76,7 @@ public class AccountService(ApplicationDbContext context) : IAccountService
             throw new ValidationException("New password must be different from old password.");
 
         user.HashedPassword = HashPassword(dto.NewPassword);
+        user.MustChangePassword = false;
 
         await context.SaveChangesAsync();
     }

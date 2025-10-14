@@ -1,16 +1,7 @@
 ﻿namespace FlipMemo.Utils;
 
-public class NotFoundException : Exception
-{
-    public NotFoundException(string message) : base(message) { }
-}
+public class NotFoundException(string message) : Exception(message) { }
 
-public class ConflictException : Exception
-{
-    public ConflictException(string message) : base(message) { }
-}
+public class ConflictException(string message) : Exception(message) { }
 
-public class ValidationException : Exception
-{
-    public ValidationException(string message) : base(message) { }
-}
+public class ValidationException(string message) : Exception(message) { }
