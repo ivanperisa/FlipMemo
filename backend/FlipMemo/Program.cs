@@ -1,5 +1,7 @@
 using FlipMemo.Data;
+using FlipMemo.Interfaces;
 using FlipMemo.Services;
+using FlipMemo.Utils;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,9 +9,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options => 
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ApiExceptionFilter>();
+});
+
 builder.Services.AddOpenApi();
 
 builder.Services.AddEndpointsApiExplorer();

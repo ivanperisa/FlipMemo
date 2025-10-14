@@ -1,56 +1,42 @@
 ﻿using FlipMemo.DTOs;
-using FlipMemo.Services;
+using FlipMemo.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FlipMemo.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
-public class UserController(UserService userService) : ControllerBase
+public class UserController(IUserService userService) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> Get()
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetAllUsers()
     {
-        try
-        {
-            var result = await userService.GetUsersAsync();
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        var users = await userService.GetAllUsersAsync();
+        return Ok(users);
     }
 
-    [HttpPost("register")]
+    [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> Create([FromBody] CreateUserRequest request)
-    {
-        try
-        {
-            var result = await userService.CreateUserAsync(request);
-            return Ok($"User created: {result.IsCreated}");
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
-    }
-
-    [HttpPost("login")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Login([FromBody] LoginUserRequest request)
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetUserById(int id)
     {
-        try
-        {
-            var result = await userService.LoginUserAsync(request);
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        var user = await userService.GetUserByIdAsync(id);
+        return Ok(user);
+    }
+
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> DeleteUser(int id)
+    {
+        await userService.DeleteUserAsync(id);
+        return Ok(new { message = "User deleted successfully" });
     }
 }
