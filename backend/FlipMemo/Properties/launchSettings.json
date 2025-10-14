@@ -16,7 +16,7 @@
       "dotnetRunMessages": true,
       "applicationUrl": "https://localhost:7119;http://localhost:5120"
     },
-    "Container (Dockerfile)": {
+    "Docker": {
       "commandName": "Docker",
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
       "environmentVariables": {

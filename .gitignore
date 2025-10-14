@@ -93,7 +93,6 @@ coverage/
 *.sql
 *.sql.gz
 pgdata/
-data/
 postgres-data/
 *.dump
 *.backup
