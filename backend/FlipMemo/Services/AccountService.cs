@@ -12,6 +12,8 @@ public class AccountService(ApplicationDbContext context) : IAccountService
 {
     public async Task<UserDto> RegisterAsync(RegisterDto dto)
     {
+        var now = DateTime.UtcNow;
+
         var userExists = await context.Users
             .FirstOrDefaultAsync(u => u.Username == dto.Username || u.Email == dto.Email);
 
@@ -25,6 +27,7 @@ public class AccountService(ApplicationDbContext context) : IAccountService
             Username = dto.Username,
             Email = dto.Email,
             HashedPassword = hashedPassword,
+            CreatedAt = now
         };
 
         context.Users.Add(user);

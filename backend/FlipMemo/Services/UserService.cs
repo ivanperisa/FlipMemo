@@ -34,23 +34,6 @@ public class UserService(ApplicationDbContext context) : IUserService
         };
     }
 
-    public async Task<UserDto> UpdateUserAsync(int id, UserDto dto)
-    {
-        var user = await context.Users
-            .FindAsync(id)
-            ?? throw new InvalidOperationException("Account doesn't exist");
-
-        user.Username = dto.Username;
-        user.Email = dto.Email;
-
-        return new UserDto
-        {
-            Id = user.Id,
-            Username = user.Username,
-            Email = user.Email
-        };
-    }
-
     public async Task DeleteUserAsync(int id)
     {
         var user = await context.Users

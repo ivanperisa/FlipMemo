@@ -1,5 +1,4 @@
-﻿using FlipMemo.DTOs;
-using FlipMemo.Interfaces;
+﻿using FlipMemo.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FlipMemo.Controllers;
