@@ -8,9 +8,9 @@ using static BCrypt.Net.BCrypt;
 
 namespace FlipMemo.Services;
 
-public class AccountService(ApplicationDbContext context) : IAccountService
+public class AccountService(ApplicationDbContext context, IEmailService emailService) : IAccountService
 {
-    public async Task<RegisterResponseDto> RegisterAsync(RegisterRequestDto dto)
+    public async Task<UserResponseDto> RegisterAsync(RegisterRequestDto dto)
     {
         var userExists = await context.Users
             .FirstOrDefaultAsync(u => u.Email == dto.Email);
@@ -33,11 +33,17 @@ public class AccountService(ApplicationDbContext context) : IAccountService
         context.Users.Add(user);
         await context.SaveChangesAsync();
 
-        return new RegisterResponseDto
+        var subject = "Your FlipMemo temporary password";
+        var body = $"Welcome to FlipMemo!\n\n" +
+                   $"Your temporary password is: {initialPassword}\n" +
+                   $"Please change it after your first login.";
+
+        await emailService.SendAsync(user.Email, subject, body);
+
+        return new UserResponseDto
         {
             Id = user.Id,
-            Email = user.Email,
-            InitialPassword = initialPassword
+            Email = user.Email
         };
     }
 
