@@ -4,6 +4,7 @@ using FlipMemo.Interfaces;
 using FlipMemo.Models;
 using FlipMemo.Utils;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 using static BCrypt.Net.BCrypt;
 
 namespace FlipMemo.Services;
@@ -33,7 +34,7 @@ public class AccountService(ApplicationDbContext context, IEmailService emailSer
         context.Users.Add(user);
         await context.SaveChangesAsync();
 
-        var subject = "Your FlipMemo temporary password";
+        var subject = "FlipMemo - Temporary Password";
         var body = $"Welcome to FlipMemo!\n\n" +
                    $"Your temporary password is: {initialPassword}\n" +
                    $"Please change it after your first login.";
@@ -79,11 +80,69 @@ public class AccountService(ApplicationDbContext context, IEmailService emailSer
             throw new UnauthorizedAccessException("Invalid old password.");
 
         if (Verify(dto.NewPassword, user.HashedPassword))
-            throw new ValidationException("New password must be different from old password.");
+            throw new ValidationException("New password must be different from current password.");
 
         user.HashedPassword = HashPassword(dto.NewPassword);
         user.MustChangePassword = false;
 
         await context.SaveChangesAsync();
+    }
+
+    public async Task ForgotPasswordAsync(ForgotPasswordRequestDto dto)
+    {
+        var user = await context.Users
+            .SingleOrDefaultAsync(u => u.Email == dto.Email);
+
+        if (user == null)
+            return;
+
+        var resetToken = GenerateSecureToken();
+
+        user.PasswordResetToken = HashPassword(resetToken);
+        user.PasswordResetTokenExpiry = DateTime.UtcNow.AddMinutes(15);
+
+        await context.SaveChangesAsync();
+
+        var subject = "FlipMemo - Password Reset Request";
+        var body = $"You have requested to reset your password for FlipMemo.\n\n" +
+                   $"Your password reset token is: {resetToken}\n\n" +
+                   $"This token will expire in 15 minutes.\n" +
+                   $"If you did not request this, please ignore this email.";
+
+        await emailService.SendAsync(user.Email, subject, body);
+    }
+
+    public async Task ResetPasswordAsync(ResetPasswordRequestDto dto)
+    {
+        var user = await context.Users
+            .SingleOrDefaultAsync(u => u.Email == dto.Email)
+            ?? throw new NotFoundException("Account doesn't exist");
+
+        if (user.PasswordResetToken == null || user.PasswordResetTokenExpiry == null)
+            throw new ValidationException("No password reset request found.");
+
+        if (user.PasswordResetTokenExpiry < DateTime.UtcNow)
+            throw new ValidationException("Password reset token has expired");
+
+        if (!Verify(dto.Token, user.PasswordResetToken))
+            throw new ValidationException("Invalid reset token");
+
+        if (Verify(dto.NewPassword, user.HashedPassword))
+            throw new ValidationException("New password must be different from current password.");
+
+        user.HashedPassword = HashPassword(dto.NewPassword);
+        user.PasswordResetToken = null;
+        user.PasswordResetTokenExpiry = null;
+        user.MustChangePassword = false;
+
+        await context.SaveChangesAsync();
+    }
+
+    private static string GenerateSecureToken()
+    {
+        var bytes = new byte[32];
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(bytes);
+        return Convert.ToBase64String(bytes).Replace("+", "-").Replace("/", "_").Replace("=", "");
     }
 }

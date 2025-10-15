@@ -9,4 +9,6 @@ public class User
     public DateTime? LastLogin { get; set; }
     public DateTime CreatedAt { get; set; }
     public bool MustChangePassword { get; set; }
+    public string? PasswordResetToken { get; set; }
+    public DateTime? PasswordResetTokenExpiry { get; set; }
 }
