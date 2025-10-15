@@ -10,7 +10,7 @@ namespace FlipMemo.Services;
 
 public class AccountService(ApplicationDbContext context) : IAccountService
 {
-    public async Task<RegisterResponse> RegisterAsync(RegisterDto dto)
+    public async Task<RegisterResponseDto> RegisterAsync(RegisterRequestDto dto)
     {
         var userExists = await context.Users
             .FirstOrDefaultAsync(u => u.Email == dto.Email);
@@ -33,7 +33,7 @@ public class AccountService(ApplicationDbContext context) : IAccountService
         context.Users.Add(user);
         await context.SaveChangesAsync();
 
-        return new RegisterResponse
+        return new RegisterResponseDto
         {
             Id = user.Id,
             Email = user.Email,
@@ -41,7 +41,7 @@ public class AccountService(ApplicationDbContext context) : IAccountService
         };
     }
 
-    public async Task<UserDto> LoginAsync(LoginDto dto)
+    public async Task<UserResponseDto> LoginAsync(LoginRequestDto dto)
     {
         var user = await context.Users
             .SingleOrDefaultAsync(u => u.Email == dto.Email)
@@ -56,14 +56,14 @@ public class AccountService(ApplicationDbContext context) : IAccountService
         user.LastLogin = DateTime.UtcNow;
         await context.SaveChangesAsync();
 
-        return new UserDto
+        return new UserResponseDto
         {
             Id = user.Id,
             Email = user.Email
         };
     }
 
-    public async Task ChangePasswordAsync(int id, ChangePasswordDto dto)
+    public async Task ChangePasswordAsync(int id, ChangePasswordRequestDto dto)
     {
         var user = await context.Users
             .FindAsync(id)

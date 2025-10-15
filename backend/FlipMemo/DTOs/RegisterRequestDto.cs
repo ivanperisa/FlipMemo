@@ -1,6 +1,6 @@
 ﻿namespace FlipMemo.DTOs;
 
-public class RegisterDto
+public class RegisterRequestDto
 {
     public string Email { get; set; }
 }

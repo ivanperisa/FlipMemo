@@ -12,7 +12,7 @@ public class AccountController(IAccountService accountService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Register([FromBody] RegisterDto dto)
+    public async Task<IActionResult> Register([FromBody] RegisterRequestDto dto)
     {
         var user = await accountService.RegisterAsync(dto);
 
@@ -24,7 +24,7 @@ public class AccountController(IAccountService accountService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Login([FromBody] LoginDto dto)
+    public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
     {
         var user = await accountService.LoginAsync(dto);
 
@@ -37,7 +37,7 @@ public class AccountController(IAccountService accountService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> ChangePassword(int id, [FromBody] ChangePasswordDto dto)
+    public async Task<IActionResult> ChangePassword(int id, [FromBody] ChangePasswordRequestDto dto)
     {
         await accountService.ChangePasswordAsync(id, dto);
 

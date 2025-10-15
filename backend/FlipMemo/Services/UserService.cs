@@ -7,10 +7,10 @@ namespace FlipMemo.Services;
 
 public class UserService(ApplicationDbContext context) : IUserService
 {
-    public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
+    public async Task<IEnumerable<UserResponseDto>> GetAllUsersAsync()
     {
         var users = await context.Users
-            .Select(u => new UserDto
+            .Select(u => new UserResponseDto
             {
                 Id = u.Id,
                 Email = u.Email,
@@ -19,13 +19,13 @@ public class UserService(ApplicationDbContext context) : IUserService
 
         return users;
     }
-    public async Task<UserDto> GetUserByIdAsync(int id)
+    public async Task<UserResponseDto> GetUserByIdAsync(int id)
     {
         var user = await context.Users
             .FindAsync(id)
             ?? throw new InvalidOperationException("Account doesn't exist");
 
-        return new UserDto
+        return new UserResponseDto
         {
             Id = user.Id,
             Email = user.Email
