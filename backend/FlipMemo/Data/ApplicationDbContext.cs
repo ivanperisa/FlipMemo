@@ -17,7 +17,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .HasMaxLength(320)
                 .IsRequired();
 
-            entity.Property(e => e.HashedPassword)
+            entity.Property(e => e.PasswordHash)
                 .HasMaxLength(255)
                 .IsRequired();
 

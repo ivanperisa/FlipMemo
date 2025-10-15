@@ -26,7 +26,7 @@ public class AccountService(ApplicationDbContext context, IEmailService emailSer
         var user = new User()
         {
             Email = dto.Email,
-            HashedPassword = hashedPassword,
+            PasswordHash = hashedPassword,
             CreatedAt = DateTime.UtcNow,
             MustChangePassword = true
         };
@@ -54,7 +54,7 @@ public class AccountService(ApplicationDbContext context, IEmailService emailSer
             .SingleOrDefaultAsync(u => u.Email == dto.Email)
             ?? throw new NotFoundException("Account doesn't exist.");
 
-        if (!Verify(dto.Password, user.HashedPassword))
+        if (!Verify(dto.Password, user.PasswordHash))
             throw new UnauthorizedAccessException("Invalid password.");
 
         if (user.MustChangePassword)
@@ -76,13 +76,16 @@ public class AccountService(ApplicationDbContext context, IEmailService emailSer
             .FindAsync(id)
             ?? throw new NotFoundException("Account doesn't exist.");
 
-        if (!Verify(dto.OldPassword, user.HashedPassword))
+        if (!Verify(dto.CurrentPassword, user.PasswordHash))
             throw new UnauthorizedAccessException("Invalid old password.");
 
-        if (Verify(dto.NewPassword, user.HashedPassword))
+        if (dto.NewPassword != dto.ConfirmNewPassword)
+            throw new ValidationException("New password and confirmation password do not match.");
+
+        if (Verify(dto.NewPassword, user.PasswordHash))
             throw new ValidationException("New password must be different from current password.");
 
-        user.HashedPassword = HashPassword(dto.NewPassword);
+        user.PasswordHash = HashPassword(dto.NewPassword);
         user.MustChangePassword = false;
 
         await context.SaveChangesAsync();
@@ -98,7 +101,7 @@ public class AccountService(ApplicationDbContext context, IEmailService emailSer
 
         var resetToken = GenerateSecureToken();
 
-        user.PasswordResetToken = HashPassword(resetToken);
+        user.PasswordResetTokenHash = HashPassword(resetToken);
         user.PasswordResetTokenExpiry = DateTime.UtcNow.AddMinutes(15);
 
         await context.SaveChangesAsync();
@@ -118,20 +121,23 @@ public class AccountService(ApplicationDbContext context, IEmailService emailSer
             .SingleOrDefaultAsync(u => u.Email == dto.Email)
             ?? throw new NotFoundException("Account doesn't exist");
 
-        if (user.PasswordResetToken == null || user.PasswordResetTokenExpiry == null)
+        if (user.PasswordResetTokenHash == null || user.PasswordResetTokenExpiry == null)
             throw new ValidationException("No password reset request found.");
 
         if (user.PasswordResetTokenExpiry < DateTime.UtcNow)
             throw new ValidationException("Password reset token has expired");
 
-        if (!Verify(dto.Token, user.PasswordResetToken))
+        if (!Verify(dto.Token, user.PasswordResetTokenHash))
             throw new ValidationException("Invalid reset token");
 
-        if (Verify(dto.NewPassword, user.HashedPassword))
+        if (dto.NewPassword != dto.ConfirmNewPassword)
+            throw new ValidationException("New password and confirmation password do not match.");
+
+        if (Verify(dto.NewPassword, user.PasswordHash))
             throw new ValidationException("New password must be different from current password.");
 
-        user.HashedPassword = HashPassword(dto.NewPassword);
-        user.PasswordResetToken = null;
+        user.PasswordHash = HashPassword(dto.NewPassword);
+        user.PasswordResetTokenHash = null;
         user.PasswordResetTokenExpiry = null;
         user.MustChangePassword = false;
 
