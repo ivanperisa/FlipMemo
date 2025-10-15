@@ -16,7 +16,8 @@ public class AccountController(IAccountService accountService) : ControllerBase
     {
         var user = await accountService.RegisterAsync(dto);
 
-        return CreatedAtAction(nameof(Register), new { id = user.Id }, user);
+        return CreatedAtAction(nameof(Register), 
+            new { message = "User registered successfully. Check your email for login credentials." });
     }
 
     [HttpPost("login")]
@@ -42,5 +43,29 @@ public class AccountController(IAccountService accountService) : ControllerBase
         await accountService.ChangePasswordAsync(id, dto);
 
         return Ok(new { message = "Password changed successfully" });
+    }
+
+    [HttpPost("forgot-password")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequestDto dto)
+    {
+        await accountService.ForgotPasswordAsync(dto);
+
+        return Ok(new { message = "If the email exists, a password reset token has been sent. " });
+    }
+
+    [HttpPost("reset-password")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequestDto dto)
+    {
+        await accountService.ResetPasswordAsync(dto);
+
+        return Ok(new { message = "Password reset successfully" });
     }
 }
