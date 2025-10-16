@@ -80,6 +80,17 @@ public class AccountService(ApplicationDbContext context, IEmailService emailSer
         };
     }
 
+    public async Task LogoutAsync(int id)
+    {
+        var user = await context.Users
+            .FindAsync(id)
+            ?? throw new NotFoundException("Account doesn't exist.");
+
+        user.SecurityStamp = Guid.NewGuid().ToString();
+
+        await context.SaveChangesAsync();
+    }
+
     public async Task ChangePasswordAsync(int id, ChangePasswordRequestDto dto)
     {
         var user = await context.Users
@@ -136,7 +147,7 @@ public class AccountService(ApplicationDbContext context, IEmailService emailSer
             throw new ValidationException("No password reset request found.");
 
         if (user.PasswordResetTokenExpiry < DateTime.UtcNow)
-            throw new ValidationException("Password reset token has expired");
+            throw new ValidationException("Password reset token has expired.");
 
         if (!Verify(dto.Token, user.PasswordResetTokenHash))
             throw new ValidationException("Invalid reset token");

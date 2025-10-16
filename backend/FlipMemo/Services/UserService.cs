@@ -23,7 +23,7 @@ public class UserService(ApplicationDbContext context) : IUserService
     {
         var user = await context.Users
             .FindAsync(id)
-            ?? throw new InvalidOperationException("Account doesn't exist");
+            ?? throw new InvalidOperationException("Account doesn't exist.");
 
         return new UserResponseDto
         {
@@ -36,7 +36,7 @@ public class UserService(ApplicationDbContext context) : IUserService
     {
         var user = await context.Users
             .FindAsync(id)
-            ?? throw new InvalidOperationException("Account doesn't exist");
+            ?? throw new InvalidOperationException("Account doesn't exist.");
 
         context.Users.Remove(user);
 
