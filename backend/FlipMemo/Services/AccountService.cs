@@ -9,7 +9,7 @@ using static BCrypt.Net.BCrypt;
 
 namespace FlipMemo.Services;
 
-public class AccountService(ApplicationDbContext context, IEmailService emailService) : IAccountService
+public class AccountService(ApplicationDbContext context, IEmailService emailService, JwtService jwtService) : IAccountService
 {
     public async Task<UserResponseDto> RegisterAsync(RegisterRequestDto dto)
     {
@@ -27,8 +27,8 @@ public class AccountService(ApplicationDbContext context, IEmailService emailSer
         {
             Email = dto.Email,
             PasswordHash = hashedPassword,
-            CreatedAt = DateTime.UtcNow,
-            MustChangePassword = true
+            Role = Roles.User,
+            CreatedAt = DateTime.UtcNow
         };
 
         context.Users.Add(user);
@@ -48,7 +48,7 @@ public class AccountService(ApplicationDbContext context, IEmailService emailSer
         };
     }
 
-    public async Task<UserResponseDto> LoginAsync(LoginRequestDto dto)
+    public async Task<LoginResponseDto> LoginAsync(LoginRequestDto dto)
     {
         var user = await context.Users
             .SingleOrDefaultAsync(u => u.Email == dto.Email)
@@ -57,16 +57,26 @@ public class AccountService(ApplicationDbContext context, IEmailService emailSer
         if (!Verify(dto.Password, user.PasswordHash))
             throw new UnauthorizedAccessException("Invalid password.");
 
+        var token = jwtService.GenerateToken(user);
+
         if (user.MustChangePassword)
-            throw new ValidationException("Password change required on first login.");
+            return new LoginResponseDto
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Token = token,
+                MustChangePassword = true
+            };
         
         user.LastLogin = DateTime.UtcNow;
         await context.SaveChangesAsync();
 
-        return new UserResponseDto
+        return new LoginResponseDto
         {
             Id = user.Id,
-            Email = user.Email
+            Email = user.Email,
+            Token = token,
+            MustChangePassword = false
         };
     }
 
@@ -77,7 +87,7 @@ public class AccountService(ApplicationDbContext context, IEmailService emailSer
             ?? throw new NotFoundException("Account doesn't exist.");
 
         if (!Verify(dto.CurrentPassword, user.PasswordHash))
-            throw new UnauthorizedAccessException("Invalid old password.");
+            throw new UnauthorizedAccessException("Invalid current password.");
 
         if (dto.NewPassword != dto.ConfirmNewPassword)
             throw new ValidationException("New password and confirmation password do not match.");
@@ -87,6 +97,7 @@ public class AccountService(ApplicationDbContext context, IEmailService emailSer
 
         user.PasswordHash = HashPassword(dto.NewPassword);
         user.MustChangePassword = false;
+        user.SecurityStamp = Guid.NewGuid().ToString();
 
         await context.SaveChangesAsync();
     }
@@ -140,6 +151,7 @@ public class AccountService(ApplicationDbContext context, IEmailService emailSer
         user.PasswordResetTokenHash = null;
         user.PasswordResetTokenExpiry = null;
         user.MustChangePassword = false;
+        user.SecurityStamp = Guid.NewGuid().ToString();
 
         await context.SaveChangesAsync();
     }

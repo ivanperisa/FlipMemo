@@ -1,4 +1,5 @@
 ﻿using FlipMemo.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FlipMemo.Controllers;
@@ -8,6 +9,7 @@ namespace FlipMemo.Controllers;
 public class UserController(IUserService userService) : ControllerBase
 {
     [HttpGet]
+    [Authorize(Policy = "AdminOnly")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -18,6 +20,7 @@ public class UserController(IUserService userService) : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [Authorize(Policy = "AdminOnly")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -29,6 +32,7 @@ public class UserController(IUserService userService) : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Policy = "UserOrAdmin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
