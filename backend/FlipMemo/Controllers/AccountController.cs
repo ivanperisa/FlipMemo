@@ -1,6 +1,8 @@
 ﻿using FlipMemo.DTOs;
 using FlipMemo.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace FlipMemo.Controllers;
 
@@ -9,6 +11,7 @@ namespace FlipMemo.Controllers;
 public class AccountController(IAccountService accountService) : ControllerBase
 {
     [HttpPost("register")]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -21,6 +24,7 @@ public class AccountController(IAccountService accountService) : ControllerBase
     }
 
     [HttpPost("login")]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -33,6 +37,7 @@ public class AccountController(IAccountService accountService) : ControllerBase
     }
 
     [HttpPut("{id}/change-password")]
+    [Authorize(Policy = "UserOrAdmin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -46,6 +51,7 @@ public class AccountController(IAccountService accountService) : ControllerBase
     }
 
     [HttpPost("forgot-password")]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -57,6 +63,7 @@ public class AccountController(IAccountService accountService) : ControllerBase
     }
 
     [HttpPost("reset-password")]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
