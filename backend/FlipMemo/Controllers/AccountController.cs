@@ -36,6 +36,24 @@ public class AccountController(IAccountService accountService) : ControllerBase
         return Ok(user);
     }
 
+    [HttpPost("logout")]
+    [Authorize(Policy = "UserOrAdmin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> Logout()
+    {
+        var userIdClaim = User.FindFirst("userId")?.Value;
+
+        if (!int.TryParse(userIdClaim, out var userId))
+            return Unauthorized();
+
+        await accountService.LogoutAsync(userId);
+
+        return Ok(new { message = "Logged out successfully" });
+    }
+
     [HttpPut("{id}/change-password")]
     [Authorize(Policy = "UserOrAdmin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -45,6 +63,14 @@ public class AccountController(IAccountService accountService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ChangePassword(int id, [FromBody] ChangePasswordRequestDto dto)
     {
+        var userIdClaim = User.FindFirst("userId")?.Value;
+        var currentUserId = int.Parse(userIdClaim!);
+        var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+        if (userRole == "User" && currentUserId != id)
+            return StatusCode(StatusCodes.Status403Forbidden,
+                new { message = "You can only change your own password." });
+
         await accountService.ChangePasswordAsync(id, dto);
 
         return Ok(new { message = "Password changed successfully" });

@@ -1,6 +1,7 @@
 ﻿using FlipMemo.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace FlipMemo.Controllers;
 
@@ -39,6 +40,14 @@ public class UserController(IUserService userService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteUser(int id)
     {
+        var userIdClaim = User.FindFirst("userId")?.Value;
+        var currentUserId = int.Parse(userIdClaim!);
+        var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+        if (userRole == "User" && currentUserId != id)
+            return StatusCode(StatusCodes.Status403Forbidden,
+                new { message = "You can only delete your own account." });
+
         await userService.DeleteUserAsync(id);
         return Ok(new { message = "User deleted successfully" });
     }
