@@ -1,6 +1,6 @@
 import './styles/styles.css'
 import {BrowserRouter, Route, Routes} from "react-router";
-import {Home,Login,Logout,Missing,Welcome} from './pages/PagesImport.ts'
+import {Home,Login,Logout,Missing,Welcome,ForgotPassword} from './pages/PagesImport.ts'
 import AuthProvider from "./context/AuthProvider.tsx";
 import ProtectedRoutes from "./routes/ProtectedRoutes.tsx";
 
@@ -19,6 +19,7 @@ const App: React.FC = () => {
                    <Route path="/login" element={<Login/>}/>
                    <Route path="/logout" element={<Logout />}/>
                    <Route path="*" element={<Missing />}/>
+                   <Route path="/ForgotPassword" element={<ForgotPassword/>}/>
 
 
                    {/* Protected Routes */}

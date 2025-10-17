@@ -68,6 +68,7 @@ const Login = () => {
                         backgroundColor: 'rgba(255, 255, 255, 0.9)',
                     }}
                 />
+                <a href="/ForgotPassword" className={"font-space z-1"} style={{ color: '#8B6B7A' }}>Zaboravili ste lozinku?</a>
 
                 {/* Remember Me Checkbox */}
                 <div className="text-center mt-2 z-1">
@@ -77,6 +78,8 @@ const Login = () => {
                     >
                         <span className={"font-space z-1"} style={{ color: '#8B6B7A' }}>Zapamti me???</span>
                     </Checkbox>
+
+
                 </div>
 
                 {/* Buttons Container - Centered */}
