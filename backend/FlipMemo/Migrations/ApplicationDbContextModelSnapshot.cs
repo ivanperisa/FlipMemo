@@ -140,13 +140,13 @@ namespace FlipMemo.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Score")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("TimeInsert")
+                    b.Property<DateTime>("LastReviewed")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("integer");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");

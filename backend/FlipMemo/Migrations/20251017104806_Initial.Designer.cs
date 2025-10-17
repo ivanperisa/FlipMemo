@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FlipMemo.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251016192018_Test3")]
-    partial class Test3
+    [Migration("20251017104806_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -143,13 +143,13 @@ namespace FlipMemo.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Score")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("TimeInsert")
+                    b.Property<DateTime>("LastReviewed")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("integer");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
