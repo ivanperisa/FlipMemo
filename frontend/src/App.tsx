@@ -1,6 +1,6 @@
 import './styles/styles.css'
 import {BrowserRouter, Route, Routes, useLocation} from "react-router";
-import {Home,Login,Logout,Missing,Welcome,ForgotPassword} from './pages/PagesImport.ts'
+import {Home,Login,Logout,Missing,Welcome,ForgotPassword,Register} from './pages/PagesImport.ts'
 import AuthProvider from "./context/AuthProvider.tsx";
 import ProtectedRoutes from "./routes/ProtectedRoutes.tsx";
 import { AnimatePresence } from 'framer-motion';
@@ -25,7 +25,8 @@ const AnimatedRoutes = () => {
                     <Route path="/login" element={<Login/>}/>
                     <Route path="/logout" element={<Logout />}/>
                     <Route path="*" element={<Missing />}/>
-                    <Route path="/ForgotPassword" element={<ForgotPassword/>}/>
+                    <Route path="/forgotPassword" element={<ForgotPassword/>}/>
+                    <Route path="/register" element={<Register/>}/>
 
                     {/* Protected Routes */}
                     <Route element={<ProtectedRoutes/>}>
