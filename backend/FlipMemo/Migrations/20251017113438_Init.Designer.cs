@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FlipMemo.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251017104806_Initial")]
-    partial class Initial
+    [Migration("20251017113438_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -30,12 +30,12 @@ namespace FlipMemo.Migrations
                     b.Property<int>("DictionariesId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("WordsId")
+                    b.Property<int>("WordsWordId")
                         .HasColumnType("integer");
 
-                    b.HasKey("DictionariesId", "WordsId");
+                    b.HasKey("DictionariesId", "WordsWordId");
 
-                    b.HasIndex("WordsId");
+                    b.HasIndex("WordsWordId");
 
                     b.ToTable("DictionaryWords", (string)null);
                 });
@@ -96,11 +96,11 @@ namespace FlipMemo.Migrations
 
             modelBuilder.Entity("FlipMemo.Models.UserWord", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("UserWordId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("UserWordId"));
 
                     b.Property<DateTime>("LastReviewed")
                         .ValueGeneratedOnAdd()
@@ -126,7 +126,7 @@ namespace FlipMemo.Migrations
                     b.Property<int>("WordId")
                         .HasColumnType("integer");
 
-                    b.HasKey("Id");
+                    b.HasKey("UserWordId");
 
                     b.HasIndex("UserId");
 
@@ -137,11 +137,11 @@ namespace FlipMemo.Migrations
 
             modelBuilder.Entity("FlipMemo.Models.Voice", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("VoiceId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("VoiceId"));
 
                     b.Property<DateTime>("LastReviewed")
                         .ValueGeneratedOnAdd()
@@ -157,7 +157,7 @@ namespace FlipMemo.Migrations
                     b.Property<int>("WordId")
                         .HasColumnType("integer");
 
-                    b.HasKey("Id");
+                    b.HasKey("VoiceId");
 
                     b.HasIndex("UserId");
 
@@ -168,13 +168,13 @@ namespace FlipMemo.Migrations
 
             modelBuilder.Entity("FlipMemo.Models.Word", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("WordId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("WordId"));
 
-                    b.Property<string>("AudioFilePath")
+                    b.Property<string>("AudioFile")
                         .HasColumnType("text");
 
                     b.Property<string>("CroatianPhrases")
@@ -185,15 +185,15 @@ namespace FlipMemo.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("EnglishPhrases")
+                    b.Property<string>("ForeignPhrase")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("EnglishWord")
+                    b.Property<string>("ForeignWord")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.HasKey("WordId");
 
                     b.ToTable("Words");
                 });
@@ -208,7 +208,7 @@ namespace FlipMemo.Migrations
 
                     b.HasOne("FlipMemo.Models.Word", null)
                         .WithMany()
-                        .HasForeignKey("WordsId")
+                        .HasForeignKey("WordsWordId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

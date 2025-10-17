@@ -34,8 +34,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     entity.Property(e => e.Role)
         .HasMaxLength(50)
         .IsRequired();
-
-    // 👇 Keep your check constraint
     //entity.HasCheckConstraint("CK_User_Role", "Role IN ('Admin', 'User', 'RootAdmin')");
 });
 
@@ -46,7 +44,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         modelBuilder.Entity<UserWord>(entity =>
         {
-            entity.HasKey(e => e.Id);
+            entity.HasKey(e => e.UserWordId);
 
             entity.HasOne(e => e.User)
                   .WithMany()
@@ -70,7 +68,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         });
         modelBuilder.Entity<Voice>(entity =>
         {
-            entity.HasKey(e => e.Id);
+            entity.HasKey(e => e.VoiceId);
 
             entity.HasOne(e => e.User)
                 .WithMany()

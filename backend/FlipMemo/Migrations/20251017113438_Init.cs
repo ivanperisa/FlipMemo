@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FlipMemo.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -46,17 +46,17 @@ namespace FlipMemo.Migrations
                 name: "Words",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
+                    WordId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    EnglishWord = table.Column<string>(type: "text", nullable: false),
-                    EnglishPhrases = table.Column<string>(type: "text", nullable: false),
+                    ForeignWord = table.Column<string>(type: "text", nullable: false),
+                    ForeignPhrase = table.Column<string>(type: "text", nullable: false),
                     CroatianWord = table.Column<string>(type: "text", nullable: false),
                     CroatianPhrases = table.Column<string>(type: "text", nullable: false),
-                    AudioFilePath = table.Column<string>(type: "text", nullable: true)
+                    AudioFile = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Words", x => x.Id);
+                    table.PrimaryKey("PK_Words", x => x.WordId);
                 });
 
             migrationBuilder.CreateTable(
@@ -64,11 +64,11 @@ namespace FlipMemo.Migrations
                 columns: table => new
                 {
                     DictionariesId = table.Column<int>(type: "integer", nullable: false),
-                    WordsId = table.Column<int>(type: "integer", nullable: false)
+                    WordsWordId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DictionaryWords", x => new { x.DictionariesId, x.WordsId });
+                    table.PrimaryKey("PK_DictionaryWords", x => new { x.DictionariesId, x.WordsWordId });
                     table.ForeignKey(
                         name: "FK_DictionaryWords_Dictionaries_DictionariesId",
                         column: x => x.DictionariesId,
@@ -76,10 +76,10 @@ namespace FlipMemo.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_DictionaryWords_Words_WordsId",
-                        column: x => x.WordsId,
+                        name: "FK_DictionaryWords_Words_WordsWordId",
+                        column: x => x.WordsWordId,
                         principalTable: "Words",
-                        principalColumn: "Id",
+                        principalColumn: "WordId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -87,7 +87,7 @@ namespace FlipMemo.Migrations
                 name: "UserWords",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
+                    UserWordId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UserId = table.Column<int>(type: "integer", nullable: false),
                     WordId = table.Column<int>(type: "integer", nullable: false),
@@ -98,7 +98,7 @@ namespace FlipMemo.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserWords", x => x.Id);
+                    table.PrimaryKey("PK_UserWords", x => x.UserWordId);
                     table.ForeignKey(
                         name: "FK_UserWords_Users_UserId",
                         column: x => x.UserId,
@@ -109,7 +109,7 @@ namespace FlipMemo.Migrations
                         name: "FK_UserWords_Words_WordId",
                         column: x => x.WordId,
                         principalTable: "Words",
-                        principalColumn: "Id",
+                        principalColumn: "WordId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -117,7 +117,7 @@ namespace FlipMemo.Migrations
                 name: "Voices",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
+                    VoiceId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UserId = table.Column<int>(type: "integer", nullable: false),
                     WordId = table.Column<int>(type: "integer", nullable: false),
@@ -126,7 +126,7 @@ namespace FlipMemo.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Voices", x => x.Id);
+                    table.PrimaryKey("PK_Voices", x => x.VoiceId);
                     table.ForeignKey(
                         name: "FK_Voices_Users_UserId",
                         column: x => x.UserId,
@@ -137,14 +137,14 @@ namespace FlipMemo.Migrations
                         name: "FK_Voices_Words_WordId",
                         column: x => x.WordId,
                         principalTable: "Words",
-                        principalColumn: "Id",
+                        principalColumn: "WordId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_DictionaryWords_WordsId",
+                name: "IX_DictionaryWords_WordsWordId",
                 table: "DictionaryWords",
-                column: "WordsId");
+                column: "WordsWordId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserWords_UserId",

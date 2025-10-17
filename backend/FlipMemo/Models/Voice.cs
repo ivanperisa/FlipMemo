@@ -2,7 +2,7 @@ namespace FlipMemo.Models;
 
 public class Voice
 {
-    public int Id { get; set; }
+    public int VoiceId { get; set; }
 
     public int UserId { get; set; }
     public User User { get; set; } = null!;

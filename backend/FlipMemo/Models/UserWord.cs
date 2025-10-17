@@ -2,7 +2,7 @@ namespace FlipMemo.Models
 {
     public class UserWord
     {
-        public int Id { get; set; }
+        public int UserWordId { get; set; }
 
         public int UserId { get; set; }
         public User User { get; set; } = null!;
