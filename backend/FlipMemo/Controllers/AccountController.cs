@@ -51,7 +51,7 @@ public class AccountController(IAccountService accountService) : ControllerBase
 
         await accountService.LogoutAsync(userId);
 
-        return Ok(new { message = "Logged out successfully" });
+        return Ok(new { message = "Logged out successfully." });
     }
 
     [HttpPut("{id}/change-password")]
@@ -73,7 +73,7 @@ public class AccountController(IAccountService accountService) : ControllerBase
 
         await accountService.ChangePasswordAsync(id, dto);
 
-        return Ok(new { message = "Password changed successfully" });
+        return Ok(new { message = "Password changed successfully." });
     }
 
     [HttpPost("forgot-password")]
@@ -85,7 +85,7 @@ public class AccountController(IAccountService accountService) : ControllerBase
     {
         await accountService.ForgotPasswordAsync(dto);
 
-        return Ok(new { message = "If the email exists, a password reset token has been sent. " });
+        return Ok(new { message = "If the email exists, a password reset token has been sent." });
     }
 
     [HttpPost("reset-password")]
@@ -99,6 +99,6 @@ public class AccountController(IAccountService accountService) : ControllerBase
     {
         await accountService.ResetPasswordAsync(dto);
 
-        return Ok(new { message = "Password reset successfully" });
+        return Ok(new { message = "Password reset successfully." });
     }
 }

@@ -1,6 +1,7 @@
 ﻿using FlipMemo.Data;
 using FlipMemo.DTOs;
 using FlipMemo.Interfaces;
+using FlipMemo.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace FlipMemo.Services;
@@ -23,20 +24,16 @@ public class UserService(ApplicationDbContext context) : IUserService
     {
         var user = await context.Users
             .FindAsync(id)
-            ?? throw new InvalidOperationException("Account doesn't exist.");
+            ?? throw new NotFoundException("Account doesn't exist.");
 
-        return new UserResponseDto
-        {
-            Id = user.Id,
-            Email = user.Email
-        };
+        return new UserResponseDto { Id = user.Id, Email = user.Email };
     }
 
     public async Task DeleteUserAsync(int id)
     {
         var user = await context.Users
             .FindAsync(id)
-            ?? throw new InvalidOperationException("Account doesn't exist.");
+            ?? throw new NotFoundException("Account doesn't exist.");
 
         context.Users.Remove(user);
 

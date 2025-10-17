@@ -31,9 +31,6 @@ public class AccountService(ApplicationDbContext context, IEmailService emailSer
             CreatedAt = DateTime.UtcNow
         };
 
-        context.Users.Add(user);
-        await context.SaveChangesAsync();
-
         var subject = "FlipMemo - Temporary Password";
         var body = $"Welcome to FlipMemo!\n\n" +
                    $"Your temporary password is: {initialPassword}\n" +
@@ -41,11 +38,10 @@ public class AccountService(ApplicationDbContext context, IEmailService emailSer
 
         await emailService.SendAsync(user.Email, subject, body);
 
-        return new UserResponseDto
-        {
-            Id = user.Id,
-            Email = user.Email
-        };
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
+
+        return new UserResponseDto { Id = user.Id, Email = user.Email };
     }
 
     public async Task<LoginResponseDto> LoginAsync(LoginRequestDto dto)

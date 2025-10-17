@@ -49,6 +49,6 @@ public class UserController(IUserService userService) : ControllerBase
                 new { message = "You can only delete your own account." });
 
         await userService.DeleteUserAsync(id);
-        return Ok(new { message = "User deleted successfully" });
+        return Ok(new { message = "User deleted successfully." });
     }
 }
