@@ -1,10 +1,12 @@
 import  { useState } from 'react';
 import { Input, Checkbox } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import {useNavigate} from "react-router";
+import {useNavigate, Link} from "react-router";
 
 import AnimatedFace from '../components/AnimatedFace.tsx';
 import Particles from "../styles/Particles.tsx";
+import PageTransition from '../components/PageTransition.tsx';
+
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -21,8 +23,10 @@ const Login = () => {
 
     return (
 
-        <div className="min-h-screen flex flex-col items-center justify-center p-5 w-screen"
-             style={{ background: 'linear-gradient(180deg, #FFC0CB 0%, #FFE5EC 100%)' }}>
+
+
+        <PageTransition>
+        <div className="min-h-screen flex flex-col items-center justify-center p-5 w-screen">
         <div className={"absolute z-0 w-screen h-screen "}>
             <Particles  particleColors={['#ffffff', '#ffffff']}
                         particleCount={200}
@@ -68,7 +72,7 @@ const Login = () => {
                         backgroundColor: 'rgba(255, 255, 255, 0.9)',
                     }}
                 />
-                <a href="/ForgotPassword" className={"font-space z-1"} style={{ color: '#8B6B7A' }}>Zaboravili ste lozinku?</a>
+                <Link to="/ForgotPassword" className={"font-space z-1"} style={{ color: '#8B6B7A' }}>Zaboravili ste lozinku?</Link>
 
                 {/* Remember Me Checkbox */}
                 <div className="text-center mt-2 z-1">
@@ -107,6 +111,8 @@ const Login = () => {
                 </div>
             </div>
         </div>
+        </PageTransition>
+
     );
 };
 

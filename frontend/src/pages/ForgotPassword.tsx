@@ -3,6 +3,8 @@ import AnimatedFace from "../components/AnimatedFace.tsx";
 import {Input} from "antd";
 import {MailOutlined} from "@ant-design/icons";
 import {useState} from "react";
+import PageTransition from '../components/PageTransition.tsx';
+
 
 
 const ForgotPassword = () => {
@@ -16,8 +18,8 @@ const ForgotPassword = () => {
     return (
 
 
-        <div className="min-h-screen flex flex-col items-center justify-center p-5 w-screen"
-             style={{background: 'linear-gradient(180deg, #FFC0CB 0%, #FFE5EC 100%)'}}>
+        <PageTransition>
+        <div className="min-h-screen flex flex-col items-center justify-center p-5 w-screen">
             <div className={"absolute z-0 w-screen h-screen "}>
                 <Particles particleColors={['#ffffff', '#ffffff']}
                            particleCount={200}
@@ -70,6 +72,8 @@ const ForgotPassword = () => {
                 </div>
             </div>
         </div>
+        </PageTransition>
+
     );
 };
 
