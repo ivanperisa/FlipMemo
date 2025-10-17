@@ -8,10 +8,7 @@ public class ApiExceptionFilter : IExceptionFilter
 {
     public void OnException(ExceptionContext context)
     {
-        var response = new
-        {
-            message = context.Exception.Message
-        };
+        var response = new { message = context.Exception.Message };
 
         context.Result = context.Exception switch
         {
