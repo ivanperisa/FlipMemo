@@ -1,21 +1,85 @@
+
 import Particles from "../styles/Particles.tsx";
 import AnimatedFace from "../components/AnimatedFace.tsx";
 import {Form, Input} from "antd";
 import {MailOutlined} from "@ant-design/icons";
 import PageTransition from '../components/PageTransition.tsx';
+import AnimatedSendButton, { type AnimatedSendButtonRef } from "../components/AnimatedSendbutton.tsx";
+import { useRef, useState, useEffect } from "react";
+import { gsap } from "gsap";
 
 const ForgotPassword = () => {
     const [form] = Form.useForm();
+    const buttonRef = useRef<AnimatedSendButtonRef>(null);
+    const modalRef = useRef<HTMLDivElement>(null);
+    const inputContainerRef = useRef<HTMLDivElement>(null);
+    const labelRef = useRef<HTMLLabelElement>(null);
+    const [showModal, setShowModal] = useState(false);
+    const [hideInputs, setHideInputs] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        if (hideInputs && inputContainerRef.current && labelRef.current) {
+            // Hide input and label
+            gsap.to([inputContainerRef.current, labelRef.current], {
+                opacity: 0,
+                duration: 0.4,
+                ease: "power2.out"
+            });
+        }
+    }, [hideInputs]);
+
+    useEffect(() => {
+        if (showModal && modalRef.current) {
+            // Initial state - hidden and scaled down
+            gsap.set(modalRef.current, {
+                opacity: 0,
+                scale: 0.8,
+                y: -20
+            });
+
+            // Animate in modal
+            gsap.to(modalRef.current, {
+                opacity: 1,
+                scale: 1,
+                y: 0,
+                duration: 0.6,
+                ease: "back.out(1.7)"
+            });
+        }
+    }, [showModal]);
 
     const onFinish = (values: { email: string }) => {
-       //TODO: Implement email sending logic here
-        console.log("Success:", values);
+        // Prevent multiple submissions
+        if (isSubmitting) return;
 
+        console.log("Form validation success:", values);
+
+        // Disable button immediately
+        setIsSubmitting(true);
+
+        // Immediately hide inputs
+        setHideInputs(true);
+
+        // Trigger button animation
+        if (buttonRef.current) {
+            buttonRef.current.triggerAnimation();
+        }
+
+        // Show modal after 1.5s (near end of button animation which is 1.8s)
+        setTimeout(() => {
+            setShowModal(true);
+        }, 1500);
     };
 
     const onFinishFailed = (errorInfo: any) => {
-        console.log("Failed:", errorInfo);
-        // Your error handling logic here
+        console.log("Form validation failed:", errorInfo);
+    };
+
+    const handleAnimationComplete = () => {
+        console.log("Animation complete! Email sent.");
+        // You can re-enable the button here if needed, or navigate away
+        // setIsSubmitting(false); // Uncomment if you want to allow re-sending
     };
 
     return (
@@ -36,8 +100,14 @@ const ForgotPassword = () => {
                 <AnimatedFace/>
 
                 {/* Email Container */}
-                <div className="w-full max-w-[400px] flex flex-col gap-4">
-                    <label className={"z-1 font-space text-[#8B6B7A]"}> Unesite E-mail adresu vašeg računa:</label>
+                <div className="w-full max-w-[400px] flex flex-col gap-4 relative">
+
+                    <label
+                        ref={labelRef}
+                        className={"z-1 font-space text-[#8B6B7A]"}
+                    >
+                        Unesite E-mail adresu vašeg računa:
+                    </label>
 
                     <Form
                         form={form}
@@ -46,37 +116,73 @@ const ForgotPassword = () => {
                         layout="vertical"
                     >
                         {/* Email Input */}
-                        <Form.Item
-                            name="email"
-                            rules={[
-                                { required: true, message: 'Molimo unesite email!' },
-                                { type: 'email', message: 'Molimo unesite validan email!' }
-                            ]}
-                            style={{ marginBottom: 0 }}
-                        >
-                            <Input
-                                type="email"
-                                size="large"
-                                placeholder="Email"
-                                prefix={<MailOutlined style={{color: '#FFB6C1'}}/>}
-                                className="rounded-5xl shadow-md w-screen"
+                        <div ref={inputContainerRef}>
+                            <Form.Item
+                                name="email"
+                                rules={[
+                                    { required: true, message: 'Molimo unesite email!' },
+                                    { type: 'email', message: 'Molimo unesite validan email!' }
+                                ]}
+                                style={{ marginBottom: 0 }}
+                            >
+                                <Input
+                                    type="email"
+                                    size="large"
+                                    placeholder="Email"
+                                    prefix={<MailOutlined style={{color: '#FFB6C1'}}/>}
+                                    className="rounded-5xl shadow-md w-screen"
+                                    style={{
+                                        padding: '12px 20px',
+                                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                                    }}
+                                    disabled={isSubmitting}
+                                />
+                            </Form.Item>
+                        </div>
+
+                        {/* Success Modal */}
+                        {showModal && (
+                            <div
+                                ref={modalRef}
+                                className="w-full max-w-[380px] bg-white rounded-3xl shadow-2xl p-6 z-50 mx-auto mb-4"
                                 style={{
-                                    padding: '12px 20px',
-                                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                                    border: '2px solid var(--color-primary)',
                                 }}
-                            />
-                        </Form.Item>
+                            >
+                                <div className="flex flex-col items-center gap-3">
+                                    {/* Icon */}
+                                    <div className="w-16 h-16 rounded-full bg-(--color-primary) flex items-center justify-center">
+                                        <MailOutlined style={{ fontSize: '32px', color: 'white' }} />
+                                    </div>
+
+                                    {/* Title */}
+                                    <h3 className="font-space text-xl font-bold text-[#8B6B7A] text-center">
+                                        Email Poslan!
+                                    </h3>
+
+                                    {/* Message */}
+                                    <p className="font-space text-sm text-[#8B6B7A] text-center">
+                                        Provjerite svoj inbox za link za resetiranje lozinke.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Buttons Container - Centered */}
                         <div className="flex flex-col items-center gap-4 mt-6">
-                            {/* Send Email Button */}
-                            <button
+                            <AnimatedSendButton
+                                ref={buttonRef}
                                 type="submit"
-                                className="rounded-full bg-(--color-primary) w-[320px] sm:w-[360px] h-[56px] transition-all hover:opacity-90 hover:shadow-xl text-white shadow-lg
-                             font-space text-[18px] tracking-wide hover:cursor-pointer z-1"
-                            >
-                                Pošalji E-mail
-                            </button>
+                                sendText="POŠALJI E-MAIL"
+                                successText="POSLANO!"
+                                onSuccess={handleAnimationComplete}
+                                bgColor="var(--color-primary)"
+                                borderColor="var(--color-primary)"
+                                loaderColor="white"
+                                successTextColor="var(--color-primary)"
+                                disabled={isSubmitting}
+                                className="z-1 w-[320px] sm:w-[360px] font-space text-[18px] tracking-wide shadow-lg"
+                            />
                         </div>
                     </Form>
                 </div>

@@ -91,7 +91,7 @@ const Login = () => {
                             />
                         </Form.Item>
 
-                        <Link to="/ForgotPassword" className={"font-space z-1"} style={{ color: '#8B6B7A' }}>Zaboravili ste lozinku?</Link>
+                        <Link to="/ForgotPassword" className={"font-space relative"} style={{ color: '#8B6B7A', zIndex: 100 }}>Zaboravili ste lozinku?</Link>
 
                         {/* Remember Me Checkbox */}
                         <div className="text-center mt-2 z-1">
