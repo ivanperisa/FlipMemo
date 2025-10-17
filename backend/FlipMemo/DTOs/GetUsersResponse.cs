@@ -2,12 +2,11 @@
 
 public class GetUsersResponse
 {
-    public IEnumerable<UserDto> Users { get; set; }
+    public required IEnumerable<UserDto> Users { get; set; }
 }
-
 public record UserDto
 {
     public int Id { get; set; }
-    public string Username { get; set; }
-    public string Email { get; set; }
+    public required string Username { get; set; }
+    public required string Email { get; set; }
 }

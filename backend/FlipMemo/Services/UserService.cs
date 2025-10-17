@@ -34,7 +34,9 @@ public class UserService(ApplicationDbContext context)
         {
             Username = request.Username,
             Email = request.Email,
-            HashedPassword = hashedPassword
+            HashedPassword = hashedPassword,
+            Role = "User"
+            //default su svi user zasad nema admina 
         };
 
         context.Users.Add(user);

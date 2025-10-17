@@ -25,6 +25,8 @@ public class UserController(UserService userService) : ControllerBase
 
     [HttpPost("register")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+
+    
     public async Task<IActionResult> Create([FromBody] CreateUserRequest request)
     {
         try
@@ -34,8 +36,10 @@ public class UserController(UserService userService) : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(ex.Message);
+            var error = ex.InnerException?.Message ?? ex.Message;
+            return BadRequest(error);
         }
+
     }
 
     [HttpPost("login")]
