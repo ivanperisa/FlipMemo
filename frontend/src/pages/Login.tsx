@@ -1,16 +1,44 @@
 import  { useState } from 'react';
 import { Input, Checkbox } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import {useNavigate} from "react-router";
+
+import AnimatedFace from '../components/AnimatedFace.tsx';
+import Particles from "../styles/Particles.tsx";
 
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
 
+    const navigate=useNavigate();
+
+    function navigateToRegister(){
+        navigate("/Register");
+    }
+
+
+
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-5" 
+
+        <div className="min-h-screen flex flex-col items-center justify-center p-5 w-screen"
              style={{ background: 'linear-gradient(180deg, #FFC0CB 0%, #FFE5EC 100%)' }}>
-            
+        <div className={"absolute z-0 w-screen h-screen "}>
+            <Particles  particleColors={['#ffffff', '#ffffff']}
+                        particleCount={200}
+                        particleSpread={10}
+                        speed={0.1}
+                        particleBaseSize={200}
+                        moveParticlesOnHover={true}
+                        alphaParticles={false}
+                        disableRotation={false}
+                        />
+        </div>
+
+            <AnimatedFace />
+
+
+
             {/* Login Form Container */}
             <div className="w-full max-w-[400px] flex flex-col gap-4">
                 {/* Username Input */}
@@ -42,12 +70,12 @@ const Login = () => {
                 />
 
                 {/* Remember Me Checkbox */}
-                <div className="text-center mt-2">
+                <div className="text-center mt-2 z-1">
                     <Checkbox
                         checked={rememberMe}
                         onChange={(e) => setRememberMe(e.target.checked)}
                     >
-                        <span style={{ color: '#8B6B7A' }}>Zapamti me???</span>
+                        <span className={"font-space z-1"} style={{ color: '#8B6B7A' }}>Zapamti me???</span>
                     </Checkbox>
                 </div>
 
@@ -55,18 +83,24 @@ const Login = () => {
                 <div className="flex flex-col items-center gap-4 mt-6">
                     {/* Login Button */}
                     <button
-                        className="rounded-full bg-(--color-primary) w-[320px] sm:w-[360px] h-[56px] transition-all hover:opacity-90 hover:shadow-xl text-white shadow-lg font-normal text-[18px] tracking-wide"
+                        className="rounded-full bg-(--color-primary) w-[320px] sm:w-[360px] h-[56px] transition-all hover:opacity-90 hover:shadow-xl text-white shadow-lg
+                         font-space text-[18px] tracking-wide hover:cursor-pointer z-1"
 
                     >
                         Nastavi
                     </button>
 
-                    {/* Forgot Password Button */}
-                    <button
-                        className="rounded-full bg-(--color-primary) w-[320px] sm:w-[360px] h-[56px] transition-all hover:opacity-90 hover:shadow-xl text-white shadow-lg font-normal text-[18px] tracking-wide"
+                    {/* Registration Button */}
+                    <button onClick={navigateToRegister}
+                        className="rounded-full bg-(--color-primary) w-[320px] sm:w-[360px] h-[56px] transition-all hover:opacity-90 hover:shadow-xl text-white shadow-lg
+                        font-space text-[18px] tracking-wide hover:cursor-pointer z-1"
                     >
-                        Promijeni lozinku
+                        Registracija
                     </button>
+
+
+
+
                 </div>
             </div>
         </div>
