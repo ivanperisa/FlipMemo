@@ -1,6 +1,6 @@
 import { Form, Input, Checkbox } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import {useNavigate, Link} from "react-router";
+import { useNavigate, Link } from "react-router";
 
 import AnimatedFace from '../components/AnimatedFace.tsx';
 import Particles from "../styles/Particles.tsx";
@@ -11,7 +11,7 @@ const Login = () => {
     const [form] = Form.useForm();
     const navigate = useNavigate();
 
-    function navigateToRegister(){
+    function navigateToRegister() {
         navigate("/Register");
     }
 
@@ -29,21 +29,21 @@ const Login = () => {
         <PageTransition>
             <div className="min-h-screen flex flex-col items-center justify-center p-5 w-screen">
                 <div className={"absolute z-0 w-screen h-screen "}>
-                    <Particles  particleColors={['#ffffff', '#ffffff']}
-                                particleCount={300}
-                                particleSpread={12}
-                                speed={0.1}
-                                particleBaseSize={200}
-                                moveParticlesOnHover={true}
-                                alphaParticles={false}
-                                disableRotation={false}
+                    <Particles particleColors={['#ffffff', '#ffffff']}
+                        particleCount={300}
+                        particleSpread={12}
+                        speed={0.1}
+                        particleBaseSize={200}
+                        moveParticlesOnHover={true}
+                        alphaParticles={false}
+                        disableRotation={false}
                     />
                 </div>
 
                 <AnimatedFace />
 
                 {/* Login Form Container */}
-                <div className="w-full max-w-[400px] flex flex-col gap-4">
+                <div className="mt-36 w-full max-w-[400px] flex flex-col gap-4">
                     <Form
                         form={form}
                         onFinish={onFinish}
@@ -119,8 +119,8 @@ const Login = () => {
 
                             {/* Registration Button */}
                             <button onClick={navigateToRegister}
-                                    type="button"
-                                    className="rounded-full bg-(--color-primary) w-[320px] sm:w-[360px] h-[56px] transition-all hover:opacity-90 hover:shadow-xl text-white shadow-lg
+                                type="button"
+                                className="rounded-full bg-(--color-primary) w-[320px] sm:w-[360px] h-[56px] transition-all hover:opacity-90 hover:shadow-xl text-white shadow-lg
                             font-space text-[18px] tracking-wide hover:cursor-pointer z-1"
                             >
                                 Registracija

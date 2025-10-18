@@ -1,8 +1,7 @@
-
 import Particles from "../styles/Particles.tsx";
 import AnimatedFace from "../components/AnimatedFace.tsx";
-import {Form, Input} from "antd";
-import {MailOutlined} from "@ant-design/icons";
+import { Form, Input } from "antd";
+import { MailOutlined } from "@ant-design/icons";
 import PageTransition from '../components/PageTransition.tsx';
 import AnimatedSendButton, { type AnimatedSendButtonRef } from "../components/AnimatedSendbutton.tsx";
 import { useRef, useState, useEffect } from "react";
@@ -87,17 +86,17 @@ const ForgotPassword = () => {
             <div className="min-h-screen flex flex-col items-center justify-center p-5 w-screen">
                 <div className={"absolute z-0 w-screen h-screen "}>
                     <Particles particleColors={['#ffffff', '#ffffff']}
-                               particleCount={200}
-                               particleSpread={10}
-                               speed={0.1}
-                               particleBaseSize={200}
-                               moveParticlesOnHover={true}
-                               alphaParticles={false}
-                               disableRotation={false}
+                        particleCount={200}
+                        particleSpread={10}
+                        speed={0.1}
+                        particleBaseSize={200}
+                        moveParticlesOnHover={true}
+                        alphaParticles={false}
+                        disableRotation={false}
                     />
                 </div>
 
-                <AnimatedFace/>
+                <AnimatedFace />
 
                 {/* Email Container */}
                 <div className="w-full max-w-[400px] flex flex-col gap-4 relative">
@@ -129,7 +128,7 @@ const ForgotPassword = () => {
                                     type="email"
                                     size="large"
                                     placeholder="Email"
-                                    prefix={<MailOutlined style={{color: '#FFB6C1'}}/>}
+                                    prefix={<MailOutlined style={{ color: '#FFB6C1' }} />}
                                     className="rounded-5xl shadow-md w-screen"
                                     style={{
                                         padding: '12px 20px',

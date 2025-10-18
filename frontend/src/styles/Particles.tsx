@@ -100,19 +100,19 @@ const fragment = /* glsl */ `
 `;
 
 const Particles: React.FC<ParticlesProps> = ({
-                                                 particleCount = 200,
-                                                 particleSpread = 10,
-                                                 speed = 0.1,
-                                                 particleColors,
-                                                 moveParticlesOnHover = false,
-                                                 particleHoverFactor = 1,
-                                                 alphaParticles = false,
-                                                 particleBaseSize = 100,
-                                                 sizeRandomness = 1,
-                                                 cameraDistance = 20,
-                                                 disableRotation = false,
-                                                 className
-                                             }) => {
+    particleCount = 200,
+    particleSpread = 10,
+    speed = 0.1,
+    particleColors,
+    moveParticlesOnHover = false,
+    particleHoverFactor = 1,
+    alphaParticles = false,
+    particleBaseSize = 100,
+    sizeRandomness = 1,
+    cameraDistance = 20,
+    disableRotation = false,
+    className
+}) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const mouseRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
@@ -136,17 +136,6 @@ const Particles: React.FC<ParticlesProps> = ({
         };
         window.addEventListener('resize', resize, false);
         resize();
-
-        const handleMouseMove = (e: MouseEvent) => {
-            const rect = container.getBoundingClientRect();
-            const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-            const y = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
-            mouseRef.current = { x, y };
-        };
-
-        if (moveParticlesOnHover) {
-            container.addEventListener('mousemove', handleMouseMove);
-        }
 
         const count = particleCount;
         const positions = new Float32Array(count * 3);
@@ -222,10 +211,23 @@ const Particles: React.FC<ParticlesProps> = ({
 
         animationFrameId = requestAnimationFrame(update);
 
+        const handleMouseMove = (event: MouseEvent) => {
+            const rect = container.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            mouseRef.current.x = (x / rect.width) * 2 - 1;
+            mouseRef.current.y = -(y / rect.height) * 2 + 1;
+        };
+
+        if (moveParticlesOnHover) {
+            window.addEventListener('mousemove', handleMouseMove); // Attach to `window` instead of `container`
+        }
+
         return () => {
             window.removeEventListener('resize', resize);
             if (moveParticlesOnHover) {
-                container.removeEventListener('mousemove', handleMouseMove);
+                window.removeEventListener('mousemove', handleMouseMove); // Remove from `window`
             }
             cancelAnimationFrame(animationFrameId);
             if (container.contains(gl.canvas)) {

@@ -8,14 +8,14 @@ const AnimatedFace = () => {
 
     useEffect(() => {
         let svgRect: DOMRect | null = null;
-        
+
         // Cache the SVG bounding rect
         const updateSvgRect = () => {
             if (svgRef.current) {
                 svgRect = svgRef.current.getBoundingClientRect();
             }
         };
-        
+
         updateSvgRect();
         window.addEventListener('resize', updateSvgRect);
         window.addEventListener('scroll', updateSvgRect);
@@ -111,7 +111,7 @@ const AnimatedFace = () => {
             style={{ minWidth: '50%' }}
         >
             <ellipse cx="720" cy="-65.5" rx="720" ry="398.5" fill="#F0A2A5" />
-            
+
             {/* Left Eye */}
             <circle cx="512" cy="102" r="75" fill="#FFDEE0" />
             <circle
@@ -121,7 +121,7 @@ const AnimatedFace = () => {
                 r="46.5"
                 fill="#F0A2A5"
             />
-            
+
             {/* Right Eye */}
             <circle cx="916" cy="102" r="75" fill="#FFDEE0" />
             <circle
@@ -131,7 +131,7 @@ const AnimatedFace = () => {
                 r="46.5"
                 fill="#F0A2A5"
             />
-            
+
             {/* Mouth */}
             <path
                 d="M665.501 178.325C665.501 178.325 685.798 217.858 719.001 218.325C752.204 218.791 769.501 178.325 769.501 178.325"
