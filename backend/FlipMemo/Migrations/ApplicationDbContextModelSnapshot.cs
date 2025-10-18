@@ -21,7 +21,7 @@ namespace FlipMemo.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
+            
             modelBuilder.Entity("DictionaryWord", b =>
                 {
                     b.Property<int>("DictionariesId")
@@ -66,13 +66,30 @@ namespace FlipMemo.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(320)
                         .HasColumnType("character varying(320)");
 
                     b.Property<string>("HashedPassword")
+                    b.Property<DateTime?>("LastLogin")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("MustChangePassword")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("PasswordHash")
                         .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<DateTime?>("PasswordResetTokenExpiry")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PasswordResetTokenHash")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
@@ -85,6 +102,11 @@ namespace FlipMemo.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+                                       
+                    b.Property<string>("SecurityStamp")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
 
                     b.HasKey("Id");
 
@@ -246,6 +268,11 @@ namespace FlipMemo.Migrations
                     b.Navigation("User");
 
                     b.Navigation("Word");
+                    
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
+
                 });
 #pragma warning restore 612, 618
         }

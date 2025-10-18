@@ -1,59 +1,42 @@
 ﻿using FlipMemo.Data;
 using FlipMemo.DTOs;
 using FlipMemo.Models;
+using FlipMemo.Interfaces;
+using FlipMemo.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace FlipMemo.Services;
-
-public class UserService(ApplicationDbContext context)
-{
-    public async Task<GetUsersResponse> GetUsersAsync()
+public class UserService(ApplicationDbContext context) : IUserService
+{   
+    public async Task<IEnumerable<UserResponseDto>> GetAllUsersAsync()
     {
         var users = await context.Users
-            .Select(u => new UserDto
+            .Select(u => new UserResponseDto
             {
                 Id = u.Id,
-                Username = u.Username,
-                Email = u.Email
+                Email = u.Email,
             })
             .ToListAsync();
 
-        return new GetUsersResponse { Users = users };
+        return users;
     }
-
-    public async Task<CreateUserResponse> CreateUserAsync(CreateUserRequest request)
-    {
-        var userExists = context.Users.FirstOrDefault(u => u.Email == request.Email || u.Username == request.Username);
-
-        if (userExists != null)
-            throw new Exception("User with that email or username already exists");
-
-        string hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
-
-        var user = new User
-        {
-            Username = request.Username,
-            Email = request.Email,
-            HashedPassword = hashedPassword,
-            Role = "User"
-            //default su svi user zasad nema admina 
-        };
-
-        context.Users.Add(user);
-        await context.SaveChangesAsync();
-
-        return new CreateUserResponse { IsCreated = true };
-    }
-
-    public async Task<LoginUserResponse> LoginUserAsync(LoginUserRequest request)
+    public async Task<UserResponseDto> GetUserByIdAsync(int id)
     {
         var user = await context.Users
-            .FirstOrDefaultAsync(u => u.Username == request.Username)
-            ?? throw new Exception("User with that username doesn't exist");
+            .FindAsync(id)
+            ?? throw new NotFoundException("Account doesn't exist.");
 
-        if (!BCrypt.Net.BCrypt.Verify(request.Password, user.HashedPassword))
-            throw new Exception("Invalid password");
+        return new UserResponseDto { Id = user.Id, Email = user.Email };
+    }
 
-        return new LoginUserResponse { Success = true };
+    public async Task DeleteUserAsync(int id)
+    {
+        var user = await context.Users
+            .FindAsync(id)
+            ?? throw new NotFoundException("Account doesn't exist.");
+
+        context.Users.Remove(user);
+
+        await context.SaveChangesAsync();
     }
 }
