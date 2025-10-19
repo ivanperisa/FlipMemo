@@ -12,4 +12,7 @@ public class User
     public string SecurityStamp { get; set; } = Guid.NewGuid().ToString();
     public string? PasswordResetTokenHash { get; set; }
     public DateTime? PasswordResetTokenExpiry { get; set; }
+    public ICollection<UserWord> UserWords { get; set; } = new List<UserWord>();
+    public ICollection<Voice> Voices { get; set; } = new List<Voice>();
+
 }
