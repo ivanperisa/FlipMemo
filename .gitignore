@@ -102,7 +102,6 @@ postgres-data/
 # ============================
 
 # Docker local data
-docker-compose.override.yml
 docker-compose.local.yml
 .docker/
 *.pid

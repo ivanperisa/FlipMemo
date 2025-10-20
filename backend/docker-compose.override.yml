@@ -1,0 +1,30 @@
+version: '3.9'
+
+services:
+  flipmemo:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+      - Jwt__Key=1e784f1ff284fbc6b8e26e53eac8a6bc479ab6dcfcf3acf5de0e705674d18a47
+      - Jwt__Issuer=FlipMemo
+      - Jwt__Audience=FlipMemoUsers
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=FlipMemo;Username=postgres;Password=admin
+      - Email__Host=mailhog
+      - Email__Port=1025
+      - Email__Username=
+      - Email__Password=
+      - Email__From=no-reply@flipmemo.app
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+    depends_on:
+      - postgres
+      - mailhog
+    networks:
+      - flipmemo-network
