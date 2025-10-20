@@ -22,7 +22,8 @@ public class EmailService(IOptions<EmailSettings> settings) : IEmailService
     {
         using var smtp = new SmtpClient(_settings.Host, _settings.Port)
         {
-            Credentials = new NetworkCredential(_settings.Username, _settings.Password),
+            Credentials = string.IsNullOrEmpty(_settings.Username) 
+                ? null : new NetworkCredential(_settings.Username, _settings.Password),
             EnableSsl = _settings.Port == 587 || _settings.Port == 465
         };
 

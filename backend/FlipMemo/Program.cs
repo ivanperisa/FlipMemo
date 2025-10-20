@@ -24,19 +24,14 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("FlipMemoReact", policy =>
     {
-        policy.WithOrigins("http://localhost:5179", "https://localhost:5179")
+        policy.AllowAnyOrigin()
               .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials();
+              .AllowAnyHeader();
     });
 });
 
-builder.Services.AddControllers(options =>
-{
-    options.Filters.Add<ApiExceptionFilter>();
-});
+builder.Services.AddControllers(options => options.Filters.Add<ApiExceptionFilter>());
 
-//builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -66,7 +61,7 @@ builder.Services.AddSwaggerGen(c =>
                     Id = "Bearer"
                 }
             },
-            new string[] { }
+            Array.Empty<string>()
         }
     });
 });
@@ -136,13 +131,11 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "FlipMemo API v1");
         c.RoutePrefix = "swagger";
     });
-
-    //app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
-
 app.UseCors("FlipMemoReact");
+
+//app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
