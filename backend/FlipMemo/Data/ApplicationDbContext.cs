@@ -58,7 +58,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         modelBuilder.Entity<Word>(entity =>
         {
-            entity.HasKey(w => w.WordId);
+            entity.HasKey(w => w.Id);
 
             entity.Property(w => w.ForeignWord)
                 .HasMaxLength(255);
