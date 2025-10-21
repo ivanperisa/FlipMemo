@@ -19,13 +19,13 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.HasKey(e => e.Id);
 
             entity.Property(e => e.Email)
-                .HasMaxLength(320);
+                .HasMaxLength(200);
 
             entity.Property(e => e.PasswordHash)
                 .HasMaxLength(255);
 
             entity.Property(e => e.Role)
-                .HasMaxLength(50);
+                .HasMaxLength(30);
 
             entity.Property(e => e.SecurityStamp)
                 .HasMaxLength(64);
@@ -33,12 +33,12 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(e => e.PasswordResetTokenHash)
                 .HasMaxLength(255);
         });
-        modelBuilder.Entity<Dictionary>(entity =>
+        modelBuilder.Entity<Dictionary>(entity =>   
         {
             entity.HasKey(d => d.Id);
 
             entity.Property(d => d.Name)
-                .HasMaxLength(255);
+                .HasMaxLength(200);
 
             entity.Property(d => d.Language)
                 .HasMaxLength(50);
@@ -61,10 +61,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.HasKey(w => w.Id);
 
             entity.Property(w => w.ForeignWord)
-                .HasMaxLength(255);
+                .HasMaxLength(100);
 
             entity.Property(w => w.CroatianWord)
-                .HasMaxLength(255);
+                .HasMaxLength(100);
         });
 
         modelBuilder.Entity<UserWord>(entity =>
