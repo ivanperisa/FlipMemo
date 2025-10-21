@@ -4,7 +4,6 @@ import Particles from "../styles/Particles";
 import { Form, Input } from "antd";
 import { MailOutlined } from "@ant-design/icons";
 import axiosInstance from "../api/axiosInstance";
-import axios from "axios";
 import { useNavigate } from "react-router";
 import AnimatedSendButton, { type AnimatedSendButtonRef } from "../components/AnimatedSendbutton.tsx";
 import { useRef, useState, useEffect } from "react";
@@ -25,7 +24,7 @@ const Register = () => {
 
     useEffect(() => {
         if (hideInputs && inputContainerRef.current && labelRef.current) {
-            // Hide input and label
+            
             gsap.to([inputContainerRef.current, labelRef.current], {
                 opacity: 0,
                 duration: 0.4,
@@ -56,7 +55,7 @@ const Register = () => {
 
     useEffect(() => {
         if (errorMessage && errorMessageRef.current) {
-            // Animate error message in
+            
             gsap.fromTo(errorMessageRef.current, 
                 {
                     opacity: 0,
@@ -78,7 +77,7 @@ const Register = () => {
 
         console.log("Registration success:", values);
 
-        // Clear any previous error messages
+        
         setErrorMessage("");
         
         setIsSubmitting(true);
@@ -97,12 +96,12 @@ const Register = () => {
         }).then((response) => {
             console.log("Registration successful:", response.data);
             
-            // Show modal after 1.5s (near end of button animation which is 1.8s)
+            
             setTimeout(() => {
                 setShowModal(true);
             }, 1500);
 
-            // Navigate to login after 6 seconds
+          
             setTimeout(() => {
                 navigate("/login");
             }, 6000);
@@ -110,16 +109,16 @@ const Register = () => {
         }).catch((error: any) => {
             console.error("Registration failed:", error.response?.data || error.message);
             
-            // Reset animations and show error
+           
             setHideInputs(false);
             setIsSubmitting(false);
             
-            // Reset button
+            
             if (buttonRef.current) {
                 buttonRef.current.reset();
             }
             
-            // Show inputs again with animation
+           
             if (inputContainerRef.current && labelRef.current) {
                 gsap.to([inputContainerRef.current, labelRef.current], {
                     opacity: 1,
@@ -128,7 +127,7 @@ const Register = () => {
                 });
             }
             
-            // Set error message
+           
             const errorMsg = error.response?.data?.message || error.response?.data || "Korisnik s ovom email adresom već postoji!";
             setErrorMessage(errorMsg);
         });

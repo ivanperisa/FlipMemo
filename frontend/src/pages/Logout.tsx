@@ -1,10 +1,29 @@
+import axiosInstance from "../api/axiosInstance";
+import { useAuth } from "../context/AuthProvider";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
+
 
 const Logout = () => {
-    return (
-        <div>
-            <h1>Logout</h1>
-        </div>
-    );
+    const { setToken } = useAuth();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const logout = async () => {
+            try {
+                await axiosInstance.post('/api/v1/Account/logout');
+                setToken(null);
+                navigate("/");
+            } catch (error) {
+                console.error("Logout failed:", error);
+            }
+        };
+
+        logout();
+    }, [setToken, navigate]);
+
+    return null;
 };
 
 export default Logout;

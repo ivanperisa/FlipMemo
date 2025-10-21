@@ -1,13 +1,11 @@
 import './styles/styles.css'
-import { BrowserRouter, Route, Routes, useLocation } from "react-router";
+import { BrowserRouter, Route, Routes } from "react-router";
 import { Home, Login, Logout, Missing, Welcome, ForgotPassword, Register, ChangePassword } from './pages/PagesImport.ts'
 import AuthProvider from "./context/AuthProvider.tsx";
 import ProtectedRoutes from "./routes/ProtectedRoutes.tsx";
 import { AnimatePresence } from 'framer-motion';
 
 const AnimatedRoutes = () => {
-    const location = useLocation();
-
     return (
         <div style={{
             position: 'relative',
@@ -16,21 +14,24 @@ const AnimatedRoutes = () => {
             background: 'linear-gradient(180deg, #FFC0CB 0%, #FFE5EC 100%)',
             overflow: 'hidden'
         }}>
-            <AnimatePresence mode="popLayout" initial={false}>
-                <Routes location={location} key={location.pathname}>
-                    {/* Unprotected Routes */}
-                    <Route path="/" element={<Welcome />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/logout" element={<Logout />} />
-                    <Route path="*" element={<Missing />} />
-                    <Route path="/forgotPassword" element={<ForgotPassword />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/changePassword" element={<ChangePassword />} />
-                    {/* Protected Routes */}
-                    <Route element={<ProtectedRoutes />}>
-                        <Route path="/Home" element={<Home />} />
-                    </Route>
-                </Routes>
+            <AnimatePresence>
+            <Routes>
+                {/* zasticene rute */}
+                <Route element={<ProtectedRoutes />}>
+                    <Route path="/home" element={<Home />} />
+                </Route>
+
+                {/* nezasticene rute */}
+                <Route path="/" element={<Welcome />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/logout" element={<Logout />} />
+                <Route path="/forgotPassword" element={<ForgotPassword />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/changePassword/:id" element={<ChangePassword />} />
+                
+                {/* ostale rute*/}
+                <Route path="*" element={<Missing />} />
+            </Routes>
             </AnimatePresence>
         </div>
     );

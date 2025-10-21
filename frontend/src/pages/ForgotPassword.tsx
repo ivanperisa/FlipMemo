@@ -6,6 +6,7 @@ import PageTransition from '../components/PageTransition.tsx';
 import AnimatedSendButton, { type AnimatedSendButtonRef } from "../components/AnimatedSendbutton.tsx";
 import { useRef, useState, useEffect } from "react";
 import { gsap } from "gsap";
+import axiosInstance from "../api/axiosInstance.ts";
 
 const ForgotPassword = () => {
     const [form] = Form.useForm();
@@ -19,7 +20,7 @@ const ForgotPassword = () => {
 
     useEffect(() => {
         if (hideInputs && inputContainerRef.current && labelRef.current) {
-            // Hide input and label
+            
             gsap.to([inputContainerRef.current, labelRef.current], {
                 opacity: 0,
                 duration: 0.4,
@@ -30,14 +31,14 @@ const ForgotPassword = () => {
 
     useEffect(() => {
         if (showModal && modalRef.current) {
-            // Initial state - hidden and scaled down
+            
             gsap.set(modalRef.current, {
                 opacity: 0,
                 scale: 0.8,
                 y: -20
             });
 
-            // Animate in modal
+            
             gsap.to(modalRef.current, {
                 opacity: 1,
                 scale: 1,
@@ -49,23 +50,30 @@ const ForgotPassword = () => {
     }, [showModal]);
 
     const onFinish = (values: { email: string }) => {
-        // Prevent multiple submissions
+        
         if (isSubmitting) return;
 
         console.log("Form validation success:", values);
 
-        // Disable button immediately
+        axiosInstance.post('/api/v1/Account/forgot-password', {
+            email: values.email,
+        }).then((response) => {
+            console.log("Forgot password email sent:", response.data);
+        }).catch((error) => {
+            console.error("Error sending forgot password email:", error);
+        });
+
         setIsSubmitting(true);
 
-        // Immediately hide inputs
+        
         setHideInputs(true);
 
-        // Trigger button animation
+        
         if (buttonRef.current) {
             buttonRef.current.triggerAnimation();
         }
 
-        // Show modal after 1.5s (near end of button animation which is 1.8s)
+        
         setTimeout(() => {
             setShowModal(true);
         }, 1500);

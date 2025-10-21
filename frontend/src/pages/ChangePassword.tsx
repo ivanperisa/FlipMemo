@@ -2,51 +2,40 @@ import AnimatedFace from "../components/AnimatedFace";
 import PageTransition from "../components/PageTransition";
 import Particles from "../styles/Particles";
 import { Form, Input } from "antd";
-import LockOutlined, { CloseCircleOutlined } from '@ant-design/icons';
-import { useRef, useState } from "react";
+import { LockOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import axiosInstance from "../api/axiosInstance";
 
 const ChangePassword = () => {
+    const navigate = useNavigate();
+    const { id } = useParams<{ id: string }>();
     const [form] = Form.useForm();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorMessage, setShowErrorMessage] = useState(false);
-    const timeoutRef = useRef<number | null>(null); //da nestanu errori ankon 4 sek
+    
 
     const onFinish = (values: { current_password: string; new_password: string; confirm_new_password: string }) => {
-        //resetiraj timer i makni error ako postoji
-        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        console.log("Changing password for user id:", id);
+        
+        axiosInstance.put(`/api/v1/Account/${id}/change-password`, {
+            currentPassword: values.current_password,
+            newPassword: values.new_password,
+            confirmNewPassword: values.confirm_new_password,
+        }).then((response) => {
+            console.log("Password changed successfully:", response.data);
+            navigate("/home");
 
-        //prvo provjeri preko backenda je li trenutno upisan password dobar
-        if (values.current_password != 'lozinka') {
-            setErrorMessage('Trenutna lozinka nije točna');
+        }).catch((error) => {
+            console.error("Password change failed:", error.response?.data || error.message);
+            
+            const errorMsg = error.response?.data?.message || error.response?.data || "Greška pri promjeni lozinke!";
+            setErrorMessage(errorMsg);
             setShowErrorMessage(true);
-            setErrorTimeOut();
-            return;
-        }
-        //onda provjeri je li nova lozinka jednaka staroj
-        if (values.current_password == values.new_password) {
-            setErrorMessage('Nova lozinka ne smije biti jednaka trenutnoj');
-            setShowErrorMessage(true);
-            setErrorTimeOut();
-            return;
-        }
-        //onda provjeri jesu li nova i potvrdena nova lozinka iste
-        if (values.new_password != values.confirm_new_password) {
-            setErrorMessage('Nove lozinke se ne podudaraju'); //ovo bi mozda bilo bolje stavit ispod inputa za lozinke
-            setShowErrorMessage(true);
-            setErrorTimeOut();
-            return;
-        }
-
-        //ako je sve u redu makni error message ako ga ima
-        setShowErrorMessage(false);
-        //TODO: Implement login logic here
+        });
     };
 
-    const setErrorTimeOut = () => {
-        timeoutRef.current = window.setTimeout(() => {
-            setShowErrorMessage(false);
-        }, 4000)
-    }
+    
 
     const onFinishFailed = (errorInfo: any) => {
         console.log("Login failed:", errorInfo);
@@ -148,13 +137,13 @@ const ChangePassword = () => {
                         </Form.Item>
 
                         <div className="flex flex-col items-center gap-4 mt-6">
-                            {/* Registriraj se button */}
+                            {/* Change Password button */}
                             <button
                                 type="submit"
                                 className="rounded-full bg-(--color-primary) w-[320px] sm:w-[360px] h-[56px] transition-all hover:opacity-90 hover:shadow-xl text-white shadow-lg
                              font-space text-[18px] tracking-wide hover:cursor-pointer z-1"
                             >
-                                Registriraj se
+                                Promijeni lozinku
                             </button>
                         </div>
 

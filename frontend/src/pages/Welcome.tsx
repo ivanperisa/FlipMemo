@@ -10,15 +10,15 @@ const Welcome = () => {
     const navigate=useNavigate();
 
     function navigateToHome(){
-        navigate("/Home")
+        navigate("/home")
     }
 
 
 
     return (
-        <PageTransition>
+        
         <div className=' w-screen h-screen flex flex-col items-center justify-center'>
-            <img className={"z-1"} src="./Logopng.png" alt="Logo"  />
+            <img className={"z-1"} src="./logopng.png" alt="Logo"  />
 
             <div style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 0 }}>
                 <DotGrid
@@ -37,7 +37,7 @@ const Welcome = () => {
 
             <button onClick={navigateToHome} className={"z-1 rounded-[50px] bg-(--color-primary) w-[200px] h-[52px] transition-all hover:scale-105 hover:cursor-pointer text-white"}>Dobrodošli</button>
         </div>
-        </PageTransition>
+        
 
 
 
