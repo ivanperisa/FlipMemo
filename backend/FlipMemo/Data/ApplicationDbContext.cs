@@ -10,7 +10,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Word> Words { get; set; }
     public DbSet<Voice> Voices { get; set; }
     public DbSet<UserWord> UserWords { get; set; }
-    public DbSet<DictionaryWord> DictionaryWords { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -44,16 +43,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .HasMaxLength(50);
 
             entity.HasMany(d => d.Words)
-                .WithMany(w => w.Dictionaries)
-                .UsingEntity<DictionaryWord>(
-                    j => j.HasOne(dw => dw.Word)
-                        .WithMany()
-                        .HasForeignKey(dw => dw.WordId),
-                    j => j.HasOne(dw => dw.Dictionary)
-                        .WithMany()
-                        .HasForeignKey(dw => dw.DictionaryId),
-                    j => j.HasKey(t => new { t.DictionaryId, t.WordId })
-                );
+                .WithMany(w => w.Dictionaries);
         });
 
         modelBuilder.Entity<Word>(entity =>
@@ -85,6 +75,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         modelBuilder.Entity<Voice>(entity =>
         {
             entity.HasKey(v => v.Id);
+
             entity.HasOne(v => v.User)
                 .WithMany(u => u.Voices)
                 .HasForeignKey(v => v.UserId)

@@ -22,6 +22,21 @@ namespace FlipMemo.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("DictionaryWord", b =>
+                {
+                    b.Property<int>("DictionariesId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("WordsId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("DictionariesId", "WordsId");
+
+                    b.HasIndex("WordsId");
+
+                    b.ToTable("DictionaryWord");
+                });
+
             modelBuilder.Entity("FlipMemo.Models.Dictionary", b =>
                 {
                     b.Property<int>("Id")
@@ -43,21 +58,6 @@ namespace FlipMemo.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Dictionaries");
-                });
-
-            modelBuilder.Entity("FlipMemo.Models.DictionaryWord", b =>
-                {
-                    b.Property<int>("DictionaryId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("WordId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("DictionaryId", "WordId");
-
-                    b.HasIndex("WordId");
-
-                    b.ToTable("DictionaryWords");
                 });
 
             modelBuilder.Entity("FlipMemo.Models.User", b =>
@@ -199,23 +199,19 @@ namespace FlipMemo.Migrations
                     b.ToTable("Words");
                 });
 
-            modelBuilder.Entity("FlipMemo.Models.DictionaryWord", b =>
+            modelBuilder.Entity("DictionaryWord", b =>
                 {
-                    b.HasOne("FlipMemo.Models.Dictionary", "Dictionary")
+                    b.HasOne("FlipMemo.Models.Dictionary", null)
                         .WithMany()
-                        .HasForeignKey("DictionaryId")
+                        .HasForeignKey("DictionariesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("FlipMemo.Models.Word", "Word")
+                    b.HasOne("FlipMemo.Models.Word", null)
                         .WithMany()
-                        .HasForeignKey("WordId")
+                        .HasForeignKey("WordsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Dictionary");
-
-                    b.Navigation("Word");
                 });
 
             modelBuilder.Entity("FlipMemo.Models.UserWord", b =>
