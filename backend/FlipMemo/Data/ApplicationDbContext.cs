@@ -41,6 +41,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
             entity.Property(d => d.Language)
                 .HasMaxLength(50);
+
             entity.HasMany(d => d.Words)
                 .WithMany(w => w.Dictionaries);
         });
@@ -74,6 +75,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         modelBuilder.Entity<Voice>(entity =>
         {
             entity.HasKey(v => v.Id);
+
             entity.HasOne(v => v.User)
                 .WithMany(u => u.Voices)
                 .HasForeignKey(v => v.UserId)
