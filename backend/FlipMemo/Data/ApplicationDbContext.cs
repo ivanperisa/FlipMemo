@@ -42,8 +42,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(d => d.Language)
                 .HasMaxLength(50);
             entity.HasMany(d => d.Words)
-                .WithMany(w => w.Dictionaries)
-                .UsingEntity(j => j.ToTable("DictionaryWords"));
+                .WithMany(w => w.Dictionaries);
         });
 
         modelBuilder.Entity<Word>(entity =>
