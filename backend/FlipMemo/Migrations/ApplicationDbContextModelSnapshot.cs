@@ -34,7 +34,7 @@ namespace FlipMemo.Migrations
 
                     b.HasIndex("WordsId");
 
-                    b.ToTable("DictionaryWords", (string)null);
+                    b.ToTable("DictionaryWord");
                 });
 
             modelBuilder.Entity("FlipMemo.Models.Dictionary", b =>
