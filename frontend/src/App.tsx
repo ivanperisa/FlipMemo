@@ -1,0 +1,56 @@
+import './styles/styles.css'
+import { BrowserRouter, Route, Routes } from "react-router";
+import { Home, Login, Logout, Missing, Welcome, ForgotPassword, Register, ChangePassword } from './pages/PagesImport.ts'
+import AuthProvider from "./context/AuthProvider.tsx";
+import ProtectedRoutes from "./routes/ProtectedRoutes.tsx";
+import { AnimatePresence } from 'framer-motion';
+
+const AnimatedRoutes = () => {
+    return (
+        <div style={{
+            position: 'relative',
+            width: '100%',
+            height: '100vh',
+            background: 'linear-gradient(180deg, #FFC0CB 0%, #FFE5EC 100%)',
+            overflow: 'hidden'
+        }}>
+            <AnimatePresence>
+            <Routes>
+                {/* zasticene rute */}
+                <Route element={<ProtectedRoutes />}>
+                    <Route path="/home" element={<Home />} />
+                </Route>
+
+                {/* nezasticene rute */}
+                <Route path="/" element={<Welcome />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/logout" element={<Logout />} />
+                <Route path="/forgotPassword" element={<ForgotPassword />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/changePassword/:id" element={<ChangePassword />} />
+                
+                {/* ostale rute*/}
+                <Route path="*" element={<Missing />} />
+            </Routes>
+            </AnimatePresence>
+        </div>
+    );
+};
+
+const App: React.FC = () => {
+
+
+    return (
+        <div className={"App"}>
+            <AuthProvider>
+                <BrowserRouter>
+                    <AnimatedRoutes />
+                </BrowserRouter>
+            </AuthProvider>
+        </div>
+
+
+    )
+}
+
+export default App
