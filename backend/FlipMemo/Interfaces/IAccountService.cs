@@ -7,7 +7,7 @@ public interface IAccountService
     Task<UserResponseDto> RegisterAsync(RegisterRequestDto dto);
     Task<LoginResponseDto> LoginAsync(LoginRequestDto dto);
     Task ChangePasswordAsync(int id, ChangePasswordRequestDto dto);
-    Task ForgotPasswordAsync(ForgotPasswordRequestDto dto);
-    Task ResetPasswordAsync(ResetPasswordRequestDto dto);
+    Task ForgotPasswordAsync(ForgotPasswordRequestDto dto, string resetUrl, string resetToken);
+    Task ResetPasswordAsync(ResetPasswordQueryDto queryDto, ResetPasswordBodyDto bodyDto);
     Task LogoutAsync(int id);
 }

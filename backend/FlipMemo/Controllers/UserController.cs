@@ -51,4 +51,32 @@ public class UserController(IUserService userService) : ControllerBase
         await userService.DeleteUserAsync(id);
         return Ok(new { message = "User deleted successfully." });
     }
+
+    [HttpPut("{id}/promote")]
+    [Authorize(Policy = "AdminOnly")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> Promote(int id)
+    {
+        await userService.ChangeRole(id, "Promote");
+
+        return Ok(new { message = "User promoted successfully." });
+           
+    }
+
+    [HttpPut("{id}/demote")]
+    [Authorize(Policy = "AdminOnly")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+
+    public async Task<IActionResult> Demote(int id)
+    {
+        await userService.ChangeRole(id, "Demote");
+
+        return Ok(new { message = "User demoted successfully." });
+    }
 }
