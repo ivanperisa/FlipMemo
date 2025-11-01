@@ -1,7 +1,9 @@
 ﻿using FlipMemo.DTOs;
 using FlipMemo.Interfaces;
+using FlipMemo.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using System.Security.Claims;
 using System.Security.Cryptography;
 
@@ -48,7 +50,7 @@ public class AuthController(IAuthService authService) : ControllerBase
         var userIdClaim = User.FindFirst("userId")?.Value;
 
         if (!int.TryParse(userIdClaim, out var userId))
-            return Unauthorized();
+            throw new UnauthorizedAccessException("Authentication required.");
 
         await authService.LogoutAsync(userId);
 
@@ -69,8 +71,7 @@ public class AuthController(IAuthService authService) : ControllerBase
         var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
         if (userRole == "User" && currentUserId != id)
-            return StatusCode(StatusCodes.Status403Forbidden,
-                new { message = "You can only change your own password." });
+            throw new ForbiddenException("You can only change your own password.");
 
         await authService.ChangePasswordAsync(id, dto);
 
@@ -85,11 +86,12 @@ public class AuthController(IAuthService authService) : ControllerBase
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequestDto dto)
     {
         var bytes = new byte[32];
-        using var rng = RandomNumberGenerator.Create();
-        rng.GetBytes(bytes);
-        string resetToken = Convert.ToBase64String(bytes).Replace("+", "-").Replace("/", "_").Replace("=", "");
-        var resetUrl = Url.Action("ResetPassword", "Account", new {dto.Email, Token = resetToken}, "http");
-        await accountService.ForgotPasswordAsync(dto, resetUrl!, resetToken);
+        RandomNumberGenerator.Fill(bytes);
+
+        string resetToken = WebEncoders.Base64UrlEncode(bytes);
+        var resetUrl = Url.Action("ResetPassword", "Auth", new {dto.Email, Token = resetToken}, "http");
+
+        await authService.ForgotPasswordAsync(dto, resetUrl!, resetToken);
 
         return Ok(new { message = "If the email exists, a password reset token has been sent." });
     }
@@ -103,7 +105,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ResetPassword([FromQuery] ResetPasswordQueryDto queryDto, [FromBody] ResetPasswordBodyDto bodyDto)
     {
-        await accountService.ResetPasswordAsync(queryDto, bodyDto);
+        await authService.ResetPasswordAsync(queryDto, bodyDto);
 
         return Ok(new { message = "Password reset successfully." });
     }

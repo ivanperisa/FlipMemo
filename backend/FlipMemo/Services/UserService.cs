@@ -39,6 +39,7 @@ public class UserService(ApplicationDbContext context) : IUserService
 
         await context.SaveChangesAsync();
     }
+
     public async Task ChangeRole(int id, string operation)
     {
         var user = await context.Users.
@@ -49,14 +50,12 @@ public class UserService(ApplicationDbContext context) : IUserService
         {
             case "Promote":
                 if (user.Role == Roles.Admin) 
-                    throw new InvalidOperationException("This user is already an admin.");
-
+                    throw new ConflictException("This user is already an admin.");
                 user.Role = Roles.Admin;
                 break;
             case "Demote":
                 if (user.Role == Roles.User) 
-                    throw new InvalidOperationException("You can only demote admins");
-
+                    throw new ConflictException("You can only demote admins.");
                 user.Role = Roles.User;
                 break;
         }
