@@ -32,7 +32,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(e => e.PasswordResetTokenHash)
                 .HasMaxLength(255);
         });
-        modelBuilder.Entity<Dictionary>(entity =>   
+
+        modelBuilder.Entity<Dictionary>(entity =>
         {
             entity.HasKey(d => d.Id);
 

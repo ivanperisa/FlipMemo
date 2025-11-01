@@ -91,7 +91,7 @@ const Register = () => {
         }
 
         
-        axiosInstance.post("/api/v1/Account/register", {
+        axiosInstance.post("/api/v1/Auth/register", {
             email: values.email
         }).then((response) => {
             console.log("Registration successful:", response.data);

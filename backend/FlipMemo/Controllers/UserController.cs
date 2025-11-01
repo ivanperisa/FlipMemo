@@ -1,4 +1,5 @@
 ﻿using FlipMemo.Interfaces;
+using FlipMemo.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -45,8 +46,7 @@ public class UserController(IUserService userService) : ControllerBase
         var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
         if (userRole == "User" && currentUserId != id)
-            return StatusCode(StatusCodes.Status403Forbidden,
-                new { message = "You can only delete your own account." });
+            throw new ForbiddenException("You can only delete your own account.");
 
         await userService.DeleteUserAsync(id);
         return Ok(new { message = "User deleted successfully." });

@@ -13,10 +13,11 @@ public class ApiExceptionFilter : IExceptionFilter
         context.Result = context.Exception switch
         {
             ValidationException => new BadRequestObjectResult(response),
-            UnauthorizedAccessException => new UnauthorizedObjectResult(response),
-            NotFoundException => new NotFoundObjectResult(response),
-            ConflictException => new ObjectResult(response) { StatusCode = (int)HttpStatusCode.Conflict },
             InvalidOperationException => new BadRequestObjectResult(response),
+            UnauthorizedAccessException => new UnauthorizedObjectResult(response) { StatusCode = (int)HttpStatusCode.Unauthorized },
+            ForbiddenException => new ObjectResult(response) { StatusCode = (int)HttpStatusCode.Forbidden},
+            NotFoundException => new NotFoundObjectResult(response) { StatusCode = (int)HttpStatusCode.NotFound },
+            ConflictException => new ObjectResult(response) { StatusCode = (int)HttpStatusCode.Conflict },
             _ => new ObjectResult(response) { StatusCode = (int)HttpStatusCode.InternalServerError }
         };
 

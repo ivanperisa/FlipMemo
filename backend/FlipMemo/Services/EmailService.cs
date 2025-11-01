@@ -5,29 +5,24 @@ using Microsoft.Extensions.Options;
 
 namespace FlipMemo.Services;
 
-public class EmailSettings
+public class EmailService(IConfiguration config) : IEmailService
 {
-    public string Host { get; set; }
-    public int Port { get; set; }
-    public string Username { get; set; }
-    public string Password { get; set; }
-    public string From { get; set; }
-}
-
-public class EmailService(IOptions<EmailSettings> settings) : IEmailService
-{
-    private readonly EmailSettings _settings = settings.Value;
-
     public async Task SendAsync(string to, string subject, string body)
     {
-        using var smtp = new SmtpClient(_settings.Host, _settings.Port)
+        var host = config["Email:Host"];
+        var port = int.Parse(config["Email:Port"] ?? "587");
+        var username = config["Email:Username"];
+        var password = config["Email:Password"];
+        var from = config["Email:From"];
+
+        using var smtp = new SmtpClient(host, port)
         {
-            Credentials = string.IsNullOrEmpty(_settings.Username) 
-                ? null : new NetworkCredential(_settings.Username, _settings.Password),
-            EnableSsl = _settings.Port == 587 || _settings.Port == 465
+            Credentials = string.IsNullOrEmpty(username) 
+                ? null : new NetworkCredential(username, password),
+            EnableSsl = port == 587 || port == 465
         };
 
-        var mail = new MailMessage(_settings.From, to, subject, body);
+        var mail = new MailMessage(from!, to, subject, body);
         await smtp.SendMailAsync(mail);
     }
 }

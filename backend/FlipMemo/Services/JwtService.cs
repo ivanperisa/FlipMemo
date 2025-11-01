@@ -3,14 +3,15 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using FlipMemo.Models;
+using FlipMemo.Interfaces;
 
 namespace FlipMemo.Services;
 
-public class JwtService(IConfiguration config)
+public class JwtService(IConfiguration config) : IJwtService
 {
     public string GenerateToken(User user)
     {
-        var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(config["Jwt:Key"]));
+        var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(config["Jwt:Key"]!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new[]

@@ -2,7 +2,7 @@
 
 namespace FlipMemo.Interfaces;
 
-public interface IAccountService
+public interface IAuthService
 {
     Task<UserResponseDto> RegisterAsync(RegisterRequestDto dto);
     Task<LoginResponseDto> LoginAsync(LoginRequestDto dto);
