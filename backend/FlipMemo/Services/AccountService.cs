@@ -4,7 +4,6 @@ using FlipMemo.Interfaces;
 using FlipMemo.Models;
 using FlipMemo.Utils;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
 using static BCrypt.Net.BCrypt;
 
 namespace FlipMemo.Services;
@@ -109,15 +108,13 @@ public class AccountService(ApplicationDbContext context, IEmailService emailSer
         await context.SaveChangesAsync();
     }
 
-    public async Task ForgotPasswordAsync(ForgotPasswordRequestDto dto)
+    public async Task ForgotPasswordAsync(ForgotPasswordRequestDto dto, string resetUrl, string resetToken)
     {
         var user = await context.Users
             .SingleOrDefaultAsync(u => u.Email == dto.Email);
 
         if (user == null)
             return;
-
-        var resetToken = GenerateSecureToken();
 
         user.PasswordResetTokenHash = HashPassword(resetToken);
         user.PasswordResetTokenExpiry = DateTime.UtcNow.AddMinutes(15);
@@ -126,17 +123,17 @@ public class AccountService(ApplicationDbContext context, IEmailService emailSer
 
         var subject = "FlipMemo - Password Reset Request";
         var body = $"You have requested to reset your password for FlipMemo.\n\n" +
-                   $"Your password reset token is: {resetToken}\n\n" +
-                   $"This token will expire in 15 minutes.\n" +
+                   $"To continue please click this : {resetUrl}\n\n" +
+                   $"This link won't work in 15 minutes.\n" +
                    $"If you did not request this, please ignore this email.";
 
         await emailService.SendAsync(user.Email, subject, body);
     }
 
-    public async Task ResetPasswordAsync(ResetPasswordRequestDto dto)
+    public async Task ResetPasswordAsync(ResetPasswordQueryDto queryDto, ResetPasswordBodyDto bodyDto)
     {
         var user = await context.Users
-            .SingleOrDefaultAsync(u => u.Email == dto.Email)
+            .SingleOrDefaultAsync(u => u.Email == queryDto.Email)
             ?? throw new NotFoundException("Account doesn't exist");
 
         if (user.PasswordResetTokenHash == null || user.PasswordResetTokenExpiry == null)
@@ -145,16 +142,16 @@ public class AccountService(ApplicationDbContext context, IEmailService emailSer
         if (user.PasswordResetTokenExpiry < DateTime.UtcNow)
             throw new ValidationException("Password reset token has expired.");
 
-        if (!Verify(dto.Token, user.PasswordResetTokenHash))
+        if (!Verify(queryDto.Token, user.PasswordResetTokenHash))
             throw new ValidationException("Invalid reset token");
 
-        if (dto.NewPassword != dto.ConfirmNewPassword)
+        if (bodyDto.NewPassword != bodyDto.ConfirmNewPassword)
             throw new ValidationException("New password and confirmation password do not match.");
 
-        if (Verify(dto.NewPassword, user.PasswordHash))
+        if (Verify(bodyDto.NewPassword, user.PasswordHash))
             throw new ValidationException("New password must be different from current password.");
 
-        user.PasswordHash = HashPassword(dto.NewPassword);
+        user.PasswordHash = HashPassword(bodyDto.NewPassword);
         user.PasswordResetTokenHash = null;
         user.PasswordResetTokenExpiry = null;
         user.MustChangePassword = false;
@@ -163,11 +160,4 @@ public class AccountService(ApplicationDbContext context, IEmailService emailSer
         await context.SaveChangesAsync();
     }
 
-    private static string GenerateSecureToken()
-    {
-        var bytes = new byte[32];
-        using var rng = RandomNumberGenerator.Create();
-        rng.GetBytes(bytes);
-        return Convert.ToBase64String(bytes).Replace("+", "-").Replace("/", "_").Replace("=", "");
-    }
 }
