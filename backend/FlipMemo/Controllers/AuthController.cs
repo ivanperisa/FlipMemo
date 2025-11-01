@@ -8,7 +8,7 @@ namespace FlipMemo.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
-public class AccountController(IAccountService accountService) : ControllerBase
+public class AuthController(IAuthService authService) : ControllerBase
 {
     [HttpPost("register")]
     [AllowAnonymous]
@@ -17,7 +17,7 @@ public class AccountController(IAccountService accountService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Register([FromBody] RegisterRequestDto dto)
     {
-        var user = await accountService.RegisterAsync(dto);
+        var user = await authService.RegisterAsync(dto);
 
         return CreatedAtAction(nameof(Register), 
             new { message = "User registered successfully. Check your email for login credentials." });
@@ -31,7 +31,7 @@ public class AccountController(IAccountService accountService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
     {
-        var user = await accountService.LoginAsync(dto);
+        var user = await authService.LoginAsync(dto);
 
         return Ok(user);
     }
@@ -49,7 +49,7 @@ public class AccountController(IAccountService accountService) : ControllerBase
         if (!int.TryParse(userIdClaim, out var userId))
             return Unauthorized();
 
-        await accountService.LogoutAsync(userId);
+        await authService.LogoutAsync(userId);
 
         return Ok(new { message = "Logged out successfully." });
     }
@@ -71,7 +71,7 @@ public class AccountController(IAccountService accountService) : ControllerBase
             return StatusCode(StatusCodes.Status403Forbidden,
                 new { message = "You can only change your own password." });
 
-        await accountService.ChangePasswordAsync(id, dto);
+        await authService.ChangePasswordAsync(id, dto);
 
         return Ok(new { message = "Password changed successfully." });
     }
@@ -83,7 +83,7 @@ public class AccountController(IAccountService accountService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequestDto dto)
     {
-        await accountService.ForgotPasswordAsync(dto);
+        await authService.ForgotPasswordAsync(dto);
 
         return Ok(new { message = "If the email exists, a password reset token has been sent." });
     }
@@ -97,7 +97,7 @@ public class AccountController(IAccountService accountService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequestDto dto)
     {
-        await accountService.ResetPasswordAsync(dto);
+        await authService.ResetPasswordAsync(dto);
 
         return Ok(new { message = "Password reset successfully." });
     }

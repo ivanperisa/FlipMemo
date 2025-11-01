@@ -9,7 +9,7 @@ using static BCrypt.Net.BCrypt;
 
 namespace FlipMemo.Services;
 
-public class AccountService(ApplicationDbContext context, IEmailService emailService, JwtService jwtService) : IAccountService
+public class AuthService(ApplicationDbContext context, IEmailService emailService, IJwtService jwtService) : IAuthService
 {
     public async Task<UserResponseDto> RegisterAsync(RegisterRequestDto dto)
     {
@@ -103,6 +103,7 @@ public class AccountService(ApplicationDbContext context, IEmailService emailSer
             throw new ValidationException("New password must be different from current password.");
 
         user.PasswordHash = HashPassword(dto.NewPassword);
+        user.LastLogin = DateTime.UtcNow;
         user.MustChangePassword = false;
         user.SecurityStamp = Guid.NewGuid().ToString();
 

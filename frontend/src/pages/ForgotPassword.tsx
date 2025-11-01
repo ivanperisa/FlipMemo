@@ -55,7 +55,7 @@ const ForgotPassword = () => {
 
         console.log("Form validation success:", values);
 
-        axiosInstance.post('/api/v1/Account/forgot-password', {
+        axiosInstance.post('/api/v1/Auth/forgot-password', {
             email: values.email,
         }).then((response) => {
             console.log("Forgot password email sent:", response.data);

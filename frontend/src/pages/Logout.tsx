@@ -12,7 +12,7 @@ const Logout = () => {
     useEffect(() => {
         const logout = async () => {
             try {
-                await axiosInstance.post('/api/v1/Account/logout');
+                await axiosInstance.post('/api/v1/Auth/logout');
                 setToken(null);
                 navigate("/");
             } catch (error) {

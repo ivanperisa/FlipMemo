@@ -47,7 +47,7 @@ const Login = () => {
         
         setErrorMessage("");
         
-        axiosInstance.post('/api/v1/Account/login', {
+        axiosInstance.post('/api/v1/Auth/login', {
             email: values.email,
             password: values.password,
         }).then((response) => {

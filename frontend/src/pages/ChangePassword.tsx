@@ -18,7 +18,7 @@ const ChangePassword = () => {
     const onFinish = (values: { current_password: string; new_password: string; confirm_new_password: string }) => {
         console.log("Changing password for user id:", id);
         
-        axiosInstance.put(`/api/v1/Account/${id}/change-password`, {
+        axiosInstance.put(`/api/v1/Auth/${id}/change-password`, {
             currentPassword: values.current_password,
             newPassword: values.new_password,
             confirmNewPassword: values.confirm_new_password,
