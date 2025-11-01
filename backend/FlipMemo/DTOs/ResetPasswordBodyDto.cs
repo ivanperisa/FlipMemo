@@ -1,9 +1,7 @@
 ﻿namespace FlipMemo.DTOs;
 
-public class ResetPasswordRequestDto
+public class ResetPasswordBodyDto
 {
-    public string Email { get; set; }
-    public string Token { get; set; }
     public string NewPassword { get; set; }
     public string ConfirmNewPassword { get; set; }
 }

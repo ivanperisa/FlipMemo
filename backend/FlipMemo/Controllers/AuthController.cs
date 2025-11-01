@@ -3,6 +3,7 @@ using FlipMemo.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.Security.Cryptography;
 
 namespace FlipMemo.Controllers;
 
@@ -83,7 +84,12 @@ public class AuthController(IAuthService authService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequestDto dto)
     {
-        await authService.ForgotPasswordAsync(dto);
+        var bytes = new byte[32];
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(bytes);
+        string resetToken = Convert.ToBase64String(bytes).Replace("+", "-").Replace("/", "_").Replace("=", "");
+        var resetUrl = Url.Action("ResetPassword", "Account", new {dto.Email, Token = resetToken}, "http");
+        await accountService.ForgotPasswordAsync(dto, resetUrl!, resetToken);
 
         return Ok(new { message = "If the email exists, a password reset token has been sent." });
     }
@@ -95,9 +101,9 @@ public class AuthController(IAuthService authService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequestDto dto)
+    public async Task<IActionResult> ResetPassword([FromQuery] ResetPasswordQueryDto queryDto, [FromBody] ResetPasswordBodyDto bodyDto)
     {
-        await authService.ResetPasswordAsync(dto);
+        await accountService.ResetPasswordAsync(queryDto, bodyDto);
 
         return Ok(new { message = "Password reset successfully." });
     }
