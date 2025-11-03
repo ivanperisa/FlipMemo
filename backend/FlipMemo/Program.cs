@@ -89,6 +89,24 @@ builder.Services.AddAuthentication(options =>
 
     options.Events = new JwtBearerEvents
     {
+
+        OnMessageReceived = context =>
+        {
+            var cookie = context.Request.Cookies["accessToken"];
+            if (!string.IsNullOrEmpty(cookie))
+            {
+                context.Token = cookie;
+            }
+            else
+            {
+                var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+                if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
+                {
+                    context.Token = authHeader.Substring("Bearer ".Length).Trim();
+                }
+            }
+            return Task.CompletedTask;
+        },
         OnTokenValidated = async context =>
         {
             var db = context.HttpContext.RequestServices.GetRequiredService<ApplicationDbContext>();
