@@ -1,5 +1,7 @@
-﻿using FlipMemo.DTOs;
+﻿using FlipMemo.Data;
+using FlipMemo.DTOs;
 using FlipMemo.Interfaces;
+using FlipMemo.Services;
 using FlipMemo.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,8 +13,12 @@ namespace FlipMemo.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
-public class AuthController(IAuthService authService) : ControllerBase
+public class AuthController(IAuthService authService, IJwtService jwtService, ApplicationDbContext dbContext) : ControllerBase
 {
+    private readonly IAuthService _authService = authService;
+    private readonly IJwtService _jwtService = jwtService;
+    private readonly ApplicationDbContext _dbContext = dbContext;
+
     [HttpPost("register")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -34,9 +40,40 @@ public class AuthController(IAuthService authService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
     {
-        var user = await authService.LoginAsync(dto);
+        var userDto = await authService.LoginAsync(dto);
+        if (userDto == null)
+            return Unauthorized(new { message = "Invalid credentials." });
 
-        return Ok(user);
+        var user = await _dbContext.Users.FindAsync(userDto.Id);
+        if (user == null)
+            return Unauthorized();
+
+        var jwtToken = _jwtService.GenerateToken(user);
+
+        var isDevelopment = HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment();
+
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = !isDevelopment,
+            SameSite = SameSiteMode.Lax,
+            Expires = DateTime.UtcNow.AddMinutes(15),
+            Path = "/",
+            IsEssential = true
+        };
+
+        Response.Cookies.Append("accessToken", jwtToken, cookieOptions);
+
+        return Ok(new
+        {
+            message = "Login successful",
+            user = new
+            {
+                userDto.Id,
+                userDto.Email,
+                userDto.MustChangePassword
+            }
+        });
     }
 
     [HttpPost("logout")]
@@ -53,6 +90,16 @@ public class AuthController(IAuthService authService) : ControllerBase
             throw new UnauthorizedAccessException("Authentication required.");
 
         await authService.LogoutAsync(userId);
+
+        var isDevelopment = HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment();
+
+        Response.Cookies.Delete("accessToken", new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = !isDevelopment,
+            SameSite = SameSiteMode.Lax,
+            Path = "/"
+        });
 
         return Ok(new { message = "Logged out successfully." });
     }
