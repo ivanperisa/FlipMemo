@@ -2,7 +2,9 @@ import { useAuth } from "../context/AuthProvider";
 import { useNavigate } from "react-router";
 import PageTransition from "../components/PageTransition";
 import Particles from "../styles/Particles";
-import { BookOutlined, UserOutlined, LogoutOutlined, CheckCircleOutlined } from "@ant-design/icons";
+import { BookOutlined, UserOutlined, LogoutOutlined, CheckCircleOutlined, LockOutlined, DownOutlined } from "@ant-design/icons";
+import { Dropdown } from "antd";
+import type { MenuProps } from "antd";
 
 const Home = () => {
     const { logout, isAuthenticated } = useAuth();
@@ -12,6 +14,29 @@ const Home = () => {
         logout();
         navigate("/login");
     };
+
+    const handleChangePassword = () => {
+        navigate("/changePassword");
+    };
+
+    const menuItems: MenuProps['items'] = [
+        {
+            key: 'changePassword',
+            label: 'Promijeni lozinku',
+            icon: <LockOutlined />,
+            onClick: handleChangePassword,
+        },
+        {
+            type: 'divider',
+        },
+        {
+            key: 'logout',
+            label: 'Odjava',
+            icon: <LogoutOutlined />,
+            onClick: handleLogout,
+            danger: true,
+        },
+    ];
 
     return (
         <PageTransition>
@@ -34,36 +59,26 @@ const Home = () => {
                     <h1 className="font-space text-4xl font-bold text-[#8B6B7A]">
                         FlipMemo
                     </h1>
-                    <button
-                        onClick={handleLogout}
-                        className="flex items-center gap-2 px-6 py-3 bg-white/90 rounded-full shadow-lg hover:shadow-xl transition-all hover:opacity-80 font-space text-[#8B6B7A]"
-                    >
-                        <LogoutOutlined />
-                        Odjava
-                    </button>
+                    <Dropdown menu={{ items: menuItems }} trigger={['click']} placement="bottomRight">
+                        <button className="flex items-center gap-2 px-6 py-3 bg-white/90 rounded-full shadow-lg hover:shadow-xl transition-all hover:opacity-80 font-space text-[#8B6B7A] cursor-pointer">
+                            <UserOutlined />
+                            Profil
+                            <DownOutlined style={{ fontSize: '12px' }} />
+                        </button>
+                    </Dropdown>
                 </div>
 
-                {/* Welcome Section */}
-                <div className="w-full max-w-[1200px] bg-white/90 rounded-3xl shadow-2xl p-8 mb-8 z-10">
-                    <div className="flex items-center gap-4 mb-6">
-                        <div className="w-16 h-16 rounded-full bg-(--color-primary) flex items-center justify-center">
-                            <UserOutlined style={{ fontSize: '32px', color: 'white' }} />
-                        </div>
-                        <div>
-                            <h2 className="font-space text-2xl font-bold text-[#8B6B7A]">
-                                Dobrodošli!
-                            </h2>
-                            <p className="font-space text-sm text-[#8B6B7A]/70">
-                                Uspješno ste se prijavili u FlipMemo aplikaciju
-                            </p>
-                        </div>
-                    </div>
-                    
-                    <div className="border-t-2 border-[#FFB6C1]/30 pt-6">
-                        <p className="font-space text-[#8B6B7A] mb-4">
-                            Ovo je privremena početna stranica. Ovdje će se nalaziti vaše flashcard kartice za učenje.
-                        </p>
-                    </div>
+                {/* Start Learning Section */}
+                <div className="w-full max-w-[1200px] bg-white/90 rounded-3xl shadow-2xl p-12 mb-8 z-10 text-center">
+                    <h2 className="font-space text-3xl font-bold text-[#8B6B7A] mb-4">
+                        Dobrodošli u FlipMemo! 🎓
+                    </h2>
+                    <p className="font-space text-lg text-[#8B6B7A]/70 mb-8">
+                        Započnite svoje putovanje učenja s flashcard karticama
+                    </p>
+                    <button onClick={() => navigate('/chooseStyle')} className="cursor-pointer px-12 py-4 bg-gradient-to-r from-[#FFB6C1] to-[#DDA0DD] text-white font-space text-lg font-bold rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-105 active:scale-95">
+                        Započnite Učenje 🚀
+                    </button>
                 </div>
 
                 {/* Features Grid */}
