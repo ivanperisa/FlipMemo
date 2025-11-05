@@ -11,13 +11,13 @@ import { useLearning } from "../context/LearningContext";
 const Home = () => {
 
     //VARIJABLE
-    const [selectedMode, setSelectedMode] = useState<string | null>(null);
+    const [currentWordSet, setCurrentWordSet] = useState<string | null>(null);
 
 
     //KONTEKSTI
     const { logout } = useAuth();
     const navigate = useNavigate();
-    const { setCurrentMode } = useLearning();
+    const { setSelectedWordSet } = useLearning();
 
     //FUNKCIJE
     const handleLogout = () => {
@@ -50,11 +50,10 @@ const Home = () => {
         },
     ];
 
-    const learningModes = [
-    { id: 'translate-from', label: 'prevedi sa stranog jezika', icon: '🌍' },
-    { id: 'translate-to', label: 'prevedi na strani jezik', icon: '📖' },
-    { id: 'listening', label: 'slušanje', icon: '🎧' },
-    { id: 'speaking', label: 'govor', icon: '🎤' },
+    const WordSets = [
+    { id: 'set1', name: 'Osnovni riječi', words: ['riječ1', 'riječ2', 'riječ3'] },
+    { id: 'set2', name: 'Napredni riječi', words: ['riječ4', 'riječ5', 'riječ6'] },
+    { id: 'set3', name: 'Stručni riječi', words: ['riječ7', 'riječ8', 'riječ9'] },
 ];
 
     return (
@@ -90,32 +89,31 @@ const Home = () => {
                 {/* Main Content */}
                 {/* PITANJE */}
                 <div className="flex w-full items-start justify-start mb-8">
-                <div className="bg-(--color-primary) z-10 rounded-r-full py-6 px-16 text-white font-space text-2xl font-semibold">Odaberite način učenja:</div>
+                <div className="bg-(--color-primary) z-10 rounded-r-full py-6 px-16 text-white font-space text-2xl font-semibold">Odaberite rječnik:</div>
               </div>
 
     {/* OPCIJE I GUMB */}
     <div className="w-full max-w-[600px] rounded-3xl  p-8 z-10 mx-5">
                         <div className="space-y-4">
-                {learningModes.map(mode => (
+                {WordSets.map(set => (
                     <button
-                    key={mode.id}
-                    onClick={() => {setSelectedMode(mode.id);
-                               
-                    }}
+                    key={set.id}
+                    onClick={() => setCurrentWordSet(set.id)}
+                    type="button"
         className={`
             w-full flex items-center gap-4 px-6 py-4 
             bg-white rounded-full shadow-md
-            transition-all
-            ${selectedMode === mode.id 
+            transition-all cursor-pointer
+            ${currentWordSet === set.id 
                 ? 'ring-4 ring-pink-300 bg-pink-50' 
-                : 'hover:shadow-lg hover:scale-102'
+                : 'hover:shadow-lg hover:scale-105'
             }
         `}
     >
         {/* Pink circle indicator */}
         <div className={`
             w-6 h-6 rounded-full border-2 
-            ${selectedMode === mode.id 
+            ${currentWordSet === set.id 
                 ? 'bg-pink-400 border-pink-400' 
                 : 'bg-white border-gray-300'
             }
@@ -123,7 +121,7 @@ const Home = () => {
         
         {/* Label */}
         <span className="font-space text-[#8B6B7A]">
-            {mode.label}
+            {set.name}
         </span>
     </button>
                 ))}
@@ -131,8 +129,21 @@ const Home = () => {
             
             {/* Gumb za nastavak */}
             <button 
-                disabled={!selectedMode}
-                onClick={() => navigate('/ChooseWordSet')}
+                disabled={!currentWordSet}
+                onClick={() => {
+                    if (!currentWordSet) return;
+                    
+                    const selected = WordSets.find(s => s.id === currentWordSet);
+                    if (selected) {
+                        setSelectedWordSet({
+                            id: selected.id,
+                            name: selected.name,
+                            words: [] // TODO: dodati prave Word objekte
+                        });
+                    }
+                    
+                    navigate('/learningSession');
+                }}
                 className="mt-8 w-full py-4 bg-(--color-primary) text-white font-space rounded-full disabled:opacity-30"
             >
                 Dalje
