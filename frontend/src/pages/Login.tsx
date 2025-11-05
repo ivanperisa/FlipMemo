@@ -3,6 +3,7 @@ import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate, Link } from "react-router";
 import { useState, useRef, useEffect } from "react";
 import { gsap } from "gsap";
+import { GoogleLogin } from '@react-oauth/google';
 
 import AnimatedFace from '../components/AnimatedFace.tsx';
 import Particles from "../styles/Particles.tsx";
@@ -10,6 +11,7 @@ import PageTransition from '../components/PageTransition.tsx';
 
 import axiosInstance from '../api/axiosInstance.ts';
 import { useAuth } from '../context/AuthProvider.tsx';
+
 
 
 const Login = () => {
@@ -41,12 +43,34 @@ const Login = () => {
         navigate("/register");
     }
 
+    const handleGoogleLogin = async (googleToken: string | undefined) => {
+  
+        try {
+   
+            setErrorMessage("");
+            console.log("Google login successful:", googleToken);
+            const response = await axiosInstance.post('/api/v1/Auth/google-login', {
+                googleToken: googleToken 
+            });
+
+            console.log("Google login successful2:", response.data);
+            setToken(response.data.token, true); 
+            navigate("/home");
+ 
+        } catch (error: any) {
+            console.error("Google login failed:", error.response?.data || error.message);
+            const errorMsg = error.response?.data?.message || 
+                     error.response?.data || 
+                     "Google login nije uspio!";
+                     setErrorMessage(errorMsg);
+                    }
+                };
+
     const onFinish = (values: { email: string; password: string; rememberMe?: boolean }) => {
+
         console.log("Login success:", values);
-        
-        
         setErrorMessage("");
-        
+
         axiosInstance.post('/api/v1/Auth/login', {
             email: values.email,
             password: values.password,
@@ -57,10 +81,10 @@ const Login = () => {
             setToken(response.data.token, values.rememberMe || false);
 
             if (response.data.mustChangePassword) {
-                // First login - redirect to change password
+                
                 navigate("/changePassword/" + response.data.id);
             } else {
-                // Normal login - redirect to home
+                
                 navigate("/home");
             }
         }).catch((error) => {
@@ -160,6 +184,16 @@ const Login = () => {
                             />
                         </Form.Item>
 
+                        <GoogleLogin onSuccess={(credentialResponse) => {
+                            console.log(credentialResponse);
+                            handleGoogleLogin(credentialResponse.credential);
+                        }}
+                            onError={() => {
+                                console.log('Login Failed');
+                                setErrorMessage("Google login nije uspio!");
+                        }}/>
+                        
+                        <br/>
                         <Link to="/forgotPassword" className={"font-space relative"} style={{ color: '#8B6B7A', zIndex: 100 }}>Zaboravili ste lozinku?</Link>
 
                         {/* Remember Me Checkbox */}
