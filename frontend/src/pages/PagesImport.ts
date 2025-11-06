@@ -6,3 +6,5 @@ export { default as Missing } from "./Missing";
 export { default as Welcome } from "./Welcome.tsx";
 export { default as ForgotPassword } from "./ForgotPassword.tsx";
 export { default as ChangePassword } from "./ChangePassword.tsx";
+export { default as ChooseStyle } from "./ChooseStyle.tsx";
+export { default as ChooseWordSet } from "./ChooseWordSet.tsx";
