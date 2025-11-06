@@ -4,6 +4,7 @@ import { Home, Login, Logout, Missing, Welcome, ForgotPassword, Register, Change
 import AuthProvider from "./context/AuthProvider.tsx";
 import ProtectedRoutes from "./routes/ProtectedRoutes.tsx";
 import { AnimatePresence } from 'framer-motion';
+import ResetPassword from './pages/ResetPassword.tsx';
 
 const AnimatedRoutes = () => {
     return (
@@ -28,6 +29,7 @@ const AnimatedRoutes = () => {
                 <Route path="/forgotPassword" element={<ForgotPassword />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/changePassword/:id" element={<ChangePassword />} />
+                <Route path="/resetPassword" element={<ResetPassword />} />
                 
                 {/* ostale rute*/}
                 <Route path="*" element={<Missing />} />
