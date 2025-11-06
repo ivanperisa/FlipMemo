@@ -3,6 +3,7 @@ using FlipMemo.DTOs;
 using FlipMemo.Interfaces;
 using FlipMemo.Models;
 using FlipMemo.Utils;
+using Google.Apis.Auth;
 using Microsoft.EntityFrameworkCore;
 using static BCrypt.Net.BCrypt;
 
@@ -72,6 +73,32 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
             Email = user.Email,
             Token = token,
             MustChangePassword = false
+        };
+    }
+
+    public async Task<GoogleLoginResponseDto> GoogleLoginAsync(GoogleLoginRequestDto dto) 
+    {
+        var payload = await GoogleJsonWebSignature.ValidateAsync(dto.GoogleToken);
+        var user = await context.Users.SingleOrDefaultAsync(u => u.Email == payload.Email);
+
+        if (user is null)
+        {
+            user = new User
+            {
+                Email = payload.Email,
+                MustChangePassword = false
+            };
+            context.Users.Add(user);
+            await context.SaveChangesAsync();
+        }
+
+        var JwtToken = jwtService.GenerateToken(user);
+
+        return new GoogleLoginResponseDto 
+        { 
+            Id = user.Id,
+            Email = user.Email,
+            Token = JwtToken
         };
     }
 
