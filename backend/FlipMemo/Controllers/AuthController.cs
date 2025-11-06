@@ -89,7 +89,7 @@ public class AuthController(IAuthService authService) : ControllerBase
         RandomNumberGenerator.Fill(bytes);
 
         string resetToken = WebEncoders.Base64UrlEncode(bytes);
-        var resetUrl = Url.Action("ResetPassword", "Auth", new {dto.Email, Token = resetToken}, "http");
+        var resetUrl = $"http://localhost:5173/resetPassword?email={Uri.EscapeDataString(dto.Email)}&token={Uri.EscapeDataString(resetToken)}";
 
         await authService.ForgotPasswordAsync(dto, resetUrl!, resetToken);
 
