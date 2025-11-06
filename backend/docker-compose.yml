@@ -5,13 +5,13 @@ services:
     image: postgres:latest
     container_name: flipmemo-postgres
     environment:
-      POSTGRES_DB: FlipMemo
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
     networks:
       - flipmemo-network
 
@@ -19,8 +19,8 @@ services:
     image: dpage/pgadmin4:latest
     container_name: flipmemo-pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@flipmemo.app
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     ports:
       - "5050:80"
     depends_on:
@@ -45,22 +45,14 @@ services:
       context: .
       dockerfile: FlipMemo/Dockerfile
     container_name: flipmemo-api
+    env_file:
+      - .env
     ports:
       - "8080:8080"
       - "8081:8081"
     depends_on:
       - postgres
       - mailhog
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=8080
-      - ASPNETCORE_HTTPS_PORTS=8081
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=FlipMemo;Username=postgres;Password=admin
-      - Email__Host=mailhog
-      - Email__Port=1025
-      - Email__Username=
-      - Email__Password=
-      - Email__From=no-reply@flipmemo.app
     networks:
       - flipmemo-network
 
