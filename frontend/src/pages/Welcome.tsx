@@ -35,7 +35,7 @@ const Welcome = () => {
             </div>
 
 
-            <button onClick={navigateToHome} className={"z-1 rounded-[50px] bg-(--color-primary) w-[200px] h-[52px] transition-all hover:scale-105 hover:cursor-pointer text-white"}>Dobrodošli</button>
+            <button onClick={navigateToHome} className={"z-1 rounded-[50px] bg-(--color-primary-dark) w-[200px] h-[52px] transition-all hover:scale-105 hover:cursor-pointer text-on-dark"}>Dobrodošli</button>
         </div>
         
         </PageTransition>

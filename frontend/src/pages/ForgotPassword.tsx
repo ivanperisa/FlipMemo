@@ -7,6 +7,7 @@ import AnimatedSendButton, { type AnimatedSendButtonRef } from "../components/An
 import { useRef, useState, useEffect } from "react";
 import { gsap } from "gsap";
 import axiosInstance from "../api/axiosInstance.ts";
+import ThemeButton from "../components/ThemeButton.tsx";
 
 const ForgotPassword = () => {
     const [form] = Form.useForm();
@@ -92,6 +93,11 @@ const ForgotPassword = () => {
     return (
         <PageTransition>
             <div className="min-h-screen flex flex-col items-center justify-center p-5 w-screen">
+                {/* Theme Button u gornjem desnom kutu */}
+                <div className="fixed top-6 right-6 z-50">
+                    <ThemeButton />
+                </div>
+
                 <div className={"absolute z-0 w-screen h-screen "}>
                     <Particles particleColors={['#ffffff', '#ffffff']}
                         particleCount={200}
@@ -136,7 +142,7 @@ const ForgotPassword = () => {
                                     type="email"
                                     size="large"
                                     placeholder="Email"
-                                    prefix={<MailOutlined style={{ color: '#FFB6C1' }} />}
+                                    prefix={<MailOutlined style={{ color: 'var(--color-primary)' }} />}
                                     className="rounded-5xl shadow-md w-screen"
                                     style={{
                                         padding: '12px 20px',

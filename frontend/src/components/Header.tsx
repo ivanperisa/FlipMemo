@@ -3,6 +3,7 @@ import { DownOutlined, UserOutlined, LockOutlined,LogoutOutlined } from '@ant-de
 import { Dropdown, type MenuProps } from 'antd';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../context/AuthProvider';
+import ColorPicker from './ColorPicker';
 
 const Header = () => {
 
@@ -20,6 +21,17 @@ const Header = () => {
     };
 
     const menuItems: MenuProps['items'] = [
+        {
+            key: 'colorPicker',
+            label: (
+                <div onClick={(e) => e.stopPropagation()}>
+                    <ColorPicker />
+                </div>
+            ),
+        },
+        {
+            type: 'divider',
+        },
         {
             key: 'changePassword',
             label: 'Promijeni lozinku',
@@ -41,7 +53,7 @@ const Header = () => {
 
     return (
  <div className="w-full max-w-[1200px] flex justify-between items-center mt-8 mb-12 z-10 px-5">
-                    <h1 className="font-space text-4xl font-bold text-[#8B6B7A]">
+                    <h1 className="font-space text-4xl font-bold text-[var(--color-text-on-primary)]">
                         FlipMemo
                     </h1>
                     <Dropdown menu={{ items: menuItems }} trigger={['click']} placement="bottomRight">

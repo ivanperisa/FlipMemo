@@ -11,6 +11,7 @@ import PageTransition from '../components/PageTransition.tsx';
 
 import axiosInstance from '../api/axiosInstance.ts';
 import { useAuth } from '../context/AuthProvider.tsx';
+import ThemeButton from '../components/ThemeButton.tsx';
 
 
 
@@ -105,6 +106,11 @@ const Login = () => {
     return (
         <PageTransition>
             <div className="min-h-screen flex flex-col items-center justify-center p-5 w-screen">
+                {/* Theme Button u gornjem desnom kutu */}
+                <div className="fixed top-6 right-6 z-50">
+                    <ThemeButton />
+                </div>
+
                 <div className={"absolute z-0 w-screen h-screen "}>
                     <Particles particleColors={['#ffffff', '#ffffff']}
                         particleCount={300}
@@ -153,7 +159,7 @@ const Login = () => {
                             <Input
                                 size="large"
                                 placeholder="Email"
-                                prefix={<UserOutlined style={{ color: '#FFB6C1' }} />}
+                                prefix={<UserOutlined style={{ color: 'var(--color-primary)' }} />}
                                 className="rounded-5xl shadow-md w-screen"
                                 style={{
                                     padding: '12px 20px',
@@ -174,7 +180,7 @@ const Login = () => {
                             <Input.Password
                                 size="large"
                                 placeholder="Lozinka"
-                                prefix={<LockOutlined style={{ color: '#FFB6C1' }} />}
+                                prefix={<LockOutlined style={{ color: 'var(--color-primary)' }} />}
                                 className="rounded-[25px] shadow-md border-none"
                                 style={{
                                     padding: '12px 20px',
@@ -194,7 +200,7 @@ const Login = () => {
                         }}/>
                         
                         <br/>
-                        <Link to="/forgotPassword" className={"font-space relative"} style={{ color: '#8B6B7A', zIndex: 100 }}>Zaboravili ste lozinku?</Link>
+                        <Link to="/forgotPassword" className={"font-space relative"} style={{ color: 'var(--color-text-on-primary)', zIndex: 100 }}>Zaboravili ste lozinku?</Link>
 
                         {/* Remember Me Checkbox */}
                         <div className="text-center mt-2 z-1">
@@ -204,7 +210,7 @@ const Login = () => {
                                 style={{ marginBottom: 0 }}
                             >
                                 <Checkbox>
-                                    <span className={"font-space z-1"} style={{ color: '#8B6B7A' }}>Zapamti me</span>
+                                    <span className={"font-space z-1"} style={{ color: 'var(--color-text-on-primary)' }}>Zapamti me</span>
                                 </Checkbox>
                             </Form.Item>
                         </div>
@@ -214,7 +220,7 @@ const Login = () => {
                             {/* Login Button */}
                             <button
                                 type="submit"
-                                className="rounded-full bg-(--color-primary) w-[320px] sm:w-[360px] h-[56px] transition-all hover:opacity-90 hover:shadow-xl text-white shadow-lg
+                                className="rounded-full bg-(--color-primary-dark) w-[320px] sm:w-[360px] h-[56px] transition-all hover:opacity-90 hover:shadow-xl text-on-dark shadow-lg
                              font-space text-[18px] tracking-wide hover:cursor-pointer z-1"
                             >
                                 Nastavi
@@ -223,11 +229,13 @@ const Login = () => {
                             {/* Registration Button */}
                             <button onClick={navigateToRegister}
                                 type="button"
-                                className="rounded-full bg-(--color-primary) w-[320px] sm:w-[360px] h-[56px] transition-all hover:opacity-90 hover:shadow-xl text-white shadow-lg
+                                className="rounded-full bg-(--color-primary-dark) w-[320px] sm:w-[360px] h-[56px] transition-all hover:opacity-90 hover:shadow-xl text-on-dark shadow-lg
                             font-space text-[18px] tracking-wide hover:cursor-pointer z-1"
                             >
                                 Registracija
                             </button>
+
+                            
                         </div>
                     </Form>
                 </div>

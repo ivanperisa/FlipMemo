@@ -6,6 +6,7 @@ import { LockOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axiosInstance from "../api/axiosInstance";
+import ThemeButton from "../components/ThemeButton.tsx";
 
 const ChangePassword = () => {
     const navigate = useNavigate();
@@ -51,6 +52,11 @@ const ChangePassword = () => {
                 </button>
             </div>
             <div className="min-h-screen flex flex-col items-center justify-center p-5 w-screen">
+                {/* Theme Button u gornjem desnom kutu */}
+                <div className="fixed top-6 right-6 z-50">
+                    <ThemeButton />
+                </div>
+
                 <div className={"absolute z-0 w-screen h-screen "}>
                     <Particles particleColors={['#ffffff', '#ffffff']}
                         particleCount={300}
@@ -89,7 +95,7 @@ const ChangePassword = () => {
                             <Input.Password
                                 size="large"
                                 placeholder="Trenutna lozinka"
-                                prefix={<LockOutlined style={{ color: '#FFB6C1' }} />}
+                                prefix={<LockOutlined style={{ color: 'var(--color-primary)' }} />}
                                 className="rounded-[25px] shadow-md border-none"
                                 style={{
                                     padding: '12px 20px',
@@ -108,7 +114,7 @@ const ChangePassword = () => {
                             <Input.Password
                                 size="large"
                                 placeholder="Nova lozinka"
-                                prefix={<LockOutlined style={{ color: '#FFB6C1' }} />}
+                                prefix={<LockOutlined style={{ color: 'var(--color-primary)' }} />}
                                 className="rounded-[25px] shadow-md border-none"
                                 style={{
                                     padding: '12px 20px',
@@ -127,7 +133,7 @@ const ChangePassword = () => {
                             <Input.Password
                                 size="large"
                                 placeholder="Potvrda nove lozinke"
-                                prefix={<LockOutlined style={{ color: '#FFB6C1' }} />}
+                                prefix={<LockOutlined style={{ color: 'var(--color-primary)' }} />}
                                 className="rounded-[25px] shadow-md border-none"
                                 style={{
                                     padding: '12px 20px',
@@ -140,7 +146,7 @@ const ChangePassword = () => {
                             {/* Change Password button */}
                             <button
                                 type="submit"
-                                className="rounded-full bg-(--color-primary) w-[320px] sm:w-[360px] h-[56px] transition-all hover:opacity-90 hover:shadow-xl text-white shadow-lg
+                                className="rounded-full bg-(--color-primary-dark) w-[320px] sm:w-[360px] h-[56px] transition-all hover:opacity-90 hover:shadow-xl text-on-dark shadow-lg
                              font-space text-[18px] tracking-wide hover:cursor-pointer z-1"
                             >
                                 Promijeni lozinku

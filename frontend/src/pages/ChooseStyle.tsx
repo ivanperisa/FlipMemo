@@ -46,7 +46,7 @@ const Home = () => {
                 {/* Main Content */}
                 {/* PITANJE */}
                 <div className="flex w-full items-start justify-start mb-8">
-                <div className="bg-(--color-primary) z-10 rounded-r-full py-6 px-16 text-white font-space text-2xl font-semibold">Odaberite način učenja:</div>
+                <div className="bg-[var(--color-primary-extra-dark)] z-10 rounded-r-full py-6 px-16 text-on-primary font-space text-2xl font-semibold">Odaberite način učenja:</div>
               </div>
 
     {/* OPCIJE I GUMB */}
@@ -63,7 +63,7 @@ const Home = () => {
             bg-white rounded-full shadow-md
             transition-all
             ${selectedMode === mode.id 
-                ? 'ring-4 ring-pink-300 bg-pink-50' 
+                ? 'ring-4 ring-[var(--color-primary-dark)] bg-[var(--color-primary-light)]' 
                 : 'hover:shadow-lg hover:scale-102'
             }
         `}
@@ -72,7 +72,7 @@ const Home = () => {
         <div className={`
             w-6 h-6 rounded-full border-2 
             ${selectedMode === mode.id 
-                ? 'bg-pink-400 border-pink-400' 
+                ? 'bg-[var(--color-primary-dark)] border-[var(--color-primary-dark)]' 
                 : 'bg-white border-gray-300'
             }
         `} />
@@ -89,7 +89,7 @@ const Home = () => {
             <button 
                 disabled={!selectedMode}
                 onClick={() => navigate('/ChooseWordSet')}
-                className="mt-8 w-full py-4 bg-(--color-primary) text-white font-space rounded-full disabled:opacity-30"
+                className="mt-8 w-full py-4 bg-(--color-primary-dark) text-on-dark font-space rounded-full disabled:opacity-30"
             >
                 Dalje
             </button>

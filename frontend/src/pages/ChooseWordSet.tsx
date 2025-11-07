@@ -46,7 +46,7 @@ const Home = () => {
                 {/* Main Content */}
                 {/* PITANJE */}
                 <div className="flex w-full items-start justify-start mb-8">
-                <div className="bg-(--color-primary) z-10 rounded-r-full py-6 px-16 text-white font-space text-2xl font-semibold">Odaberite rječnik:</div>
+                <div className="bg-[var(--color-primary-extra-dark)] z-10 rounded-r-full py-6 px-16 text-on-primary font-space text-2xl font-semibold">Odaberite rječnik:</div>
               </div>
 
     {/* OPCIJE I GUMB */}
@@ -62,7 +62,7 @@ const Home = () => {
             bg-white rounded-full shadow-md
             transition-all cursor-pointer
             ${currentWordSet === set.id 
-                ? 'ring-4 ring-pink-300 bg-pink-50' 
+                ? 'ring-4 ring-[var(--color-primary-dark)] ' 
                 : 'hover:shadow-lg hover:scale-105'
             }
         `}
@@ -71,7 +71,7 @@ const Home = () => {
         <div className={`
             w-6 h-6 rounded-full border-2 
             ${currentWordSet === set.id 
-                ? 'bg-pink-400 border-pink-400' 
+                ? 'bg-[var(--color-primary-dark)] border-[var(--color-primary-dark)]' 
                 : 'bg-white border-gray-300'
             }
         `} />
@@ -101,7 +101,7 @@ const Home = () => {
                     
                     navigate('/learningSession');
                 }}
-                className="mt-8 w-full py-4 bg-(--color-primary) text-white font-space rounded-full disabled:opacity-30"
+                className="mt-8 w-full py-4 bg-(--color-primary-dark) text-on-dark font-space rounded-full disabled:opacity-30"
             >
                 Dalje
             </button>
