@@ -83,11 +83,27 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
 
         if (user is null)
         {
+            var initialPassword = Guid.NewGuid().ToString("N")[..8];
+
+            var hashedPassword = HashPassword(initialPassword);
+
             user = new User
             {
                 Email = payload.Email,
+                PasswordHash = hashedPassword,
                 MustChangePassword = false
             };
+
+            var subject = "FlipMemo - Your New Password";
+            var body = $"Hello {payload.Name},\n\n" +
+                       $"You usually log in with Google, but we've created a password for you to use FlipMemo directly.\n\n" +
+                       $"Your temporary password is: {initialPassword}\n\n" +
+                       $"You can use this password and your email to log in to FlipMemo\n\n" +
+                       $"For security, we recommend changing it after your first login.\n" +
+                       $"If you did not request this, please ignore this email.";
+
+            await emailService.SendAsync(user.Email, subject, body);
+
             context.Users.Add(user);
             await context.SaveChangesAsync();
         }
@@ -187,5 +203,4 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
 
         await context.SaveChangesAsync();
     }
-
 }
