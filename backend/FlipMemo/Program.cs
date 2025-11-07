@@ -7,13 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
-
-Env.Load();
-
-builder.Services.AddTransient<IEmailService, EmailService>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => 
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));

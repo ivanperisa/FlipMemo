@@ -27,19 +27,6 @@ public class AuthController(IAuthService authService) : ControllerBase
             new { message = "User registered successfully. Check your email for login credentials." });
     }
 
-    [HttpPost("google-login")]
-    [AllowAnonymous]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequestDto dto)
-    {
-        var user = await authService.GoogleLoginAsync(dto);
-
-        return Ok(user);
-    }
-
     [HttpPost("login")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -49,6 +36,19 @@ public class AuthController(IAuthService authService) : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
     {
         var user = await authService.LoginAsync(dto);
+
+        return Ok(user);
+    }
+
+    [HttpPost("google-login")]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequestDto dto)
+    {
+        var user = await authService.GoogleLoginAsync(dto);
 
         return Ok(user);
     }
