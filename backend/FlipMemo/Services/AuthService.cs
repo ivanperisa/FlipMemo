@@ -91,7 +91,7 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
             {
                 Email = payload.Email,
                 PasswordHash = hashedPassword,
-                MustChangePassword = false
+                MustChangePassword = true
             };
 
             var subject = "FlipMemo - Your New Password";
