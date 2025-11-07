@@ -3,17 +3,20 @@ import PageTransition from "../components/PageTransition";
 import Particles from "../styles/Particles";
 import { Form, Input } from "antd";
 import { LockOutlined, CloseCircleOutlined } from '@ant-design/icons';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axiosInstance from "../api/axiosInstance";
 import ThemeButton from "../components/ThemeButton.tsx";
+import { useAuth } from "../context/AuthProvider.tsx";
 
 const ChangePassword = () => {
+    const { id } = useAuth();
     const navigate = useNavigate();
-    const { id } = useParams<{ id: string }>();
     const [form] = Form.useForm();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorMessage, setShowErrorMessage] = useState(false);
+
+    
     
 
     const onFinish = (values: { current_password: string; new_password: string; confirm_new_password: string }) => {

@@ -19,19 +19,20 @@ const AnimatedRoutes = () => {
             <Routes>
                 {/* zasticene rute */}
             <Route element={<ProtectedRoutes />}>
+             <Route path="/chooseStyle" element={<ChooseStyle />} />
+             <Route path="/home" element={<Home />} />
+             <Route path="/chooseWordSet" element={<ChooseWordSet />} />
                
             </Route>
 
                 {/* nezasticene rute */}
-                 <Route path="/chooseStyle" element={<ChooseStyle />} />
-                <Route path="/home" element={<Home />} />
-                <Route path="/chooseWordSet" element={<ChooseWordSet />} />
+                
                 <Route path="/" element={<Welcome />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/logout" element={<Logout />} />
                 <Route path="/forgotPassword" element={<ForgotPassword />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/changePassword/:id" element={<ChangePassword />} />
+                <Route path="/changePassword" element={<ChangePassword />} />
                 <Route path="/resetPassword" element={<ResetPassword />} />
                 
                 {/* ostale rute*/}

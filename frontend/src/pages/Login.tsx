@@ -55,7 +55,7 @@ const Login = () => {
             });
 
             console.log("Google login successful2:", response.data);
-            setToken(response.data.token, true); 
+            setToken(response.data.token, response.data.id, true);
             navigate("/home");
  
         } catch (error: any) {
@@ -79,7 +79,7 @@ const Login = () => {
             console.log("Login successful:", response.data);
             
             //tu spremamo token i ovisno o tome dal je remember me ili ne se spremi u local storage ili session storage
-            setToken(response.data.token, values.rememberMe || false);
+            setToken(response.data.token, response.data.id, values.rememberMe || false);
 
             if (response.data.mustChangePassword) {
                 

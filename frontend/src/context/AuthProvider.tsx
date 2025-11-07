@@ -5,7 +5,8 @@ import axiosInstance from "../api/axiosInstance";
 
 interface AuthContextType {
     token: string | null;
-    setToken: (newToken: string | null, rememberMe?: boolean) => void;
+    id: string | null;
+    setToken: (newToken: string | null, userId?: string | null, rememberMe?: boolean) => void;
     logout: () => void;
     isAuthenticated: boolean;
 }
@@ -23,22 +24,36 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         return localStorage.getItem("token") || sessionStorage.getItem("token");
     };
 
+    const getInitialId = () => {
+        return localStorage.getItem("userId") || sessionStorage.getItem("userId");
+    };
+
     
     const [token, setToken_] = useState<string | null>(getInitialToken());
+    const [id, setId_] = useState<string | null>(getInitialId());
 
    
-    const setToken = (newToken: string | null, rememberMe: boolean = false) => {
+    const setToken = (newToken: string | null, userId: string | null = null, rememberMe: boolean = false) => {
         setToken_(newToken);
+        setId_(userId);
         
         if (newToken) {
             if (rememberMe) {
               
                 localStorage.setItem('token', newToken);
                 sessionStorage.removeItem('token');
+                if (userId) {
+                    localStorage.setItem('userId', userId);
+                    sessionStorage.removeItem('userId');
+                }
             } else {
                 
                 sessionStorage.setItem('token', newToken);
                 localStorage.removeItem('token');
+                if (userId) {
+                    sessionStorage.setItem('userId', userId);
+                    localStorage.removeItem('userId');
+                }
             }
         }
     };
@@ -46,6 +61,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
  
     const logout = () => {
         setToken_(null);
+        setId_(null);
     };
 
     useEffect(() => {
@@ -56,6 +72,8 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
             delete axiosInstance.defaults.headers.common["Authorization"];
             localStorage.removeItem('token');
             sessionStorage.removeItem('token');
+            localStorage.removeItem('userId');
+            sessionStorage.removeItem('userId');
         }
     }, [token]);
 
@@ -63,11 +81,12 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     const contextValue = useMemo(
         () => ({
             token,
+            id,
             setToken,
             logout,
             isAuthenticated: !!token,
         }),
-        [token]
+        [token, id]
     );
 
    
