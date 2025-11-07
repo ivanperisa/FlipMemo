@@ -36,11 +36,6 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
                    $"Your temporary password is: {initialPassword}\n" +
                    $"Please change it after your first login.";
 
-        Console.WriteLine($"=== EMAIL DEBUG ===");
-        Console.WriteLine($"To: '{user.Email}'");
-        Console.WriteLine($"Subject: '{subject}'");
-        Console.WriteLine($"Body length: {body.Length}");
-
         await emailService.SendAsync(user.Email, subject, body);
 
         context.Users.Add(user);

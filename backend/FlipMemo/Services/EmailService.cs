@@ -9,25 +9,20 @@ public class EmailService(IConfiguration config) : IEmailService
 {
     public async Task SendAsync(string to, string subject, string body)
     {
+        var host = config["Email:Host"];
+        var port = int.Parse(config["Email:Port"] ?? "587");
+        var username = config["Email:Username"];
+        var password = config["Email:Password"];
+        var from = config["Email:From"];
 
-        var host = Environment.GetEnvironmentVariable("Email__Host");
-        var port = int.Parse(Environment.GetEnvironmentVariable("Email__Port"));
-        var username = Environment.GetEnvironmentVariable("Email__Username");
-        var password = Environment.GetEnvironmentVariable("Email__Password");
-        var from = Environment.GetEnvironmentVariable("Email__From");
-
-        using var client = new SmtpClient(host, port)
+        using var smtp = new SmtpClient(host, port)
         {
-            Credentials = new NetworkCredential(username, password),
-            EnableSsl = true
+            Credentials = string.IsNullOrEmpty(username) 
+                ? null : new NetworkCredential(username, password),
+            EnableSsl = port == 587 || port == 465
         };
 
-        var message = new MailMessage(from, to, subject, body)
-        {
-            IsBodyHtml = false
-        };
-
-        await client.SendMailAsync(message);
-
+        var mail = new MailMessage(from!, to, subject, body);
+        await smtp.SendMailAsync(mail);
     }
 }
