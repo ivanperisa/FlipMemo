@@ -1,10 +1,36 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const AnimatedFace = () => {
     const svgRef = useRef<SVGSVGElement>(null);
     const leftPupilRef = useRef<SVGCircleElement>(null);
     const rightPupilRef = useRef<SVGCircleElement>(null);
     const rafIdRef = useRef<number | null>(null);
+    
+    // Dinamičke boje iz CSS variables
+    const [faceColor, setFaceColor] = useState('#F0A2A5');
+    const [eyeColor, setEyeColor] = useState('#FFDEE0');
+    
+    // Učitaj boje iz CSS variables
+    useEffect(() => {
+        const updateColors = () => {
+            const root = getComputedStyle(document.documentElement);
+            const face = root.getPropertyValue('--color-face').trim() || '#F0A2A5';
+            const eye = root.getPropertyValue('--color-eye').trim() || '#FFDEE0';
+            setFaceColor(face);
+            setEyeColor(eye);
+        };
+        
+        updateColors();
+        
+        // MutationObserver za praćenje promjena CSS varijabli
+        const observer = new MutationObserver(updateColors);
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['style']
+        });
+        
+        return () => observer.disconnect();
+    }, []);
 
     useEffect(() => {
         let svgRect: DOMRect | null = null;
@@ -110,32 +136,32 @@ const AnimatedFace = () => {
             className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1080px] h-auto opacity-100"
             style={{ minWidth: '50%' }}
         >
-            <ellipse cx="720" cy="-65.5" rx="720" ry="398.5" fill="#F0A2A5" />
+            <ellipse cx="720" cy="-65.5" rx="720" ry="398.5" fill={faceColor} />
 
             {/* Left Eye */}
-            <circle cx="512" cy="102" r="75" fill="#FFDEE0" />
+            <circle cx="512" cy="102" r="75" fill={eyeColor} />
             <circle
                 ref={leftPupilRef}
                 cx="511.5"
                 cy="101.5"
                 r="46.5"
-                fill="#F0A2A5"
+                fill={faceColor}
             />
 
             {/* Right Eye */}
-            <circle cx="916" cy="102" r="75" fill="#FFDEE0" />
+            <circle cx="916" cy="102" r="75" fill={eyeColor} />
             <circle
                 ref={rightPupilRef}
                 cx="915.5"
                 cy="101.5"
                 r="46.5"
-                fill="#F0A2A5"
+                fill={faceColor}
             />
 
             {/* Mouth */}
             <path
                 d="M665.501 178.325C665.501 178.325 685.798 217.858 719.001 218.325C752.204 218.791 769.501 178.325 769.501 178.325"
-                stroke="#FFDEE0"
+                stroke={eyeColor}
                 strokeWidth="30"
             />
         </svg>

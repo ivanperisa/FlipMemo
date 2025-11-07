@@ -1,12 +1,10 @@
-import { useAuth } from "../context/AuthProvider";
+
 import { useNavigate } from "react-router";
 import PageTransition from "../components/PageTransition";
 import Particles from "../styles/Particles";
-import { BookOutlined, UserOutlined, LogoutOutlined, CheckCircleOutlined, LockOutlined, DownOutlined } from "@ant-design/icons";
-import { Dropdown } from "antd";
-import type { MenuProps } from "antd";
 import { useState } from "react";
 import { useLearning } from "../context/LearningContext";
+import Header from "../components/Header";
 
 const Home = () => {
 
@@ -15,41 +13,12 @@ const Home = () => {
 
 
     //KONTEKSTI
-    const { logout } = useAuth();
     const navigate = useNavigate();
     const { setSelectedWordSet } = useLearning();
 
     //FUNKCIJE
-    const handleLogout = () => {
-        logout();
-        navigate("/login");
-    };
-
-    const handleChangePassword = () => {
-        navigate("/changePassword");
-    };
-
 
     //MODELI
-    const menuItems: MenuProps['items'] = [
-        {
-            key: 'changePassword',
-            label: 'Promijeni lozinku',
-            icon: <LockOutlined />,
-            onClick: handleChangePassword,
-        },
-        {
-            type: 'divider',
-        },
-        {
-            key: 'logout',
-            label: 'Odjava',
-            icon: <LogoutOutlined />,
-            onClick: handleLogout,
-            danger: true,
-        },
-    ];
-
     const WordSets = [
     { id: 'set1', name: 'Osnovni riječi', words: ['riječ1', 'riječ2', 'riječ3'] },
     { id: 'set2', name: 'Napredni riječi', words: ['riječ4', 'riječ5', 'riječ6'] },
@@ -73,23 +42,11 @@ const Home = () => {
                 </div>
 
                 {/* Header */}
-                <div className="w-full max-w-[1200px] flex justify-between items-center mt-8 mb-12 z-10 px-5">
-                    <h1 className="font-space text-4xl font-bold text-[#8B6B7A]">
-                        FlipMemo
-                    </h1>
-                    <Dropdown menu={{ items: menuItems }} trigger={['click']} placement="bottomRight">
-                        <button className="flex items-center gap-2 px-6 py-3 bg-white/90 rounded-full shadow-lg hover:shadow-xl transition-all hover:opacity-80 font-space text-[#8B6B7A] cursor-pointer">
-                            <UserOutlined />
-                            Profil
-                            <DownOutlined style={{ fontSize: '12px' }} />
-                        </button>
-                    </Dropdown>
-                </div>
-
+                <Header />
                 {/* Main Content */}
                 {/* PITANJE */}
                 <div className="flex w-full items-start justify-start mb-8">
-                <div className="bg-(--color-primary) z-10 rounded-r-full py-6 px-16 text-white font-space text-2xl font-semibold">Odaberite rječnik:</div>
+                <div className="bg-[var(--color-primary-extra-dark)] z-10 rounded-r-full py-6 px-16 text-on-primary font-space text-2xl font-semibold">Odaberite rječnik:</div>
               </div>
 
     {/* OPCIJE I GUMB */}
@@ -105,7 +62,7 @@ const Home = () => {
             bg-white rounded-full shadow-md
             transition-all cursor-pointer
             ${currentWordSet === set.id 
-                ? 'ring-4 ring-pink-300 bg-pink-50' 
+                ? 'ring-4 ring-[var(--color-primary-dark)] ' 
                 : 'hover:shadow-lg hover:scale-105'
             }
         `}
@@ -114,7 +71,7 @@ const Home = () => {
         <div className={`
             w-6 h-6 rounded-full border-2 
             ${currentWordSet === set.id 
-                ? 'bg-pink-400 border-pink-400' 
+                ? 'bg-[var(--color-primary-dark)] border-[var(--color-primary-dark)]' 
                 : 'bg-white border-gray-300'
             }
         `} />
@@ -144,7 +101,7 @@ const Home = () => {
                     
                     navigate('/learningSession');
                 }}
-                className="mt-8 w-full py-4 bg-(--color-primary) text-white font-space rounded-full disabled:opacity-30"
+                className="mt-8 w-full py-4 bg-(--color-primary-dark) text-on-dark font-space rounded-full disabled:opacity-30"
             >
                 Dalje
             </button>

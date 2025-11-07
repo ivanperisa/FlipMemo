@@ -12,19 +12,20 @@ const AnimatedRoutes = () => {
             position: 'relative',
             width: '100%',
             height: '100vh',
-            background: 'linear-gradient(180deg, #FFC0CB 0%, #FFE5EC 100%)',
+            background: 'linear-gradient(180deg, var(--color-gradient-start) 0%, var(--color-gradient-end) 100%)',
             overflow: 'hidden'
         }}>
             <AnimatePresence>
             <Routes>
                 {/* zasticene rute */}
             <Route element={<ProtectedRoutes />}>
-                <Route path="/chooseStyle" element={<ChooseStyle />} />
-                <Route path="/home" element={<Home />} />
-                <Route path="/chooseWordSet" element={<ChooseWordSet />} />
+               
             </Route>
 
                 {/* nezasticene rute */}
+                 <Route path="/chooseStyle" element={<ChooseStyle />} />
+                <Route path="/home" element={<Home />} />
+                <Route path="/chooseWordSet" element={<ChooseWordSet />} />
                 <Route path="/" element={<Welcome />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/logout" element={<Logout />} />

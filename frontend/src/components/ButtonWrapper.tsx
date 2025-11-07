@@ -42,7 +42,7 @@ const SpotlightButton = () => {
         <motion.button
             whileTap={{ scale: 0.985 }}
             ref={btnRef}
-            className="relative w-full max-w-xs overflow-hidden  bg-(--color-primary) rounded-full px-4 py-3 text-lg font-medium text-white"
+            className="relative w-full max-w-xs overflow-hidden  bg-(--color-primary-dark) rounded-full px-4 py-3 text-lg font-medium text-on-dark"
         >
       <span className="pointer-events-none relative z-10 mix-blend-difference font-space rounded-full w-full">
         Hover me

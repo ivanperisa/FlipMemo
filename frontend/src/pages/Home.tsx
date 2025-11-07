@@ -2,9 +2,11 @@ import { useAuth } from "../context/AuthProvider";
 import { useNavigate } from "react-router";
 import PageTransition from "../components/PageTransition";
 import Particles from "../styles/Particles";
-import { BookOutlined, UserOutlined, LogoutOutlined, CheckCircleOutlined, LockOutlined, DownOutlined } from "@ant-design/icons";
+import { BookOutlined, UserOutlined, LogoutOutlined, CheckCircleOutlined, LockOutlined, DownOutlined, BgColorsOutlined } from "@ant-design/icons";
 import { Dropdown } from "antd";
 import type { MenuProps } from "antd";
+import ColorPicker from "../components/ColorPicker";
+import Header from "../components/Header";
 
 const Home = () => {
     const { logout, isAuthenticated } = useAuth();
@@ -20,6 +22,17 @@ const Home = () => {
     };
 
     const menuItems: MenuProps['items'] = [
+        {
+            key: 'colorPicker',
+            label: (
+                <div onClick={(e) => e.stopPropagation()}>
+                    <ColorPicker />
+                </div>
+            ),
+        },
+        {
+            type: 'divider',
+        },
         {
             key: 'changePassword',
             label: 'Promijeni lozinku',
@@ -55,18 +68,7 @@ const Home = () => {
                 </div>
 
                 {/* Header */}
-                <div className="w-full max-w-[1200px] flex justify-between items-center mt-8 mb-12 z-10">
-                    <h1 className="font-space text-4xl font-bold text-[#8B6B7A]">
-                        FlipMemo
-                    </h1>
-                    <Dropdown menu={{ items: menuItems }} trigger={['click']} placement="bottomRight">
-                        <button className="flex items-center gap-2 px-6 py-3 bg-white/90 rounded-full shadow-lg hover:shadow-xl transition-all hover:opacity-80 font-space text-[#8B6B7A] cursor-pointer">
-                            <UserOutlined />
-                            Profil
-                            <DownOutlined style={{ fontSize: '12px' }} />
-                        </button>
-                    </Dropdown>
-                </div>
+                <Header />
 
                 {/* Start Learning Section */}
                 <div className="w-full max-w-[1200px] bg-white/90 rounded-3xl shadow-2xl p-12 mb-8 z-10 text-center">
@@ -76,7 +78,7 @@ const Home = () => {
                     <p className="font-space text-lg text-[#8B6B7A]/70 mb-8">
                         Započnite svoje putovanje učenja s flashcard karticama
                     </p>
-                    <button onClick={() => navigate('/chooseStyle')} className="cursor-pointer px-12 py-4 bg-gradient-to-r from-[#FFB6C1] to-[#DDA0DD] text-white font-space text-lg font-bold rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-105 active:scale-95">
+                    <button onClick={() => navigate('/chooseStyle')} className="cursor-pointer px-12 py-4 bg-(--color-primary-dark) text-on-dark font-space text-lg font-bold rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-105 active:scale-95">
                         Započnite Učenje 🚀
                     </button>
                 </div>
