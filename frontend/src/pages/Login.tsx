@@ -83,7 +83,7 @@ const Login = () => {
 
             if (response.data.mustChangePassword) {
                 
-                navigate("/changePassword/" + response.data.id);
+                navigate("/changePassword");
             } else {
                 
                 navigate("/home");
