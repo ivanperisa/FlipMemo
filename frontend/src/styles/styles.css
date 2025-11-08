@@ -1,0 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+
+@import "tailwindcss";
+
+
+@theme
+{
+    --font-space: "Space Grotesk", sans-serif;
+
+    /* Dinamičke boje - ažuriraju se putem ThemeContext */
+    --color-primary: #F0A2A5;
+    --color-primary-dark: #E88A8E;
+    --color-primary-extra-dark: #D66F73;
+    --color-primary-light: #FFDEE0;
+    --color-background: #FFDEE0;
+    --color-text: #FFFFFF;
+    
+    /* Tekstualne boje sa automatskim kontrastom */
+    --color-text-on-primary: #FFFFFF;
+    --color-text-on-dark: #FFFFFF;
+    
+    /* Gradient boje */
+    --color-gradient-start: #FFC0CB;
+    --color-gradient-end: #FFE5EC;
+    
+    /* SVG boje */
+    --color-face: #F0A2A5;
+    --color-eye: #FFDEE0;
+
+}
+
+/* Ant Design Input placeholder font */
+.ant-input::placeholder,
+.ant-input-password input::placeholder {
+    font-family: "Space Grotesk", sans-serif;
+}
+
+/* Automatska tekstualna boja na primary pozadini */
+.text-on-primary {
+    color: var(--color-text-on-primary);
+}
+
+.text-on-dark {
+    color: var(--color-text-on-dark);
+}
+
+
