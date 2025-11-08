@@ -22,7 +22,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("FlipMemoReact", policy =>
     {
-        policy.WithOrigins("http://localhost:5173")
+        var url = builder.Configuration["Front:Url"];
+
+        policy.WithOrigins($"{url}")
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();

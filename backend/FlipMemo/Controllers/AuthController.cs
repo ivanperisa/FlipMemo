@@ -12,7 +12,7 @@ namespace FlipMemo.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
-public class AuthController(IAuthService authService) : ControllerBase
+public class AuthController(IAuthService authService, IConfiguration config) : ControllerBase
 {
     [HttpPost("register")]
     [AllowAnonymous]
@@ -103,7 +103,9 @@ public class AuthController(IAuthService authService) : ControllerBase
         RandomNumberGenerator.Fill(bytes);
 
         string resetToken = WebEncoders.Base64UrlEncode(bytes);
-        var resetUrl = $"http://localhost:5173/resetPassword?email={Uri.EscapeDataString(dto.Email)}&token={Uri.EscapeDataString(resetToken)}";
+
+        var url = config.GetSection("Front:Url").Value;
+        var resetUrl = $"{url}/resetPassword?email={Uri.EscapeDataString(dto.Email)}&token={Uri.EscapeDataString(resetToken)}";
 
         await authService.ForgotPasswordAsync(dto, resetUrl!, resetToken);
 

@@ -98,7 +98,7 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
             var body = $"Hello {payload.Name},\n\n" +
                        $"You usually log in with Google, but we've created a password for you to use FlipMemo directly.\n\n" +
                        $"Your temporary password is: {initialPassword}\n\n" +
-                       $"You can use this password and your email to log in to FlipMemo\n\n" +
+                       $"You can use your email and this password to log in to FlipMemo.\n\n" +
                        $"For security, we recommend changing it after your first login.\n" +
                        $"If you did not request this, please ignore this email.";
 
