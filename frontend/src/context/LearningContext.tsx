@@ -8,12 +8,7 @@ interface WordSet {
     words: string[];
 }
 
-interface Word {
-    id: string;
-    original: string;
-    translation: string;
-    audioUrl?: string;
-}
+
 
 interface LearningMode {
     id: 'translate-from' | 'translate-to' | 'listening' | 'speaking';
