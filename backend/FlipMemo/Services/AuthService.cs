@@ -91,6 +91,7 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
             {
                 Email = payload.Email,
                 PasswordHash = hashedPassword,
+                CreatedAt = DateTime.UtcNow,
                 MustChangePassword = true
             };
 
@@ -105,8 +106,11 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
             await emailService.SendAsync(user.Email, subject, body);
 
             context.Users.Add(user);
-            await context.SaveChangesAsync();
         }
+
+        user.LastLogin = DateTime.UtcNow;
+
+        await context.SaveChangesAsync();
 
         var JwtToken = jwtService.GenerateToken(user);
 
