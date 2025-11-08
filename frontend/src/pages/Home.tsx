@@ -2,54 +2,16 @@ import { useAuth } from "../context/AuthProvider";
 import { useNavigate } from "react-router";
 import PageTransition from "../components/PageTransition";
 import Particles from "../styles/Particles";
-import { BookOutlined, UserOutlined, LogoutOutlined, CheckCircleOutlined, LockOutlined, DownOutlined, BgColorsOutlined } from "@ant-design/icons";
-import { Dropdown } from "antd";
-import type { MenuProps } from "antd";
-import ColorPicker from "../components/ColorPicker";
+import { BookOutlined, UserOutlined, CheckCircleOutlined } from "@ant-design/icons";
+
 import Header from "../components/Header";
 
 const Home = () => {
-    const { logout, isAuthenticated } = useAuth();
+    const { isAuthenticated } = useAuth();
     const navigate = useNavigate();
 
-    const handleLogout = () => {
-        logout();
-        navigate("/login");
-    };
+   
 
-    const handleChangePassword = () => {
-        navigate("/changePassword");
-    };
-
-    const menuItems: MenuProps['items'] = [
-        {
-            key: 'colorPicker',
-            label: (
-                <div onClick={(e) => e.stopPropagation()}>
-                    <ColorPicker />
-                </div>
-            ),
-        },
-        {
-            type: 'divider',
-        },
-        {
-            key: 'changePassword',
-            label: 'Promijeni lozinku',
-            icon: <LockOutlined />,
-            onClick: handleChangePassword,
-        },
-        {
-            type: 'divider',
-        },
-        {
-            key: 'logout',
-            label: 'Odjava',
-            icon: <LogoutOutlined />,
-            onClick: handleLogout,
-            danger: true,
-        },
-    ];
 
     return (
         <PageTransition>
