@@ -7,14 +7,18 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
-
 # This stage is used to build the service project
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["FlipMemo/FlipMemo.csproj", "FlipMemo/"]
+
+# Copy the .csproj file from the correct path
+COPY ["backend/FlipMemo/FlipMemo.csproj", "FlipMemo/"]
 RUN dotnet restore "./FlipMemo/FlipMemo.csproj"
-COPY . .
+
+# Copy the entire backend directory
+COPY backend/ .
+
 WORKDIR "/src/FlipMemo"
 RUN dotnet build "./FlipMemo.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
