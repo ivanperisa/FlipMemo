@@ -2,7 +2,7 @@
 
 namespace FlipMemo.Interfaces;
 
-public interface IWordsApiService
+public interface IWordDictionaryApiService
 {
     Task<GetWordExamplesResponseDto> GetWordExamplesAsync(string word);
 }

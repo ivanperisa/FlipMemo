@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FlipMemo.Services;
 
-public class WordsService(ApplicationDbContext context, IWordsApiService wordsApiService, IDeepTranslateApiService deepTranslateApiService) : IWordsService
+public class WordsService(ApplicationDbContext context, IWordDictionaryApiService wordsApiService, IDeepTranslateApiService deepTranslateApiService) : IWordsService
 {
     public async Task<CreateWordResponseDto> CreateWordAsync(int DictionaryId, CreateWordRequestDto dto)
     {
@@ -23,7 +23,7 @@ public class WordsService(ApplicationDbContext context, IWordsApiService wordsAp
         var wordExamplesDto = await wordsApiService.GetWordExamplesAsync(dto.Word);
 
         var wordAndPhrasesForTranslation = new List<string>() { dto.Word };
-        wordAndPhrasesForTranslation.AddRange(wordExamplesDto.Examples);
+        wordAndPhrasesForTranslation.AddRange(wordExamplesDto.Example);
 
         var textTranslationRequestDto = new TextTranslationRequestDto
         {
@@ -37,7 +37,7 @@ public class WordsService(ApplicationDbContext context, IWordsApiService wordsAp
         var word = new Word
         {
             SourceWord = dto.Word,
-            SourcePhrases = wordExamplesDto.Examples,
+            SourcePhrases = wordExamplesDto.Example,
             TargetWord = textTranslationResponseDto.TranslatedText[0],
             TargetPhrases = [.. textTranslationResponseDto.TranslatedText.Skip(1)]
         };
@@ -49,7 +49,7 @@ public class WordsService(ApplicationDbContext context, IWordsApiService wordsAp
         return new CreateWordResponseDto
         {
             Word = dto.Word,
-            Phrases = wordExamplesDto.Examples,
+            Phrases = wordExamplesDto.Example,
             TranslatedWord = textTranslationResponseDto.TranslatedText[0],
             TranslatedPhrases = [.. textTranslationResponseDto.TranslatedText.Skip(1)]
         };

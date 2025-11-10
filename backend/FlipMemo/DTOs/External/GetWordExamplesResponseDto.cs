@@ -2,5 +2,5 @@
 
 public class GetWordExamplesResponseDto
 {
-    public List<string> Examples { get; set; }
+    public List<string> Example { get; set; }
 }

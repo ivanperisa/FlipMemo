@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace FlipMemo.Services.External;
 
-public class WordsApiService(HttpClient httpClient) : IWordsApiService
+public class WordDictionaryApiService(HttpClient httpClient) : IWordDictionaryApiService
 {
     public async Task<GetWordExamplesResponseDto> GetWordExamplesAsync(string word)
     {
@@ -13,14 +13,14 @@ public class WordsApiService(HttpClient httpClient) : IWordsApiService
             PropertyNameCaseInsensitive = true
         };
 
-        var response = await httpClient.GetAsync($"words/{word}/examples");
+        var response = await httpClient.GetAsync($"example/?entry={word}");
         response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync();
         var wordExamplesDto = JsonSerializer.Deserialize<GetWordExamplesResponseDto>(json, options);
 
-        if (wordExamplesDto?.Examples! != null)
-            wordExamplesDto.Examples = [.. wordExamplesDto.Examples.Take(3)];
+        if (wordExamplesDto?.Example! != null)
+            wordExamplesDto.Example = [.. wordExamplesDto.Example.Take(3)];
 
         return wordExamplesDto!;
     }
