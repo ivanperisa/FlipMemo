@@ -1,6 +1,6 @@
 ﻿namespace FlipMemo.DTOs.External;
 
-public class GetWordRequestDto
+public class CreateWordRequestDto
 {
     public string Word { get; set; }
     public string SourceLanguage { get; set; }

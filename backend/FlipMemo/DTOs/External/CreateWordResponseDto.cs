@@ -1,6 +1,6 @@
 ﻿namespace FlipMemo.DTOs.External;
 
-public class GetWordResponseDto
+public class CreateWordResponseDto
 {
     public string Word { get; set; }
     public List<string> Phrases { get; set; }

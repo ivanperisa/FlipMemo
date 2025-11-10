@@ -8,10 +8,10 @@ namespace FlipMemo.Controllers;
 [Route("api/v1/[controller]")]
 public class WordsController(IWordsService wordsService) : ControllerBase
 {
-    [HttpPost]
-    public async Task<IActionResult> GetWord(GetWordRequestDto dto)
+    [HttpPost("{dictionaryId}")]
+    public async Task<IActionResult> CreateWord(int dictionaryId, [FromBody] CreateWordRequestDto dto)
     {
-        var response = await wordsService.GetWordAsync(dto);
+        var response = await wordsService.CreateWordAsync(dictionaryId, dto);
         return Ok(response);
     }
 }
