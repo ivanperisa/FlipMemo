@@ -42,7 +42,7 @@ public class DictionariesService(ApplicationDbContext context) : IDictionariesSe
         {
             words.Add(new WordDto
             {
-                Id= w.Id,
+                Id = w.Id,
                 SourceWord = w.SourceWord,
                 SourcePhrases = w.SourcePhrases,
                 TargetWord = w.TargetWord,
