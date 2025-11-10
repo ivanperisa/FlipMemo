@@ -60,8 +60,9 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
             {
                 Id = user.Id,
                 Email = user.Email,
-                Token = token,
-                MustChangePassword = true
+                Role = user.Role,
+                MustChangePassword = true,
+                Token = token
             };
         
         user.LastLogin = DateTime.UtcNow;
@@ -71,8 +72,9 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
         {
             Id = user.Id,
             Email = user.Email,
-            Token = token,
-            MustChangePassword = false
+            Role = user.Role,
+            MustChangePassword = true,
+            Token = token
         };
     }
 
@@ -114,10 +116,11 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
 
         var JwtToken = jwtService.GenerateToken(user);
 
-        return new GoogleLoginResponseDto 
+        return new GoogleLoginResponseDto
         { 
             Id = user.Id,
             Email = user.Email,
+            Role = user.Role,
             Token = JwtToken
         };
     }
