@@ -3,12 +3,59 @@ using FlipMemo.DTOs;
 using FlipMemo.Interfaces;
 using FlipMemo.Utils;
 using Microsoft.EntityFrameworkCore;
-using Dictionary = FlipMemo.Models.Dictionary;
+using FlipMemo.Models;
 
 namespace FlipMemo.Services;
 
 public class DictionariesService(ApplicationDbContext context) : IDictionariesService
 {
+    public async Task<GetAllDictionariesResponseDto> GetAllDictionariesAsync()
+    {
+        var dictionaries = await context.Dictionaries
+            .Select(d => new DictionaryDto
+            {
+                Id = d.Id,
+                Name = d.Name,
+                Language = d.Language
+            })
+            .ToListAsync();
+
+        return new GetAllDictionariesResponseDto
+        {
+            Dictionaries = dictionaries
+        };
+    }
+
+    public async Task<GetWordsFromDictionaryResponseDto> GetWordsFromDictionaryAsync(int DictionaryId)
+    {
+        var dictionary = await context.Dictionaries
+            .Include(d => d.Words)
+            .SingleOrDefaultAsync(d => d.Id == DictionaryId)
+            ?? throw new NotFoundException("Dictionary doesn't exist.");
+
+        if (dictionary.Words is null)
+            throw new NotFoundException("Dictionary doesn't have any words.");
+
+        var words = new List<WordDto>();
+
+        foreach (var w in dictionary.Words)
+        {
+            words.Add(new WordDto
+            {
+                Id= w.Id,
+                SourceWord = w.SourceWord,
+                SourcePhrases = w.SourcePhrases,
+                TargetWord = w.TargetWord,
+                TargetPhrases = w.TargetPhrases
+            });
+        }
+
+        return new GetWordsFromDictionaryResponseDto
+        {
+            Words = words
+        };
+    }
+
     public async Task CreateDictionaryAsync(CreateDictionaryRequestDto dto)
     {
         var dictionaryExists = await context.Dictionaries.SingleOrDefaultAsync(dictionary => dictionary.Name == dto.Name);
