@@ -12,10 +12,15 @@ import PageTransition from '../components/PageTransition.tsx';
 import axiosInstance from '../api/axiosInstance.ts';
 import { useAuth } from '../context/AuthProvider.tsx';
 import ThemeButton from '../components/ThemeButton.tsx';
+import { Mosaic } from 'react-loading-indicators';
+
+
+
 
 
 
 const Login = () => {
+    const [Loading, setLoading] = useState<boolean>(false);
     const [form] = Form.useForm();
     const navigate = useNavigate();
     const { setToken } = useAuth();
@@ -41,12 +46,15 @@ const Login = () => {
     }, [errorMessage]);
 
     function navigateToRegister() {
+        setLoading(true);
         navigate("/register");
+
     }
 
     const handleGoogleLogin = async (googleToken: string | undefined) => {
   
         try {
+            setLoading(true);
    
             setErrorMessage("");
             console.log("Google login successful:", googleToken);
@@ -55,10 +63,11 @@ const Login = () => {
             });
 
             console.log("Google login successful2:", response.data);
-            setToken(response.data.token, response.data.id, true);
+            setToken(response.data.token, response.data.id, response.data.role, true);
             navigate("/home");
  
         } catch (error: any) {
+            setLoading(false);
             console.error("Google login failed:", error.response?.data || error.message);
             const errorMsg = error.response?.data?.message || 
                      error.response?.data || 
@@ -68,10 +77,10 @@ const Login = () => {
                 };
 
     const onFinish = (values: { email: string; password: string; rememberMe?: boolean }) => {
+        setLoading(true);
 
         console.log("Login success:", values);
         setErrorMessage("");
-
         axiosInstance.post('/api/v1/Auth/login', {
             email: values.email,
             password: values.password,
@@ -79,7 +88,7 @@ const Login = () => {
             console.log("Login successful:", response.data);
             
             //tu spremamo token i ovisno o tome dal je remember me ili ne se spremi u local storage ili session storage
-            setToken(response.data.token, response.data.id, values.rememberMe || false);
+            setToken(response.data.token, response.data.id, response.data.role, values.rememberMe || false);
 
             if (response.data.mustChangePassword) {
                 
@@ -89,6 +98,7 @@ const Login = () => {
                 navigate("/home");
             }
         }).catch((error) => {
+            setLoading(false);
             console.error("Login failed:", error.response?.data || error.message);
             
             // Set error message
@@ -106,27 +116,31 @@ const Login = () => {
     return (
         <PageTransition>
             <div className="min-h-screen flex flex-col items-center justify-center p-5 w-screen">
-                {/* Theme Button u gornjem desnom kutu */}
-                <div className="fixed top-6 right-6 z-50">
-                    <ThemeButton />
-                </div>
+                {Loading ? (
+                    <Mosaic color="var(--color-primary-dark)" size="medium" text="" textColor="" />
+                ) : (
+                    <>
+                        {/* Theme Button u gornjem desnom kutu */}
+                        <div className="fixed top-6 right-6 z-50">
+                            <ThemeButton />
+                        </div>
 
-                <div className={"absolute z-0 w-screen h-screen "}>
-                    <Particles particleColors={['#ffffff', '#ffffff']}
-                        particleCount={300}
-                        particleSpread={12}
-                        speed={0.1}
-                        particleBaseSize={200}
-                        moveParticlesOnHover={true}
-                        alphaParticles={false}
-                        disableRotation={false}
-                    />
-                </div>
+                        <div className={"absolute z-0 w-screen h-screen "}>
+                            <Particles particleColors={['#ffffff', '#ffffff']}
+                                particleCount={300}
+                                particleSpread={12}
+                                speed={0.1}
+                                particleBaseSize={200}
+                                moveParticlesOnHover={true}
+                                alphaParticles={false}
+                                disableRotation={false}
+                            />
+                        </div>
 
-                <AnimatedFace />
+                        <AnimatedFace />
 
-                {/* Login Form Container */}
-                <div className="mt-36 w-full max-w-[400px] flex flex-col gap-4">
+                        {/* Login Form Container */}
+                        <div className="mt-36 w-full max-w-[400px] flex flex-col gap-4">
                     
                     {/* Error Message */}
                     {errorMessage && (
@@ -239,7 +253,10 @@ const Login = () => {
                         </div>
                     </Form>
                 </div>
+                    </>
+                )}
             </div>
+                    
         </PageTransition>
     );
 };

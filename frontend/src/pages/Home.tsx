@@ -1,14 +1,15 @@
-import { useAuth } from "../context/AuthProvider";
+
 import { useNavigate } from "react-router";
 import PageTransition from "../components/PageTransition";
 import Particles from "../styles/Particles";
-import { BookOutlined, UserOutlined, CheckCircleOutlined } from "@ant-design/icons";
+import { SettingOutlined } from '@ant-design/icons';
 
 import Header from "../components/Header";
+import { useAuth } from "../context/AuthProvider";
 
 const Home = () => {
-    const { isAuthenticated } = useAuth();
     const navigate = useNavigate();
+    const { role } = useAuth();
 
    
 
@@ -32,6 +33,21 @@ const Home = () => {
                 {/* Header */}
                 <Header />
 
+                {/* Admin Button - Visible only for admins */}
+                {role === 'Admin' && (
+                    <div className="fixed top-6 left-6 z-50">
+                        <button 
+                            onClick={() => navigate('/admin')}
+                            className="flex items-center justify-center gap-2 bg-[var(--color-primary-dark)] text-on-dark rounded-full shadow-lg hover:shadow-xl transition-all hover:opacity-90 cursor-pointer
+                                       px-4 py-3 md:px-6 md:py-3 
+                                       w-12 h-12 md:w-auto md:h-auto"
+                        >
+                            <SettingOutlined className="text-lg md:text-base" />
+                            <span className="hidden md:inline font-space">Admin Panel</span>
+                        </button>
+                    </div>
+                )}
+
                 {/* Start Learning Section */}
                 <div className="w-full max-w-[1200px] bg-white/90 rounded-3xl shadow-2xl p-12 mb-8 z-10 text-center">
                     <h2 className="font-space text-3xl font-bold text-[#8B6B7A] mb-4">
@@ -40,69 +56,12 @@ const Home = () => {
                     <p className="font-space text-lg text-[#8B6B7A]/70 mb-8">
                         Započnite svoje putovanje učenja s flashcard karticama
                     </p>
-                    <button onClick={() => navigate('/chooseStyle')} className="cursor-pointer px-12 py-4 bg-(--color-primary-dark) text-on-dark font-space text-lg font-bold rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-105 active:scale-95">
+                    <button onClick={() => navigate('/chooseWordSet')} className="cursor-pointer px-12 py-4 bg-(--color-primary-dark) text-on-dark font-space text-lg font-bold rounded-full shadow-lg hover:shadow-2xl transition-all hover:scale-105 active:scale-95">
                         Započnite Učenje 🚀
                     </button>
                 </div>
 
-                {/* Features Grid */}
-                <div className="w-full max-w-[1200px] grid grid-cols-1 md:grid-cols-3 gap-6 z-10">
-                    {/* Feature 1 */}
-                    <div className="bg-white/90 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all">
-                        <div className="w-12 h-12 rounded-full bg-(--color-primary) flex items-center justify-center mb-4">
-                            <BookOutlined style={{ fontSize: '24px', color: 'white' }} />
-                        </div>
-                        <h3 className="font-space text-lg font-bold text-[#8B6B7A] mb-2">
-                            Kreirajte Kartice
-                        </h3>
-                        <p className="font-space text-sm text-[#8B6B7A]/70">
-                            Jednostavno kreirajte svoje flashcard kartice za učenje
-                        </p>
-                    </div>
-
-                    {/* Feature 2 */}
-                    <div className="bg-white/90 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all">
-                        <div className="w-12 h-12 rounded-full bg-(--color-primary) flex items-center justify-center mb-4">
-                            <CheckCircleOutlined style={{ fontSize: '24px', color: 'white' }} />
-                        </div>
-                        <h3 className="font-space text-lg font-bold text-[#8B6B7A] mb-2">
-                            Pratite Napredak
-                        </h3>
-                        <p className="font-space text-sm text-[#8B6B7A]/70">
-                            Pratite svoj napredak i statistiku učenja
-                        </p>
-                    </div>
-
-                    {/* Feature 3 */}
-                    <div className="bg-white/90 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all">
-                        <div className="w-12 h-12 rounded-full bg-(--color-primary) flex items-center justify-center mb-4">
-                            <UserOutlined style={{ fontSize: '24px', color: 'white' }} />
-                        </div>
-                        <h3 className="font-space text-lg font-bold text-[#8B6B7A] mb-2">
-                            Vaš Profil
-                        </h3>
-                        <p className="font-space text-sm text-[#8B6B7A]/70">
-                            Personalizirajte svoj profil i postavke
-                        </p>
-                    </div>
-                </div>
-
-                {/* Status Card */}
-                <div className="w-full max-w-[1200px] bg-gradient-to-r from-pink-100 to-purple-100 rounded-2xl shadow-lg p-6 mt-8 z-10">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h3 className="font-space text-lg font-bold text-[#8B6B7A] mb-1">
-                                Status Autentifikacije
-                            </h3>
-                            <p className="font-space text-sm text-[#8B6B7A]/70">
-                                {isAuthenticated ? "✅ Prijavljeni ste" : "❌ Niste prijavljeni"}
-                            </p>
-                        </div>
-                        <div className="text-4xl">
-                            🎉
-                        </div>
-                    </div>
-                </div>
+                
             </div>
         </PageTransition>
     );
