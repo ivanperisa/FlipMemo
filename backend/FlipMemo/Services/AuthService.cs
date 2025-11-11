@@ -77,7 +77,7 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
             Id = user.Id,
             Email = user.Email,
             Role = user.Role,
-            MustChangePassword = true,
+            MustChangePassword = false,
             Token = token
         };
     }

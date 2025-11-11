@@ -2,10 +2,10 @@
 import { useNavigate } from "react-router";
 import PageTransition from "../components/PageTransition";
 import Particles from "../styles/Particles";
-import { SettingOutlined } from '@ant-design/icons';
+
 
 import Header from "../components/Header";
-import { useAuth } from "../context/AuthProvider";
+
 
 const Home = () => {
     const navigate = useNavigate();
