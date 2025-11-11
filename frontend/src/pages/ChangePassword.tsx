@@ -76,7 +76,8 @@ const ChangePassword = () => {
 
                 <div className="mt-20 w-full max-w-[400px] flex flex-col gap-4 relative">
                     <label
-                        className={"z-1 font-space text-[#8B6B7A]"}
+                        className={" font-space "}
+                        style={{ color: 'var(--color-text-on-primary)', zIndex: 100 }}
                     >
                         Unesite trenutnu i novu lozinku:
                     </label>

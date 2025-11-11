@@ -2,64 +2,56 @@
 import { useNavigate } from "react-router";
 import PageTransition from "../components/PageTransition";
 import Particles from "../styles/Particles";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLearning } from "../context/LearningContext";
 import Header from "../components/Header";
 import axiosInstance from "../api/axiosInstance";
 import { Mosaic } from "react-loading-indicators";
 
+// Import types from LearningContext to avoid duplication
+interface Word {
+    id: number;
+    SourceWord: string | null;
+    SourcePhrases: string[];
+    TargetWord: string;
+    TargetPhrases: string[];
+    AudioFile: string;
+    Dictionaries: WordSet[] | null;
+}
 
+interface WordSet {
+    id: number;
+    name: string;
+    language: string;
+    words: Word[];
+}
 
 const Home = () => {
-
     //VARIJABLE
     const [currentWordSet, setCurrentWordSet] = useState<WordSet | null>(null);
     const [Loading, setLoading] = useState<boolean>(false);
-
+    const [WordSets, setWordSets] = useState<WordSet[]>([]);
 
     //KONTEKSTI
     const navigate = useNavigate();
     const { setSelectedWordSet } = useLearning();
 
     //FUNKCIJE
-
-    function fetchWordSets(): WordSet[] {
-        setLoading(true);
-        axiosInstance.get('/api/v1/dictionary/word-sets')
-            .then(response => {
-                // Handle successful response
-               setLoading(false);
-               return response.data;
-            })
-            .catch(error => {
-                // Handle error
+    useEffect(() => {
+        const fetchWordSets = async () => {
+            setLoading(true);
+            try {
+                const response = await axiosInstance.get('/api/v1/GetAllDictionaries');
+                setWordSets(response.data);
+            } catch (error) {
+                console.error('Error fetching word sets:', error);
+            } finally {
                 setLoading(false);
-                console.error(error);
-            });
-            return [];
-    }
+            }
+        };
 
-    //MODELI
-
-    interface Word{
-        id: number;
-        SourceWord: string|null;
-        SourcePhrases: string[];
-        TargetWord: string;
-        TargetPhrases: string[];
-        AudioFile: string;
-
-        Dictionaries: WordSet[]|null;
-    }
-
-    interface WordSet {
-        id: number;
-        name: string;
-        language: string;
-        words: Word[];
-    }
-
-    const WordSets: WordSet[] = fetchWordSets();
+        fetchWordSets();
+    }, []);
 
     return (
         <PageTransition>
@@ -131,12 +123,9 @@ const Home = () => {
                 disabled={!currentWordSet}
                 onClick={() => {
                     if (!currentWordSet) return;
-
-                    const selected: WordSet | undefined = WordSets.find(s => s === currentWordSet);
-                    if (selected) {
-                        setSelectedWordSet(selected);
-                    }
                     
+                    // Spremamo odabrani WordSet u context
+                    setSelectedWordSet(currentWordSet);
                     navigate('/chooseStyle');
                 }}
                 className="mt-8 w-full py-4 bg-(--color-primary-dark) text-on-dark font-space rounded-full disabled:opacity-30"

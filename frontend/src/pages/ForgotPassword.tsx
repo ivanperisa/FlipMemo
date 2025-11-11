@@ -117,7 +117,8 @@ const ForgotPassword = () => {
 
                     <label
                         ref={labelRef}
-                        className={"z-1 font-space text-[#8B6B7A]"}
+                        className={"font-space"}
+                        style={{ color: 'var(--color-text-on-primary)', zIndex: 100 }}
                     >
                         Unesite E-mail adresu vašeg računa:
                     </label>
