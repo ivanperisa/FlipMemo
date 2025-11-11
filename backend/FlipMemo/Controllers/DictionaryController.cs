@@ -6,7 +6,7 @@ namespace FlipMemo.Controllers;
 
 [ApiController]
 [Route("api/v1/[Controller]")]
-public class DictionariesController(IDictionariesService dictionariesService) : ControllerBase
+public class DictionaryController(IDictionaryService dictionariesService) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> GetAllDictionaries()

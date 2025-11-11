@@ -2,7 +2,7 @@
 
 namespace FlipMemo.Interfaces;
 
-public interface IDictionariesService
+public interface IDictionaryService
 {
     Task<GetAllDictionariesResponseDto> GetAllDictionariesAsync();
     Task<GetWordsFromDictionaryResponseDto> GetWordsFromDictionaryAsync(int DictionaryId);

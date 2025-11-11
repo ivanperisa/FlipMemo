@@ -7,7 +7,7 @@ using FlipMemo.Models;
 
 namespace FlipMemo.Services;
 
-public class DictionariesService(ApplicationDbContext context) : IDictionariesService
+public class DictionaryService(ApplicationDbContext context) : IDictionaryService
 {
     public async Task<GetAllDictionariesResponseDto> GetAllDictionariesAsync()
     {

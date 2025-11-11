@@ -7,7 +7,7 @@ namespace FlipMemo.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
-public class WordsController(IWordsService wordsService, IWordsApiService wordsApiService) : ControllerBase
+public class WordController(IWordService wordsService, IWordsApiService wordsApiService) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> SearchWords([FromQuery] SearchWordsRequestDto dto)

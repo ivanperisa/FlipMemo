@@ -17,8 +17,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IDictionariesService, DictionariesService>();
-builder.Services.AddScoped<IWordsService, WordsService>();
+builder.Services.AddScoped<IDictionaryService, DictionaryService>();
+builder.Services.AddScoped<IWordService, WordService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 

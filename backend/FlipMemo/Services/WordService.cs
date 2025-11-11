@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FlipMemo.Services;
 
-public class WordsService(ApplicationDbContext context, IWordDictionaryApiService wordsApiService, IDeepTranslateApiService deepTranslateApiService) : IWordsService
+public class WordService(ApplicationDbContext context, IWordDictionaryApiService wordsApiService, IDeepTranslateApiService deepTranslateApiService) : IWordService
 {
     public async Task<CreateWordResponseDto> CreateWordAsync(int DictionaryId, CreateWordRequestDto dto)
     {
