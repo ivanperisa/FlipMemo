@@ -6,7 +6,6 @@ import { Space, Table, type TableProps,Tag, Typography } from "antd";
 import axiosInstance from "../api/axiosInstance";
 import { useEffect, useState } from "react";
 import { Mosaic } from "react-loading-indicators";
-import { Link } from "react-router";
 import { useAuth } from "../context/AuthProvider";
 
 const UserControl = () => {
@@ -124,7 +123,7 @@ async function demoteUser(user:User){
         console.log(response);
     })
     .catch((error)=>{
-        setError('Greška pri deprommicanju korisnika: ' + (error.response?.data?.message || error.message));
+        setError('Greška pri demotanju korisnika: ' + (error.response?.data?.message || error.message));
         console.log(error);
     });
 }
@@ -153,22 +152,20 @@ async function demoteUser(user:User){
 
                 {/* Error Message */}
                 {error && (
-                    <div className="z-10 bg-red-500 text-white px-6 py-4 rounded-lg mb-4 max-w-2xl mx-auto shadow-lg">
-                        <div className="flex items-center justify-between">
-                            <span className="font-space">{error}</span>
-                            <button 
-                                onClick={() => setError(null)}
-                                className="ml-4 text-white hover:text-gray-200 font-bold"
-                            >
-                                ✕
-                            </button>
-                        </div>
+                    <div 
+                        className="w-full max-w-2xl bg-red-50 border-2 border-red-300 rounded-2xl p-3 z-10 mb-4"
+                    >
+                        <p className="font-space text-sm text-red-600 text-center">
+                            {error}
+                        </p>
                     </div>
                 )}
 
                 {Loading ? 
                 (<Mosaic color="var(--color-primary-dark)" size="medium" text="" textColor="" />):
-                (<Table<User> columns={columns} dataSource={users} />)}
+                (<div className="w-[70%] z-10">
+                    <Table<User> columns={columns} dataSource={users} />
+                </div>)}
 
                 
             </div>

@@ -9,7 +9,7 @@ import { useAuth } from "../context/AuthProvider";
 
 const Home = () => {
     const navigate = useNavigate();
-    const { role } = useAuth();
+    
 
    
 

@@ -77,7 +77,7 @@ const ForgotPassword = () => {
         
         setTimeout(() => {
             setShowModal(true);
-        }, 1500);
+        }, 1800);
     };
 
     const onFinishFailed = (errorInfo: any) => {
