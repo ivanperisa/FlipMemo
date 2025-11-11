@@ -76,6 +76,7 @@ const AdminAddWord = () => {
         return;
     }
     
+    setLoading(true);
     handleClosePopup();
     const wordLanguage = form.getFieldValue('wordLanguage')?.toLowerCase();
     form.resetFields();
@@ -87,6 +88,8 @@ const AdminAddWord = () => {
 
     axiosInstance.post("/api/v1/Word", body)
     .then((response) => {
+        setLoading(false);
+        setSuccessMessage("Riječ uspješno dodana u rječnik!")
         console.log(response);
     })
     .catch((error) => {
@@ -120,6 +123,13 @@ const AdminAddWord = () => {
             alphaParticles={false}
             disableRotation={false}
           />
+        </div>
+
+        <div className={`flex flex-row gap-2 mt-4 fixed top-0 left-1/2 -translate-x-1/2 bg-green-400 text-white font-semibold rounded-md px-4 py-2 shadow-md z-50 transition-all duration-500 transform ${successMessage ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+            {successMessage}
+            <button onClick={() => setSuccessMessage("")} >
+                <CloseCircleOutlined className="rounded cursor-pointer filter hover:brightness-90 transition-colors duration-200" />
+            </button>
         </div>
 
         {errorMessage && (
