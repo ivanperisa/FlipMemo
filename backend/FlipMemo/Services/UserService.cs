@@ -8,13 +8,15 @@ namespace FlipMemo.Services;
 
 public class UserService(ApplicationDbContext context) : IUserService
 {
-    public async Task<IEnumerable<UserResponseDto>> GetAllUsersAsync()
+    public async Task<IEnumerable<GetAllUsersResponseDto>> GetAllUsersAsync()
     {
         var users = await context.Users
-            .Select(u => new UserResponseDto
+            .Select(u => new GetAllUsersResponseDto
             {
                 Id = u.Id,
-                Email = u.Email
+                Email = u.Email,
+                Role=u.Role
+                
             })
             .ToListAsync();
 

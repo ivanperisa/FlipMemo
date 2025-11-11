@@ -60,10 +60,16 @@ public class UserController(IUserService userService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Promote(int id)
     {
+        var userIdClaim = User.FindFirst("userId")?.Value;
+        var currentUserId = int.Parse(userIdClaim!);
+
+        if (currentUserId == id)
+            throw new ConflictException("You can't change your own role.");
+
         await userService.ChangeRole(id, "Promote");
 
         return Ok(new { message = "User promoted successfully." });
-           
+
     }
 
     [HttpPut("{id}/demote")]
@@ -75,6 +81,12 @@ public class UserController(IUserService userService) : ControllerBase
 
     public async Task<IActionResult> Demote(int id)
     {
+        var userIdClaim = User.FindFirst("userId")?.Value;
+        var currentUserId = int.Parse(userIdClaim!);
+
+        if (currentUserId == id)
+            throw new ConflictException("You can't change your own role.");
+
         await userService.ChangeRole(id, "Demote");
 
         return Ok(new { message = "User demoted successfully." });
