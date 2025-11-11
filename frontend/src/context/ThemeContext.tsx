@@ -25,10 +25,8 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 const DEFAULT_THEMES: Theme[] = [
     { id: 'pink', name: 'Roza', color: '#F0A2A5' },
     { id: 'blue', name: 'Plava', color: '#A0C4FF' },
-    { id: 'green', name: 'Zelena', color: '#A8E6CF' },
-    { id: 'purple', name: 'Ljubičasta', color: '#C5A3E0' },
-    { id: 'yellow', name: 'Žuta', color: '#FFD93D' },
-    { id: 'coral', name: 'Koraljna', color: '#FF9B9B' },
+    { id: 'green', name: 'Zelena', color: '#A8E6CF' }
+
 ];
 
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {

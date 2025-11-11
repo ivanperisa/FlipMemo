@@ -13,9 +13,10 @@ const AnimatedRoutes = () => {
         <div style={{
             position: 'relative',
             width: '100%',
-            height: '100vh',
+            overflowX:'hidden',
+            minHeight: '100vh',
             background: 'linear-gradient(180deg, var(--color-gradient-start) 0%, var(--color-gradient-end) 100%)',
-            overflow: 'hidden'
+            
         }}>
             <AnimatePresence>
             <Routes>

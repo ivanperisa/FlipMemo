@@ -43,6 +43,7 @@ const Home = () => {
             try {
                 const response = await axiosInstance.get('/api/v1/Dictionary');
                 const data = response.data.dictionaries || [];
+                console.log(data);
                 setWordSets(data);
             } catch (error) {
                 console.error('Error fetching word sets:', error);

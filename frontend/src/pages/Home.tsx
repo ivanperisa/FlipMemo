@@ -33,20 +33,7 @@ const Home = () => {
                 {/* Header */}
                 <Header />
 
-                {/* Admin Button - Visible only for admins */}
-                {role === 'Admin' && (
-                    <div className="fixed top-6 left-6 z-50">
-                        <button 
-                            onClick={() => navigate('/admin')}
-                            className="flex items-center justify-center gap-2 bg-[var(--color-primary-dark)] text-on-dark rounded-full shadow-lg hover:shadow-xl transition-all hover:opacity-90 cursor-pointer
-                                       px-4 py-3 md:px-6 md:py-3 
-                                       w-12 h-12 md:w-auto md:h-auto"
-                        >
-                            <SettingOutlined className="text-lg md:text-base" />
-                            <span className="hidden md:inline font-space">Admin Panel</span>
-                        </button>
-                    </div>
-                )}
+                
 
                 {/* Start Learning Section */}
                 <div className="w-full max-w-[1200px] bg-white/90 rounded-3xl shadow-2xl p-12 mb-8 z-10 text-center">

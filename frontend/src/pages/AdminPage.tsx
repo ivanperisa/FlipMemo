@@ -26,12 +26,7 @@ const AdminPage = () => {
                 {/* Header */}
                 <Header />
 
-                {/* Admin Panel Title */}
-                <div className="flex w-full items-start justify-start mb-8 mt-8">
-                    <div className="bg-[var(--color-primary-extra-dark)] z-10 rounded-r-full py-6 px-16 text-on-primary font-space text-2xl font-semibold">
-                        Admin Panel
-                    </div>
-                </div>
+                
 
                 {/* Admin Action Cards */}
                 <div className="w-full max-w-[800px] px-5 z-10 flex flex-col gap-6">
