@@ -31,9 +31,9 @@ const AdminPage = () => {
                 {/* Admin Action Cards */}
                 <div className="w-full max-w-[800px] px-5 z-10 flex flex-col gap-6">
                     
-                    {/* Add Dictionary Card */}
+                    {/* Control users Card */}
                     <button
-                        onClick={() => navigate('/admin/dictionary')}
+                        onClick={() => navigate('/userControl')}
                         className="w-full bg-white/90 rounded-3xl shadow-xl p-8 hover:shadow-2xl transition-all hover:scale-105 cursor-pointer"
                     >
                         <div className="flex items-center gap-6">
@@ -42,10 +42,10 @@ const AdminPage = () => {
                             </div>
                             <div className="flex-1 text-left">
                                 <h3 className="font-space text-2xl font-bold text-[#8B6B7A] mb-2">
-                                    Upravljanje rječnicima
+                                    Upravljanje korisnicima
                                 </h3>
                                 <p className="font-space text-[#8B6B7A]/70">
-                                    Kreiranje rječnika
+                                    Postavi uloge postojećim korisnicima
                                 </p>
                             </div>
                         </div>

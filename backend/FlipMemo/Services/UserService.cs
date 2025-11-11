@@ -14,19 +14,25 @@ public class UserService(ApplicationDbContext context) : IUserService
             .Select(u => new UserResponseDto
             {
                 Id = u.Id,
-                Email = u.Email
+                Email = u.Email,
+                Role = u.Role
             })
             .ToListAsync();
 
         return users;
     }
+
     public async Task<UserResponseDto> GetUserByIdAsync(int id)
     {
         var user = await context.Users
             .FindAsync(id)
             ?? throw new NotFoundException("Account doesn't exist.");
 
-        return new UserResponseDto { Id = user.Id, Email = user.Email };
+        return new UserResponseDto {
+            Id = user.Id,
+            Email = user.Email,
+            Role = user.Role
+        };
     }
 
     public async Task DeleteUserAsync(int id)

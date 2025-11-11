@@ -8,6 +8,7 @@ export { default as ForgotPassword } from "./ForgotPassword.tsx";
 export { default as ChangePassword } from "./ChangePassword.tsx";
 export { default as ChooseStyle } from "./ChooseStyle.tsx";
 export { default as ChooseWordSet } from "./ChooseWordSet.tsx";
+export {default as UserControl} from "./userControl.tsx"
 export { default as AdminPage} from "./AdminPage.tsx";
 export { default as AdminDictionary} from "./AdminDictionary.tsx";
 export { default as AdminAddDictionary} from "./AdminAddDictionary.tsx";

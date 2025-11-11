@@ -45,15 +45,15 @@ const AnimatedSendButton = forwardRef<
 
       setIsActive(true);
 
-      // After 1.8s, set finished state
+      // After loader bar finishes (500ms delay + 1300ms transition = 1800ms)
       setTimeout(() => {
         setIsFinished(true);
 
-        // Call success callback after finish animation
+        // Call success callback after SUCCESS text appears and stays visible
         if (onSuccess) {
           setTimeout(() => {
             onSuccess();
-          }, 100);
+          }, 800); // Give time to see SUCCESS text
         }
       }, 1800);
     };
@@ -77,43 +77,30 @@ const AnimatedSendButton = forwardRef<
       <button
         type={type}
         disabled={disabled}
-        className={`
-                relative overflow-hidden
-                border-2
-                text-white font-bold
-                rounded-[50px]
-                transition-all
-                ${isActive && !isFinished ? "py-0 px-20" : "py-[15px] px-20"}
-                ${isFinished ? "py-[15px] px-20" : ""}
-                focus:outline-none
-                ${
-                  disabled
-                    ? "opacity-50 cursor-not-allowed"
-                    : "cursor-pointer hover:opacity-90"
-                }
-                ${className}
-            `}
+        className={`relative overflow-hidden border-2 text-white font-bold focus:outline-none ${className}`}
         style={{
           backgroundColor: bgColor,
           borderColor: borderColor,
-          transitionDuration: "400ms",
-          transitionTimingFunction: "cubic-bezier(0.35, -0.77, 0.67, 1.88)",
+          borderRadius: '50px',
+          paddingTop: isActive && !isFinished ? '0px' : '15px',
+          paddingBottom: isActive && !isFinished ? '0px' : '15px',
+          paddingLeft: '80px',
+          paddingRight: '80px',
+          opacity: disabled ? 0.5 : 1,
+          cursor: disabled ? 'not-allowed' : 'pointer',
+          transition: 'all 400ms cubic-bezier(0.35, -0.77, 0.67, 1.88)',
+          transform: 'translateZ(0)',
         }}
       >
         {/* SEND Text */}
         <span
-          className={`
-                    block
-                    transition-all
-                    ${
-                      isActive
-                        ? "scale-0 -translate-y-[350%] opacity-0"
-                        : "scale-100 translate-y-0 opacity-100"
-                    }
-                `}
           style={{
-            transitionDuration: "350ms",
-            transitionTimingFunction: "cubic-bezier(0.34, -0.61, 1, 0.64)",
+            display: 'block',
+            transform: isActive 
+              ? 'scale(0) translateY(-350%)' 
+              : 'scale(1) translateY(0)',
+            opacity: isActive ? 0 : 1,
+            transition: 'all 350ms cubic-bezier(0.34, -0.61, 1, 0.64)',
           }}
         >
           {sendText}
@@ -121,38 +108,33 @@ const AnimatedSendButton = forwardRef<
 
         {/* Loader Bar */}
         <div
-          className={`
-                    absolute left-[2px] top-[2px]
-                    h-[calc(100%-4px)]
-                    rounded-[50px]
-                    transition-all ease-in-out
-                    ${isActive ? "w-[calc(100%-4px)]" : "w-[calc(0%-4px)]"}
-                `}
           style={{
+            position: 'absolute',
+            left: '2px',
+            top: '2px',
+            height: 'calc(100% - 4px)',
+            width: isActive ? 'calc(100% - 4px)' : '0',
+            borderRadius: '50px',
             backgroundColor: loaderColor,
-            transitionDuration: "1300ms",
-            transitionDelay: isActive ? "500ms" : "0ms",
+            transition: 'all 1300ms ease-in-out',
+            transitionDelay: isActive ? '500ms' : '0ms',
+            transform: 'translateZ(0)',
           }}
         />
 
         {/* SUCCESS Text */}
         <span
-          className={`
-                    absolute
-                    top-1/2
-                    left-1/2
-                    -translate-x-1/2
-                    -translate-y-1/2
-                    transition-all
-                    ${
-                      isFinished ? "scale-100 opacity-100" : "scale-0 opacity-0"
-                    }
-                `}
           style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: isFinished 
+              ? 'translate(-50%, -50%) scale(1)' 
+              : 'translate(-50%, -50%) scale(0)',
+            opacity: isFinished ? 1 : 0,
             color: successTextColor,
-            transitionDuration: "400ms",
-            transitionDelay: isFinished ? "100ms" : "0ms",
-            transitionTimingFunction: "cubic-bezier(0.34, -0.61, 1, 0.64)",
+            transition: 'all 400ms cubic-bezier(0.34, -0.61, 1, 0.64)',
+            transitionDelay: isFinished ? '100ms' : '0ms',
           }}
         >
           {successText}

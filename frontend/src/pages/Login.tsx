@@ -48,33 +48,31 @@ const Login = () => {
     function navigateToRegister() {
         setLoading(true);
         navigate("/register");
-
     }
 
     const handleGoogleLogin = async (googleToken: string | undefined) => {
-  
         try {
             setLoading(true);
-   
             setErrorMessage("");
+            
             console.log("Google login successful:", googleToken);
+            
             const response = await axiosInstance.post('/api/v1/Auth/google-login', {
                 googleToken: googleToken 
             });
 
-            console.log("Google login successful2:", response.data);
+            console.log("Backend response:", response.data);
             setToken(response.data.token, response.data.id, response.data.role, true);
             navigate("/home");
- 
         } catch (error: any) {
             setLoading(false);
             console.error("Google login failed:", error.response?.data || error.message);
             const errorMsg = error.response?.data?.message || 
                      error.response?.data || 
                      "Google login nije uspio!";
-                     setErrorMessage(errorMsg);
-                    }
-                };
+            setErrorMessage(errorMsg);
+        }
+    };
 
     const onFinish = (values: { email: string; password: string; rememberMe?: boolean }) => {
         setLoading(true);
@@ -199,19 +197,23 @@ const Login = () => {
                                 style={{
                                     padding: '12px 20px',
                                     backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                                    
                                 }}
                                 onChange={() => setErrorMessage("")}
                             />
                         </Form.Item>
 
-                        <GoogleLogin onSuccess={(credentialResponse) => {
-                            console.log(credentialResponse);
-                            handleGoogleLogin(credentialResponse.credential);
-                        }}
+                        {/* Google Login Button */}
+                        <GoogleLogin 
+                            onSuccess={(credentialResponse) => {
+                                console.log(credentialResponse);
+                                handleGoogleLogin(credentialResponse.credential);
+                            }}
                             onError={() => {
                                 console.log('Login Failed');
                                 setErrorMessage("Google login nije uspio!");
-                        }}/>
+                            }}
+                        />
                         
                         <br/>
                         <Link to="/forgotPassword" className={"font-space relative"} style={{ color: 'var(--color-text-on-primary)', zIndex: 100 }}>Zaboravili ste lozinku?</Link>

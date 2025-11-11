@@ -168,7 +168,7 @@ const Register = () => {
                 <div className="w-full max-w-[400px] flex flex-col gap-4 relative">
                     <label
                         ref={labelRef}
-                        className={"z-1 font-space text-[#8B6B7A]"}
+                        className={"z-1 font-space text-[var(--color-text-on-primary)]"}
                     >
                         Unesite E-mail adresu za izradu vašeg računa:
                     </label>

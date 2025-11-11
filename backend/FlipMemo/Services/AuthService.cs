@@ -41,7 +41,11 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
         context.Users.Add(user);
         await context.SaveChangesAsync();
 
-        return new UserResponseDto { Id = user.Id, Email = user.Email };
+        return new UserResponseDto {
+            Id = user.Id,
+            Email = user.Email,
+            Role = user.Role
+        };
     }
 
     public async Task<LoginResponseDto> LoginAsync(LoginRequestDto dto)
@@ -73,7 +77,7 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
             Id = user.Id,
             Email = user.Email,
             Role = user.Role,
-            MustChangePassword = true,
+            MustChangePassword = false,
             Token = token
         };
     }
