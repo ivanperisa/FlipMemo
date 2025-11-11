@@ -2,12 +2,23 @@ import { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
 
 // Interfaces
-interface WordSet {
-    id: string;
-    name: string;
-    words: string[];
-}
+ interface Word{
+        id: number;
+        SourceWord: string|null;
+        SourcePhrases: string[];
+        TargetWord: string;
+        TargetPhrases: string[];
+        AudioFile: string;
 
+        Dictionaries: WordSet[]|null;
+    }
+
+    interface WordSet {
+        id: number;
+        name: string;
+        language: string;
+        words: Word[];
+    }
 
 
 interface LearningMode {

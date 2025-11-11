@@ -1,8 +1,12 @@
 import './styles/styles.css'
 import { BrowserRouter, Route, Routes } from "react-router";
-import { Home, Login, Logout, Missing, Welcome, ForgotPassword, Register, ChangePassword, ChooseStyle,ChooseWordSet } from './pages/PagesImport.ts'
+import { Home, Login, Logout, Missing, Welcome, ForgotPassword, Register,
+    ChangePassword, ChooseStyle,ChooseWordSet, AdminDictionary, AdminPage, 
+    AdminAddDictionary,
+    AdminAddWord, UserControl} from './pages/PagesImport.ts';
 import AuthProvider from "./context/AuthProvider.tsx";
 import ProtectedRoutes from "./routes/ProtectedRoutes.tsx";
+import AdminProtectedRoute from "./routes/AdminProtectedRoute.tsx";
 import { AnimatePresence } from 'framer-motion';
 import ResetPassword from './pages/ResetPassword.tsx';
 
@@ -11,9 +15,10 @@ const AnimatedRoutes = () => {
         <div style={{
             position: 'relative',
             width: '100%',
-            height: '100vh',
+            overflowX:'hidden',
+            minHeight: '100vh',
             background: 'linear-gradient(180deg, var(--color-gradient-start) 0%, var(--color-gradient-end) 100%)',
-            overflow: 'hidden'
+            
         }}>
             <AnimatePresence>
             <Routes>
@@ -24,6 +29,16 @@ const AnimatedRoutes = () => {
              <Route path="/chooseWordSet" element={<ChooseWordSet />} />
                
             </Route>
+
+                {/* admin zasticene rute */}
+                <Route element={<AdminProtectedRoute />}>
+                <Route path="/admin" element={<AdminPage />} />
+                <Route path="/userControl" element={<UserControl/>}/>
+
+                <Route path="/admin/dictionary" element={<AdminDictionary/>} />
+                <Route path="/admin/dictionary/add" element={<AdminAddDictionary />}/>
+                <Route path="/admin/addWord" element={<AdminAddWord />} />
+                </Route>
 
                 {/* nezasticene rute */}
                 

@@ -1,6 +1,8 @@
 using FlipMemo.Data;
 using FlipMemo.Interfaces;
+using FlipMemo.Interfaces.External;
 using FlipMemo.Services;
+using FlipMemo.Services.External;
 using FlipMemo.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +17,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IDictionaryService, DictionaryService>();
+builder.Services.AddScoped<IWordService, WordService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 
@@ -111,6 +115,27 @@ builder.Services.AddAuthorizationBuilder()
         policy.RequireRole("Admin"))
     .AddPolicy("UserOrAdmin", policy =>
         policy.RequireRole("User", "Admin"));
+
+builder.Services.AddHttpClient<IWordsApiService, WordsApiService>(client =>
+{
+    client.BaseAddress = new Uri("https://wordsapiv1.p.rapidapi.com/");
+    client.DefaultRequestHeaders.Add("X-RapidAPI-Key", builder.Configuration["RapidApi:ApiKey"]);
+    client.DefaultRequestHeaders.Add("X-RapidAPI-Host", "wordsapiv1.p.rapidapi.com");
+});
+
+builder.Services.AddHttpClient<IWordDictionaryApiService, WordDictionaryApiService>(client =>
+{
+    client.BaseAddress = new Uri("https://twinword-word-graph-dictionary.p.rapidapi.com/");
+    client.DefaultRequestHeaders.Add("X-RapidAPI-Key", builder.Configuration["RapidApi:ApiKey"]);
+    client.DefaultRequestHeaders.Add("X-RapidAPI-Host", "twinword-word-graph-dictionary.p.rapidapi.com");
+});
+
+builder.Services.AddHttpClient<IDeepTranslateApiService, DeepTranslateApiService>(client =>
+{
+    client.BaseAddress = new Uri("https://deep-translate1.p.rapidapi.com/");
+    client.DefaultRequestHeaders.Add("X-RapidAPI-Key", builder.Configuration["RapidApi:ApiKey"]);
+    client.DefaultRequestHeaders.Add("X-RapidAPI-Host", "deep-translate1.p.rapidapi.com");
+});
 
 var app = builder.Build();
 
