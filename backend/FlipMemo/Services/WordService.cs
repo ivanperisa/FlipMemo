@@ -10,14 +10,17 @@ namespace FlipMemo.Services;
 
 public class WordService(ApplicationDbContext context, IWordDictionaryApiService wordsApiService, IDeepTranslateApiService deepTranslateApiService) : IWordService
 {
-    public async Task<CreateWordResponseDto> CreateWordAsync(int DictionaryId, CreateWordRequestDto dto)
+    public async Task<CreateWordResponseDto> CreateWordAsync(CreateWordRequestDto dto)
     {
-        var dictionary = await context.Dictionaries
+        var dictionaries = await context.Dictionaries
             .Include(d => d.Words)
-            .SingleOrDefaultAsync(d => d.Id == DictionaryId)
-            ?? throw new NotFoundException("Dictionary doesn't exist.");
+            .Where(d => dto.DictionaryIds.Contains(d.Id))
+            .ToListAsync();
 
-        if (dictionary.Words.Any(w => w.SourceWord.Equals(dto.Word, StringComparison.OrdinalIgnoreCase)))
+        if (dictionaries.Count != dto.DictionaryIds.Count)
+            throw new NotFoundException("One or more dictionaries do not exist.");
+
+        if (dictionaries.Any(d => d.Words.Any(w => w.SourceWord.Equals(dto.Word, StringComparison.OrdinalIgnoreCase))))
             throw new ConflictException("Word already exists in the dictionary.");
 
         var wordExamplesDto = await wordsApiService.GetWordExamplesAsync(dto.Word);
@@ -43,7 +46,9 @@ public class WordService(ApplicationDbContext context, IWordDictionaryApiService
         };
 
         context.Words.Add(word);
-        dictionary.Words.Add(word);
+        foreach (var dictionary in dictionaries)
+            dictionary.Words.Add(word);
+
         await context.SaveChangesAsync();
 
         return new CreateWordResponseDto

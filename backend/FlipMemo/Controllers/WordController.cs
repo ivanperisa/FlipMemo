@@ -17,10 +17,10 @@ public class WordController(IWordService wordsService, IWordsApiService wordsApi
         return Ok(words);
     }
 
-    [HttpPost("{dictionaryId}")]
-    public async Task<IActionResult> CreateWord(int dictionaryId, [FromBody] CreateWordRequestDto dto)
+    [HttpPost]
+    public async Task<IActionResult> CreateWord([FromBody] CreateWordRequestDto dto)
     {
-        var response = await wordsService.CreateWordAsync(dictionaryId, dto);
+        var response = await wordsService.CreateWordAsync(dto);
 
         return Ok(response);
     }

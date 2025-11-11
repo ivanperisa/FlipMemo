@@ -33,7 +33,7 @@ const AdminPage = () => {
                     
                     {/* Add Dictionary Card */}
                     <button
-                        onClick={() => navigate('/admin/add-dictionary')}
+                        onClick={() => navigate('/admin/dictionary')}
                         className="w-full bg-white/90 rounded-3xl shadow-xl p-8 hover:shadow-2xl transition-all hover:scale-105 cursor-pointer"
                     >
                         <div className="flex items-center gap-6">
@@ -42,10 +42,10 @@ const AdminPage = () => {
                             </div>
                             <div className="flex-1 text-left">
                                 <h3 className="font-space text-2xl font-bold text-[#8B6B7A] mb-2">
-                                    Dodaj Rječnik
+                                    Upravljanje rječnicima
                                 </h3>
                                 <p className="font-space text-[#8B6B7A]/70">
-                                    Kreiraj novi rječnik za učenje
+                                    Kreiranje rječnika
                                 </p>
                             </div>
                         </div>
@@ -53,7 +53,7 @@ const AdminPage = () => {
 
                     {/* Add Words to Dictionary Card */}
                     <button
-                        onClick={() => navigate('/admin/add-words')}
+                        onClick={() => navigate('/admin/addWord')}
                         className="w-full bg-white/90 rounded-3xl shadow-xl p-8 hover:shadow-2xl transition-all hover:scale-105 cursor-pointer"
                     >
                         <div className="flex items-center gap-6">
@@ -62,7 +62,7 @@ const AdminPage = () => {
                             </div>
                             <div className="flex-1 text-left">
                                 <h3 className="font-space text-2xl font-bold text-[#8B6B7A] mb-2">
-                                    Dodaj Riječi u Rječnik
+                                    Upravljanje riječima
                                 </h3>
                                 <p className="font-space text-[#8B6B7A]/70">
                                     Dodaj nove riječi u postojeći rječnik
