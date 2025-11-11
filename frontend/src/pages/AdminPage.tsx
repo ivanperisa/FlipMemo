@@ -51,6 +51,26 @@ const AdminPage = () => {
                         </div>
                     </button>
 
+                    {/* Add Dictionary Card */}
+                    <button
+                        onClick={() => navigate('/admin/dictionary')}
+                        className="w-full bg-white/90 rounded-3xl shadow-xl p-8 hover:shadow-2xl transition-all hover:scale-105 cursor-pointer"
+                    >
+                        <div className="flex items-center gap-6">
+                            <div className="w-16 h-16 bg-[var(--color-primary-dark)] rounded-full flex items-center justify-center">
+                                <PlusCircleOutlined className="text-3xl text-white" />
+                            </div>
+                            <div className="flex-1 text-left">
+                                <h3 className="font-space text-2xl font-bold text-[#8B6B7A] mb-2">
+                                    Upravljanje rječnicima
+                                </h3>
+                                <p className="font-space text-[#8B6B7A]/70">
+                                    Dodaj nove rječnike
+                                </p>
+                            </div>
+                        </div>
+                    </button>
+
                     {/* Add Words to Dictionary Card */}
                     <button
                         onClick={() => navigate('/admin/addWord')}
