@@ -116,6 +116,13 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("UserOrAdmin", policy =>
         policy.RequireRole("User", "Admin"));
 
+builder.Services.AddHttpClient<IWordsApiService, WordsApiService>(client =>
+{
+    client.BaseAddress = new Uri("https://wordsapiv1.p.rapidapi.com/");
+    client.DefaultRequestHeaders.Add("X-RapidAPI-Key", builder.Configuration["RapidApi:ApiKey"]);
+    client.DefaultRequestHeaders.Add("X-RapidAPI-Host", "wordsapiv1.p.rapidapi.com");
+});
+
 builder.Services.AddHttpClient<IWordDictionaryApiService, WordDictionaryApiService>(client =>
 {
     client.BaseAddress = new Uri("https://twinword-word-graph-dictionary.p.rapidapi.com/");
