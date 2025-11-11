@@ -12,7 +12,6 @@ import PageTransition from '../components/PageTransition.tsx';
 import axiosInstance from '../api/axiosInstance.ts';
 import { useAuth } from '../context/AuthProvider.tsx';
 import ThemeButton from '../components/ThemeButton.tsx';
-import { s } from 'framer-motion/client';
 import { Mosaic } from 'react-loading-indicators';
 
 
@@ -64,7 +63,7 @@ const Login = () => {
             });
 
             console.log("Google login successful2:", response.data);
-            setToken(response.data.token, response.data.id, true);
+            setToken(response.data.token, response.data.id, response.data.role, true);
             navigate("/home");
  
         } catch (error: any) {
@@ -89,7 +88,7 @@ const Login = () => {
             console.log("Login successful:", response.data);
             
             //tu spremamo token i ovisno o tome dal je remember me ili ne se spremi u local storage ili session storage
-            setToken(response.data.token, response.data.id, values.rememberMe || false);
+            setToken(response.data.token, response.data.id, response.data.role, values.rememberMe || false);
 
             if (response.data.mustChangePassword) {
                 

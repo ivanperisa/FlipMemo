@@ -3,8 +3,10 @@ import { BrowserRouter, Route, Routes } from "react-router";
 import { Home, Login, Logout, Missing, Welcome, ForgotPassword, Register, ChangePassword, ChooseStyle,ChooseWordSet } from './pages/PagesImport.ts'
 import AuthProvider from "./context/AuthProvider.tsx";
 import ProtectedRoutes from "./routes/ProtectedRoutes.tsx";
+import AdminProtectedRoute from "./routes/AdminProtectedRoute.tsx";
 import { AnimatePresence } from 'framer-motion';
 import ResetPassword from './pages/ResetPassword.tsx';
+import AdminPage from './pages/AdminPage.tsx';
 
 const AnimatedRoutes = () => {
     return (
@@ -24,6 +26,12 @@ const AnimatedRoutes = () => {
              <Route path="/chooseWordSet" element={<ChooseWordSet />} />
                
             </Route>
+
+                {/* admin zasticene rute */}
+                <Route element={<AdminProtectedRoute />}>
+                <Route path="/admin" element={<AdminPage />} />
+                    {/* TODO: Dodati /admin/add-dictionary i /admin/add-words */}
+                </Route>
 
                 {/* nezasticene rute */}
                 
