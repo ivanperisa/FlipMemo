@@ -6,7 +6,8 @@ import axiosInstance from "../api/axiosInstance";
 interface AuthContextType {
     token: string | null;
     id: string | null;
-    setToken: (newToken: string | null, userId?: string | null, rememberMe?: boolean) => void;
+    role: string | null;
+    setToken: (newToken: string | null, userId?: string | null, userRole?: string | null, rememberMe?: boolean) => void;
     logout: () => void;
     isAuthenticated: boolean;
 }
@@ -28,14 +29,20 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         return localStorage.getItem("userId") || sessionStorage.getItem("userId");
     };
 
+    const getInitialRole = () => {
+        return localStorage.getItem("userRole") || sessionStorage.getItem("userRole");
+    };
+
     
     const [token, setToken_] = useState<string | null>(getInitialToken());
     const [id, setId_] = useState<string | null>(getInitialId());
+    const [role, setRole_] = useState<string | null>(getInitialRole());
 
    
-    const setToken = (newToken: string | null, userId: string | null = null, rememberMe: boolean = false) => {
+    const setToken = (newToken: string | null, userId: string | null = null, userRole: string | null = null, rememberMe: boolean = false) => {
         setToken_(newToken);
         setId_(userId);
+        setRole_(userRole);
         
         if (newToken) {
             if (rememberMe) {
@@ -46,6 +53,10 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
                     localStorage.setItem('userId', userId);
                     sessionStorage.removeItem('userId');
                 }
+                if (userRole) {
+                    localStorage.setItem('userRole', userRole);
+                    sessionStorage.removeItem('userRole');
+                }
             } else {
                 
                 sessionStorage.setItem('token', newToken);
@@ -53,6 +64,10 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
                 if (userId) {
                     sessionStorage.setItem('userId', userId);
                     localStorage.removeItem('userId');
+                }
+                if (userRole) {
+                    sessionStorage.setItem('userRole', userRole);
+                    localStorage.removeItem('userRole');
                 }
             }
         }
@@ -62,6 +77,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     const logout = () => {
         setToken_(null);
         setId_(null);
+        setRole_(null);
     };
 
     useEffect(() => {
@@ -74,6 +90,8 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
             sessionStorage.removeItem('token');
             localStorage.removeItem('userId');
             sessionStorage.removeItem('userId');
+            localStorage.removeItem('userRole');
+            sessionStorage.removeItem('userRole');
         }
     }, [token]);
 
@@ -82,11 +100,12 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         () => ({
             token,
             id,
+            role,
             setToken,
             logout,
             isAuthenticated: !!token,
         }),
-        [token, id]
+        [token, id, role]
     );
 
    

@@ -51,10 +51,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         {
             entity.HasKey(w => w.Id);
 
-            entity.Property(w => w.ForeignWord)
+            entity.Property(w => w.SourceWord)
                 .HasMaxLength(100);
 
-            entity.Property(w => w.CroatianWord)
+            entity.Property(w => w.TargetWord)
                 .HasMaxLength(100);
         });
 

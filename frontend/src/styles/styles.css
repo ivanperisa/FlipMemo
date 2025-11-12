@@ -45,4 +45,32 @@
     color: var(--color-text-on-dark);
 }
 
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-gradient-end);
+    border-radius: 10px;
+}
+
+
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-primary);
+    border-radius: 10px;
+    border: 2px solid var(--color-gradient-end);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-primary-extra);
+}
+
+/* Firefox scrollbar */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary) var(--color-gradient-end);
+}
+
 
