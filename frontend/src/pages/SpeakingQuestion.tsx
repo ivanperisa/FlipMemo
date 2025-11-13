@@ -1,13 +1,12 @@
-
 import { useNavigate } from "react-router";
 import { useState } from "react";
 import { Mosaic } from "react-loading-indicators";
 import PageTransition from "../components/PageTransition";
 import Particles from "../styles/Particles";
 import Header from "../components/Header";
-import { useLearning } from "../context/LearningContext";
 
-export const GameTemplate = () => {
+export const SpeakingQuestion = () => {
+
     // VARIJABLE
     const [Loading, setLoading] = useState<boolean>(false);
 
@@ -104,5 +103,8 @@ export const GameTemplate = () => {
             </div>
         </PageTransition>
     );
-};
 
+  
+}
+
+export default SpeakingQuestion;
