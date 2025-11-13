@@ -3,7 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router";
 import { Home, Login, Logout, Missing, Welcome, ForgotPassword, Register,
     ChangePassword, ChooseStyle,ChooseWordSet, AdminDictionary, AdminPage, 
     AdminAddDictionary,
-    AdminAddWord, UserControl} from './pages/PagesImport.ts';
+    AdminAddWord, UserControl, GameTemplate} from './pages/PagesImport.ts';
 import AuthProvider from "./context/AuthProvider.tsx";
 import ProtectedRoutes from "./routes/ProtectedRoutes.tsx";
 import AdminProtectedRoute from "./routes/AdminProtectedRoute.tsx";
@@ -41,7 +41,7 @@ const AnimatedRoutes = () => {
                 </Route>
 
                 {/* nezasticene rute */}
-                
+                <Route path='/gameTemplate' element={<GameTemplate />} />
                 <Route path="/" element={<Welcome />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/logout" element={<Logout />} />
