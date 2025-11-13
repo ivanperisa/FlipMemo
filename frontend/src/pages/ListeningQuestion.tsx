@@ -5,7 +5,7 @@ import PageTransition from "../components/PageTransition";
 import Particles from "../styles/Particles";
 import Header from "../components/Header";
 
-export const TranslateFromQuestion = () => {
+export const ListeningQuestion = () => {
 
     // VARIJABLE
     const [Loading, setLoading] = useState<boolean>(false);
@@ -107,4 +107,4 @@ export const TranslateFromQuestion = () => {
   
 }
 
-export default TranslateFromQuestion;
+export default ListeningQuestion;
