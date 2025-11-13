@@ -1,14 +1,13 @@
-
 import { useNavigate } from "react-router";
 import { useState } from "react";
 import { Mosaic } from "react-loading-indicators";
 import PageTransition from "../components/PageTransition";
 import Particles from "../styles/Particles";
 import Header from "../components/Header";
-import { useLearning } from "../context/LearningContext";
 
-const GameTemplate = () => {
-    // VARIJABLE
+
+export const TranslateToQuestion = () => {
+  // VARIJABLE
     const [Loading, setLoading] = useState<boolean>(false);
 
     // KONTEKSTI
@@ -104,6 +103,7 @@ const GameTemplate = () => {
             </div>
         </PageTransition>
     );
-};
 
-export default GameTemplate;
+
+}
+export default TranslateToQuestion

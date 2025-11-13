@@ -13,4 +13,3 @@ export { default as AdminPage} from "./AdminPage.tsx";
 export { default as AdminDictionary} from "./AdminDictionary.tsx";
 export { default as AdminAddDictionary} from "./AdminAddDictionary.tsx";
 export { default as AdminAddWord} from "./AdminAddWord.tsx";
-export { default as GameTemplate} from "./GameTemplate.tsx";
