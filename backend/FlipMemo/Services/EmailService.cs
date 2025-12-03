@@ -21,6 +21,7 @@ public class EmailService(IConfiguration config) : IEmailService
         };
 
         var mail = new MailMessage(from!, to, subject, body);
+        mail.IsBodyHtml = true;
         await client.SendMailAsync(mail);
     }
 }
