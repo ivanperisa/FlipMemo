@@ -51,6 +51,33 @@ public class WordService(ApplicationDbContext context, IWordDictionaryApiService
 
         await context.SaveChangesAsync();
 
+        foreach(var dictionaryId in dto.DictionaryIds)
+        {
+            var List = new List<UserWord>();
+            var Users = await context.UserWords
+            .Where(uw => uw.DictionaryId == dictionaryId)
+            .Select(uw => uw.UserId)
+            .Distinct()
+            .ToListAsync();
+
+            foreach(var userId in Users)
+            {
+                var exist = await context.UserWords
+                .Where(uw => uw.UserId == userId && uw.WordId == word.Id)
+                .AnyAsync();
+                if (!exist)
+                    List.Add(new UserWord
+                    {
+                        UserId = userId,
+                        DictionaryId = dictionaryId,
+                        WordId = word.Id,
+                    });
+                context.UserWords.AddRange(List);
+            }
+        }
+
+        await context.SaveChangesAsync();
+
         return new CreateWordResponseDto
         {
             Word = dto.Word,
