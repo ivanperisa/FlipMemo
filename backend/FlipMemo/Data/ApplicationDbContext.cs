@@ -60,7 +60,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         modelBuilder.Entity<UserWord>(entity =>
         {
-            entity.HasKey(uw => new { uw.UserId, uw.WordId });
+            entity.HasKey(uw => new { uw.UserId, uw.WordId, uw.DictionaryId});
 
             entity.HasOne(uw => uw.User)
                 .WithMany(u => u.UserWords)
@@ -70,6 +70,11 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.HasOne(uw => uw.Word)
                 .WithMany(w => w.UserWords)
                 .HasForeignKey(uw => uw.WordId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(uw => uw.Dictionary)
+                .WithMany(d => d.UserWords)
+                .HasForeignKey(uw => uw.DictionaryId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
