@@ -12,6 +12,9 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("Email"));
+
 builder.Services.AddDbContext<ApplicationDbContext>(options => 
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -120,21 +123,21 @@ builder.Services.AddAuthorizationBuilder()
 builder.Services.AddHttpClient<IWordsApiService, WordsApiService>(client =>
 {
     client.BaseAddress = new Uri("https://wordsapiv1.p.rapidapi.com/");
-    client.DefaultRequestHeaders.Add("X-RapidAPI-Key", builder.Configuration["RapidApi:ApiKey"]);
+    client.DefaultRequestHeaders.Add("X-RapidAPI-Key", builder.Configuration["RapidApi:SendGridApiKey"]);
     client.DefaultRequestHeaders.Add("X-RapidAPI-Host", "wordsapiv1.p.rapidapi.com");
 });
 
 builder.Services.AddHttpClient<IWordDictionaryApiService, WordDictionaryApiService>(client =>
 {
     client.BaseAddress = new Uri("https://twinword-word-graph-dictionary.p.rapidapi.com/");
-    client.DefaultRequestHeaders.Add("X-RapidAPI-Key", builder.Configuration["RapidApi:ApiKey"]);
+    client.DefaultRequestHeaders.Add("X-RapidAPI-Key", builder.Configuration["RapidApi:SendGridApiKey"]);
     client.DefaultRequestHeaders.Add("X-RapidAPI-Host", "twinword-word-graph-dictionary.p.rapidapi.com");
 });
 
 builder.Services.AddHttpClient<IDeepTranslateApiService, DeepTranslateApiService>(client =>
 {
     client.BaseAddress = new Uri("https://deep-translate1.p.rapidapi.com/");
-    client.DefaultRequestHeaders.Add("X-RapidAPI-Key", builder.Configuration["RapidApi:ApiKey"]);
+    client.DefaultRequestHeaders.Add("X-RapidAPI-Key", builder.Configuration["RapidApi:SendGridApiKey"]);
     client.DefaultRequestHeaders.Add("X-RapidAPI-Host", "deep-translate1.p.rapidapi.com");
 });
 

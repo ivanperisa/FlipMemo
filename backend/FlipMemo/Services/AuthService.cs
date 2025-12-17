@@ -13,47 +13,47 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
 {
     public async Task<UserResponseDto> RegisterAsync(RegisterRequestDto dto)
     {
-        var userExists = await context.Users
-            .FirstOrDefaultAsync(u => u.Email.Equals(dto.Email, StringComparison.CurrentCultureIgnoreCase));
+        var user = await context.Users
+            .FirstOrDefaultAsync(u => u.Email == dto.Email.ToLower());
 
         var initialPassword = Guid.NewGuid().ToString("N")[..8];
         var hashedPassword = HashPassword(initialPassword);
 
-        if (userExists == null)
+        if (user == null)
         {
-            userExists = new User()
+            user = new User()
             {
                 Email = dto.Email.ToLower(),
                 Role = Roles.User,
                 CreatedAt = DateTime.UtcNow
             };
-            context.Users.Add(userExists);
+            context.Users.Add(user);
         }
-        else if (!userExists.MustChangePassword)
+        else if (!user.MustChangePassword)
             throw new ConflictException("Account already exists.");
 
-        userExists.PasswordHash = hashedPassword;
+        user.PasswordHash = hashedPassword;
 
         var subject = "FlipMemo - Temporary Password";
         var path = Path.Combine(env.ContentRootPath, "HTML", "RegistrationMail.html");
-        var body = await File.ReadAllTextAsync(path);
-        body = body.Replace("{initialPassword}", initialPassword);
+        var html = await File.ReadAllTextAsync(path);
+        html = html.Replace("{initialPassword}", initialPassword);
 
-        await emailService.SendAsync(userExists.Email, subject, body);
+        await emailService.SendAsync(user.Email, subject, plainText: null, html);
 
         await context.SaveChangesAsync();
 
         return new UserResponseDto {
-            Id = userExists.Id,
-            Email = userExists.Email,
-            Role = userExists.Role
+            Id = user.Id,
+            Email = user.Email,
+            Role = user.Role
         };
     }
 
     public async Task<LoginResponseDto> LoginAsync(LoginRequestDto dto)
     {
         var user = await context.Users
-            .SingleOrDefaultAsync(u => u.Email.Equals(dto.Email, StringComparison.CurrentCultureIgnoreCase))
+            .SingleOrDefaultAsync(u => u.Email == dto.Email.ToLower())
             ?? throw new NotFoundException("Account doesn't exist.");
 
         if (!Verify(dto.Password, user.PasswordHash))
@@ -87,7 +87,7 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
     public async Task<GoogleLoginResponseDto> GoogleLoginAsync(GoogleLoginRequestDto dto) 
     {
         var payload = await GoogleJsonWebSignature.ValidateAsync(dto.GoogleToken);
-        var user = await context.Users.SingleOrDefaultAsync(u => u.Email.Equals(payload.Email, StringComparison.CurrentCultureIgnoreCase));
+        var user = await context.Users.SingleOrDefaultAsync(u => u.Email == payload.Email.ToLower());
 
         if (user is null)
         {
@@ -105,11 +105,11 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
 
             var subject = "FlipMemo - Your New Password";
             var path = Path.Combine(env.ContentRootPath, "HTML", "GoogleLoginMail.html");
-            var body = await File.ReadAllTextAsync(path);
-            body = body.Replace("{name}", payload.Name);
-            body = body.Replace("{TemporaryPassword}", initialPassword);
+            var html = await File.ReadAllTextAsync(path);
+            html = html.Replace("{name}", payload.Name);
+            html = html.Replace("{TemporaryPassword}", initialPassword);
 
-            await emailService.SendAsync(user.Email, subject, body);
+            await emailService.SendAsync(user.Email, subject, plainText: null, html);
 
             context.Users.Add(user);
         }
@@ -166,7 +166,7 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
     public async Task ForgotPasswordAsync(ForgotPasswordRequestDto dto, string resetUrl, string resetToken)
     {
         var user = await context.Users
-            .SingleOrDefaultAsync(u => u.Email.Equals(dto.Email, StringComparison.CurrentCultureIgnoreCase));
+            .SingleOrDefaultAsync(u => u.Email == dto.Email.ToLower());
 
         if (user == null)
             return;
@@ -178,16 +178,16 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
 
         var subject = "FlipMemo - Password Reset Request";
         var path = Path.Combine(env.ContentRootPath, "HTML", "ResetPasswordMail.html");
-        var body = await File.ReadAllTextAsync(path);
-        body = body.Replace("{link}", resetUrl);
+        var html = await File.ReadAllTextAsync(path);
+        html = html.Replace("{link}", resetUrl);
 
-        await emailService.SendAsync(user.Email, subject, body);
+        await emailService.SendAsync(user.Email, subject, plainText: null, html);
     }
 
     public async Task ResetPasswordAsync(ResetPasswordQueryDto queryDto, ResetPasswordBodyDto bodyDto)
     {
         var user = await context.Users
-            .SingleOrDefaultAsync(u => u.Email.Equals(queryDto.Email, StringComparison.CurrentCultureIgnoreCase))
+            .SingleOrDefaultAsync(u => u.Email == queryDto.Email.ToLower())
             ?? throw new NotFoundException("Account doesn't exist");
 
         if (user.PasswordResetTokenHash == null || user.PasswordResetTokenExpiry == null)
