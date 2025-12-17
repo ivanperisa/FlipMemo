@@ -17,11 +17,14 @@ public class EmailService(IConfiguration config) : IEmailService
         using var client = new SmtpClient(host, port)
         {
             Credentials = new NetworkCredential(username, password),
-            EnableSsl = true
+            EnableSsl = false //TODO: za deploy promijeniti u true
         };
 
-        var mail = new MailMessage(from!, to, subject, body);
-        mail.IsBodyHtml = true;
+        var mail = new MailMessage(from!, to, subject, body)
+        {
+            IsBodyHtml = true
+        };
+
         await client.SendMailAsync(mail);
     }
 }

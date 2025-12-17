@@ -9,25 +9,26 @@ namespace FlipMemo.Controllers;
 [Route("api/v1/[controller]")]
 public class GameController(IGameService gameService) : ControllerBase
 {
-    [HttpGet]
-    [Authorize(Policy = "UserOrAdmin")]
+    [HttpGet("question")]
+    //[Authorize(Policy = "UserOrAdmin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetWords([FromQuery] StartGameRequestDto dto)
+    public async Task<IActionResult> GetQuestion([FromQuery] StartGameRequestDto dto)
     {
-        var words = await gameService.Pick4RandomAsync(dto);
-        return Ok(words);
+        var question = await gameService.GetQuestionAsync(dto);
+
+        return Ok(question);
     }
 
-    [HttpPut("CheckAnswerTranslate")]
-    [Authorize(Policy = "UserOrAdmin")]
+    [HttpPut("check-choice")]
+    //[Authorize(Policy = "UserOrAdmin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CheckAnswerTranslate([FromQuery] GameAnswerDto dto)
+    public async Task<IActionResult> CheckChoice([FromQuery] GameAnswerDto dto)
     {
-        await gameService.CheckAnswerTranslate(dto);
+        await gameService.CheckChoiceAsync(dto);
 
         return Ok();
     }

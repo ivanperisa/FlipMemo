@@ -14,7 +14,7 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
     public async Task<UserResponseDto> RegisterAsync(RegisterRequestDto dto)
     {
         var userExists = await context.Users
-            .FirstOrDefaultAsync(u => u.Email == dto.Email.ToLower());
+            .FirstOrDefaultAsync(u => u.Email.Equals(dto.Email, StringComparison.CurrentCultureIgnoreCase));
 
         var initialPassword = Guid.NewGuid().ToString("N")[..8];
         var hashedPassword = HashPassword(initialPassword);
@@ -35,7 +35,7 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
         userExists.PasswordHash = hashedPassword;
 
         var subject = "FlipMemo - Temporary Password";
-        var path = Path.Combine(env.ContentRootPath, "HTMLdesigns", "RegistrationMail.html");
+        var path = Path.Combine(env.ContentRootPath, "HTML", "RegistrationMail.html");
         var body = await File.ReadAllTextAsync(path);
         body = body.Replace("{initialPassword}", initialPassword);
 
@@ -53,7 +53,7 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
     public async Task<LoginResponseDto> LoginAsync(LoginRequestDto dto)
     {
         var user = await context.Users
-            .SingleOrDefaultAsync(u => u.Email == dto.Email.ToLower())
+            .SingleOrDefaultAsync(u => u.Email.Equals(dto.Email, StringComparison.CurrentCultureIgnoreCase))
             ?? throw new NotFoundException("Account doesn't exist.");
 
         if (!Verify(dto.Password, user.PasswordHash))
@@ -87,7 +87,7 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
     public async Task<GoogleLoginResponseDto> GoogleLoginAsync(GoogleLoginRequestDto dto) 
     {
         var payload = await GoogleJsonWebSignature.ValidateAsync(dto.GoogleToken);
-        var user = await context.Users.SingleOrDefaultAsync(u => u.Email == payload.Email);
+        var user = await context.Users.SingleOrDefaultAsync(u => u.Email.Equals(payload.Email, StringComparison.CurrentCultureIgnoreCase));
 
         if (user is null)
         {
@@ -104,7 +104,7 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
             };
 
             var subject = "FlipMemo - Your New Password";
-            var path = Path.Combine(env.ContentRootPath, "HTMLdesigns", "GoogleLoginMail.html");
+            var path = Path.Combine(env.ContentRootPath, "HTML", "GoogleLoginMail.html");
             var body = await File.ReadAllTextAsync(path);
             body = body.Replace("{name}", payload.Name);
             body = body.Replace("{TemporaryPassword}", initialPassword);
@@ -166,7 +166,7 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
     public async Task ForgotPasswordAsync(ForgotPasswordRequestDto dto, string resetUrl, string resetToken)
     {
         var user = await context.Users
-            .SingleOrDefaultAsync(u => u.Email == dto.Email.ToLower());
+            .SingleOrDefaultAsync(u => u.Email.Equals(dto.Email, StringComparison.CurrentCultureIgnoreCase));
 
         if (user == null)
             return;
@@ -177,7 +177,7 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
         await context.SaveChangesAsync();
 
         var subject = "FlipMemo - Password Reset Request";
-        var path = Path.Combine(env.ContentRootPath, "HTMLdesigns", "ResetPasswordMail.html");
+        var path = Path.Combine(env.ContentRootPath, "HTML", "ResetPasswordMail.html");
         var body = await File.ReadAllTextAsync(path);
         body = body.Replace("{link}", resetUrl);
 
@@ -187,7 +187,7 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
     public async Task ResetPasswordAsync(ResetPasswordQueryDto queryDto, ResetPasswordBodyDto bodyDto)
     {
         var user = await context.Users
-            .SingleOrDefaultAsync(u => u.Email == queryDto.Email.ToLower())
+            .SingleOrDefaultAsync(u => u.Email.Equals(queryDto.Email, StringComparison.CurrentCultureIgnoreCase))
             ?? throw new NotFoundException("Account doesn't exist");
 
         if (user.PasswordResetTokenHash == null || user.PasswordResetTokenExpiry == null)

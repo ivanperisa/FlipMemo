@@ -113,9 +113,9 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("AdminOnly", policy =>
-        policy.RequireRole("Admin"))
+        policy.RequireRole(Roles.Admin))
     .AddPolicy("UserOrAdmin", policy =>
-        policy.RequireRole("User", "Admin"));
+        policy.RequireRole(Roles.User, Roles.Admin));
 
 builder.Services.AddHttpClient<IWordsApiService, WordsApiService>(client =>
 {
