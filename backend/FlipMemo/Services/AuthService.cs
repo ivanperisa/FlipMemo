@@ -9,7 +9,12 @@ using static BCrypt.Net.BCrypt;
 
 namespace FlipMemo.Services;
 
-public class AuthService(ApplicationDbContext context, IEmailService emailService, IJwtService jwtService, IWebHostEnvironment env) : IAuthService
+public class AuthService(
+    ApplicationDbContext context,
+    IEmailService emailService,
+    IJwtService jwtService,
+    IWebHostEnvironment env,
+    IConfiguration config) : IAuthService
 {
     public async Task<UserResponseDto> RegisterAsync(RegisterRequestDto dto)
     {
@@ -36,8 +41,11 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
 
         var subject = "FlipMemo - Temporary Password";
         var path = Path.Combine(env.ContentRootPath, "HTML", "RegistrationMail.html");
+        var frontUrl = config.GetSection("Front:Url");
+
         var html = await File.ReadAllTextAsync(path);
-        html = html.Replace("{initialPassword}", initialPassword);
+        html = html.Replace("{{initialPassword}}", initialPassword);
+        html = html.Replace("{{frontUrl}}", $"{frontUrl.Value!}/login");
 
         await emailService.SendAsync(user.Email, subject, plainText: null, html);
 
@@ -106,8 +114,8 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
             var subject = "FlipMemo - Your New Password";
             var path = Path.Combine(env.ContentRootPath, "HTML", "GoogleLoginMail.html");
             var html = await File.ReadAllTextAsync(path);
-            html = html.Replace("{name}", payload.Name);
-            html = html.Replace("{TemporaryPassword}", initialPassword);
+            html = html.Replace("{{name}}", payload.Name);
+            html = html.Replace("{{initialPassword}}", initialPassword);
 
             await emailService.SendAsync(user.Email, subject, plainText: null, html);
 
@@ -179,7 +187,7 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
         var subject = "FlipMemo - Password Reset Request";
         var path = Path.Combine(env.ContentRootPath, "HTML", "ResetPasswordMail.html");
         var html = await File.ReadAllTextAsync(path);
-        html = html.Replace("{link}", resetUrl);
+        html = html.Replace("{{resetUrl}}", resetUrl);
 
         await emailService.SendAsync(user.Email, subject, plainText: null, html);
     }
