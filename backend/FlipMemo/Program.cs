@@ -15,6 +15,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options => 
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddSingleton<Random>();
+
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IDictionaryService, DictionaryService>();
@@ -22,6 +24,7 @@ builder.Services.AddScoped<IWordService, WordService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IGameService, GameService>();
+builder.Services.AddScoped<IPronunciationScorer, PronunciationScorer>();
 
 builder.Services.AddCors(options =>
 {
