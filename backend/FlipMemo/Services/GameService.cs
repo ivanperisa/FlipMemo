@@ -113,4 +113,36 @@ public class GameService(ApplicationDbContext context) : IGameService
             CorrectAnswerId = dueWords[0].Word.Id
         };
     }
+
+    public async Task ProcessVoiceAnswerAsync(int wordId, int pronunciationScore)
+    {
+        var userWord = await context.UserWords
+               .FirstOrDefaultAsync(uw => uw.WordId == wordId);
+        if (userWord == null)
+        {
+            throw new NotFoundException("UserWord not found");
+        }
+        if (pronunciationScore >= 8)
+        {
+            if (userWord.Box < 4)
+            {
+                userWord.LastReviewed = DateTime.UtcNow;
+                userWord.NextReview = CalculateNextReview(userWord.Box);
+                userWord.Box++;
+            }
+            else
+            {
+                userWord.LastReviewed = DateTime.UtcNow;
+                userWord.Learned = true;
+                userWord.NextReview = null;
+            }
+        }
+        else
+        {
+            userWord.Box = 0;
+            userWord.LastReviewed = DateTime.UtcNow;
+            userWord.NextReview = DateTime.UtcNow;
+        }
+        await context.SaveChangesAsync();
+    }
 }
