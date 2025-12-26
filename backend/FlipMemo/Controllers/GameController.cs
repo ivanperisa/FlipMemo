@@ -1,5 +1,7 @@
 ﻿using FlipMemo.DTOs;
 using FlipMemo.Interfaces;
+using FlipMemo.Interfaces.External;
+using FlipMemo.Services.External;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,6 +32,26 @@ public class GameController(IGameService gameService) : ControllerBase
         await gameService.CheckAnswerTranslate(dto);
 
         return Ok();
+    }
+
+    [HttpPost("CheckAnswerVoice")]
+    [Authorize(Policy = "UserOrAdmin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Consumes("multipart/form-data")] //potrebno za prijem filea
+    public async Task<IActionResult> CheckAnswerVoice([FromForm] GameAnswerWithVoiceDto dto)
+    {
+        using var audioStream = dto.AudioFile.OpenReadStream();
+
+        PronunciationScorer PronunciationScorer = new PronunciationScorer();
+
+        int score = await PronunciationScorer.GetPronunciationScoreAsync(audioStream);
+
+        await gameService.ProcessVoiceAnswerAsync(dto.WordId, score);
+
+        return Ok(new { Score = score });
+
     }
 }
 
