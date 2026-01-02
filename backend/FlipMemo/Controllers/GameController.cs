@@ -9,7 +9,7 @@ namespace FlipMemo.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
-public class GameController(IGameService gameService) : ControllerBase
+public class GameController(IGameService gameService, IPronunciationScorer pronunciationScorer) : ControllerBase
 {
     [HttpGet]
     [Authorize(Policy = "UserOrAdmin")]
@@ -39,14 +39,12 @@ public class GameController(IGameService gameService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [Consumes("multipart/form-data")] //potrebno za prijem filea
+    [Consumes("multipart/form-data")]
     public async Task<IActionResult> CheckAnswerVoice([FromForm] GameAnswerWithVoiceDto dto)
     {
         using var audioStream = dto.AudioFile.OpenReadStream();
 
-        PronunciationScorer PronunciationScorer = new PronunciationScorer();
-
-        int score = await PronunciationScorer.GetPronunciationScoreAsync(audioStream);
+        int score = await pronunciationScorer.GetPronunciationScoreAsync(audioStream);
 
         await gameService.ProcessVoiceAnswerAsync(dto.WordId, score);
 

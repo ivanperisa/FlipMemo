@@ -1,9 +1,6 @@
-﻿namespace FlipMemo.Interfaces.External
+﻿namespace FlipMemo.Interfaces.External;
+
+public interface IPronunciationScorer
 {
-    public interface IPronunciationScorer
-    {
-
-        Task<int> GetPronunciationScoreAsync(Stream audioStream);
-
-    }
+    Task<int> GetPronunciationScoreAsync(Stream audioStream);
 }
