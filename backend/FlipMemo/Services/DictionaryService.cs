@@ -1,9 +1,9 @@
 ﻿using FlipMemo.Data;
-using FlipMemo.DTOs;
 using FlipMemo.Interfaces;
 using FlipMemo.Utils;
 using Microsoft.EntityFrameworkCore;
 using FlipMemo.Models;
+using FlipMemo.DTOs.WordAndDictionary;
 
 namespace FlipMemo.Services;
 

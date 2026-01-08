@@ -1,4 +1,4 @@
-﻿using FlipMemo.DTOs;
+﻿using FlipMemo.DTOs.WordAndDictionary;
 using FlipMemo.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 

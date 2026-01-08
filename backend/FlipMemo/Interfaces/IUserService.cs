@@ -1,4 +1,4 @@
-﻿using FlipMemo.DTOs;
+﻿using FlipMemo.DTOs.UserAndAuth;
 
 namespace FlipMemo.Interfaces;
 

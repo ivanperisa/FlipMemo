@@ -1,4 +1,4 @@
-namespace FlipMemo.DTOs;
+namespace FlipMemo.DTOs.Game;
 
 public class StartGameRequestDto
 {

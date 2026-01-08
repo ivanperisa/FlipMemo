@@ -25,6 +25,7 @@ builder.Services.AddScoped<IWordService, WordService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IGameService, GameService>();
+builder.Services.AddScoped<ISpeechRecognitionService, SpeechRecognitionService>();
 
 builder.Services.AddCors(options =>
 {

@@ -21,7 +21,7 @@ public class WordService(ApplicationDbContext context, IWordDictionaryApiService
             throw new NotFoundException("One or more dictionaries do not exist.");
 
         if (dictionaries.Any(d => d.Words.Any(w => w.SourceWord.Equals(dto.Word, StringComparison.OrdinalIgnoreCase))))
-            throw new ConflictException("Word already exists in the dictionary.");
+            throw new ConflictException("Answer already exists in the dictionary.");
 
         var wordExamplesDto = await wordsApiService.GetWordExamplesAsync(dto.Word);
 

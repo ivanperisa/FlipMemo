@@ -1,4 +1,4 @@
-﻿using FlipMemo.DTOs;
+﻿using FlipMemo.DTOs.WordAndDictionary;
 
 namespace FlipMemo.Interfaces;
 

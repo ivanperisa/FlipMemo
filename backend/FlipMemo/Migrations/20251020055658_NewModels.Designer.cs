@@ -168,7 +168,7 @@ namespace FlipMemo.Migrations
                     b.ToTable("Voices");
                 });
 
-            modelBuilder.Entity("FlipMemo.Models.Word", b =>
+            modelBuilder.Entity("FlipMemo.Models.Answer", b =>
                 {
                     b.Property<int>("WordId")
                         .ValueGeneratedOnAdd()
@@ -210,7 +210,7 @@ namespace FlipMemo.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("FlipMemo.Models.Word", "Word")
+                    b.HasOne("FlipMemo.Models.Answer", "Answer")
                         .WithMany()
                         .HasForeignKey("WordId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -218,7 +218,7 @@ namespace FlipMemo.Migrations
 
                     b.Navigation("Dictionary");
 
-                    b.Navigation("Word");
+                    b.Navigation("Answer");
                 });
 
             modelBuilder.Entity("FlipMemo.Models.UserWord", b =>
@@ -229,7 +229,7 @@ namespace FlipMemo.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("FlipMemo.Models.Word", "Word")
+                    b.HasOne("FlipMemo.Models.Answer", "Answer")
                         .WithMany("UserWords")
                         .HasForeignKey("WordId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -237,7 +237,7 @@ namespace FlipMemo.Migrations
 
                     b.Navigation("User");
 
-                    b.Navigation("Word");
+                    b.Navigation("Answer");
                 });
 
             modelBuilder.Entity("FlipMemo.Models.Voice", b =>
@@ -248,7 +248,7 @@ namespace FlipMemo.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("FlipMemo.Models.Word", "Word")
+                    b.HasOne("FlipMemo.Models.Answer", "Answer")
                         .WithMany("Voices")
                         .HasForeignKey("WordId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -256,7 +256,7 @@ namespace FlipMemo.Migrations
 
                     b.Navigation("User");
 
-                    b.Navigation("Word");
+                    b.Navigation("Answer");
                 });
 
             modelBuilder.Entity("FlipMemo.Models.User", b =>
@@ -266,7 +266,7 @@ namespace FlipMemo.Migrations
                     b.Navigation("Voices");
                 });
 
-            modelBuilder.Entity("FlipMemo.Models.Word", b =>
+            modelBuilder.Entity("FlipMemo.Models.Answer", b =>
                 {
                     b.Navigation("UserWords");
 

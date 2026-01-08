@@ -7,7 +7,7 @@ public class Word
     public List<string>? SourcePhrases { get; set; }
     public string? TargetWord { get; set; }
     public List<string>? TargetPhrases { get; set; }
-    public string? AudioFile { get; set; }
+    public byte[]? AudioFile { get; set; }
 
     public ICollection<Dictionary> Dictionaries { get; set; } = null!;
     public ICollection<UserWord> UserWords { get; set; } = null!;

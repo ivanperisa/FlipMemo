@@ -52,7 +52,7 @@ namespace FlipMemo.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("FlipMemo.Models.Word", null)
+                    b.HasOne("FlipMemo.Models.Answer", null)
                         .WithMany()
                         .HasForeignKey("WordsId")
                         .OnDelete(DeleteBehavior.Cascade)
