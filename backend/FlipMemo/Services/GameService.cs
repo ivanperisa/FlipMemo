@@ -159,10 +159,27 @@ public class GameService(ApplicationDbContext context, ISpeechRecognitionService
 
     public async Task<SpeakingAnswerResponseDto> CheckSpeakingAnswerAsync(SpeakingAnswerDto dto)
     {
+        var word = await context.Words
+            .FindAsync(dto.WordId)
+            ?? throw new NotFoundException("Word not found.");
+
         var voice = await context.Voices
-            .Include(v => v.Word)
-            .FirstOrDefaultAsync(v => v.UserId == dto.UserId && v.WordId == dto.WordId)
-            ?? throw new NotFoundException("Voice record not found.");
+            .FirstOrDefaultAsync(v => v.UserId == dto.UserId && v.WordId == dto.WordId);
+
+        if (voice == null)
+        {
+            voice = new Voice
+            {
+                UserId = dto.UserId,
+                WordId = dto.WordId,
+                Word = word
+            };
+            context.Voices.Add(voice);
+        }
+        else
+        {
+            voice.Word = word;
+        }
         
         byte[] audioBytes;
         using (var memoryStream = new MemoryStream())
