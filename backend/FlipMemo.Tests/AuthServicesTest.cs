@@ -10,8 +10,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
-using SendGrid.Helpers.Errors.Model;
-using Xunit;
 using NotFoundException = FlipMemo.Utils.NotFoundException;
 
 namespace FlipMemo.Tests
