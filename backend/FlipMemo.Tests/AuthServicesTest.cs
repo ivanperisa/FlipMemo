@@ -1,15 +1,18 @@
 ﻿using FlipMemo.Data;
 using FlipMemo.DTOs.UserAndAuth;
+using FlipMemo.DTOs.UserAndAuth.Login;
+using FlipMemo.DTOs.UserAndAuth.Registration;
 using FlipMemo.Interfaces;
-using FlipMemo.Services;
 using FlipMemo.Models;
+using FlipMemo.Services;
+using FlipMemo.Utils;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Hosting;
 using Moq;
+using SendGrid.Helpers.Errors.Model;
 using Xunit;
-using FlipMemo.DTOs.UserAndAuth.Registration;
-using FlipMemo.Utils;
+using NotFoundException = FlipMemo.Utils.NotFoundException;
 
 namespace FlipMemo.Tests
 {
@@ -81,6 +84,78 @@ namespace FlipMemo.Tests
                 Times.Once);
 
             Assert.Equal(user.Id, result.Id);
+        }
+
+        [Fact]
+        public async Task LoginAsync_UserExistsWithCorrectPassword_ReturnsUserAndToken()
+        {
+
+            _context.Users.Add(new User
+            {
+                Email = "email@example.com",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("correctpassword"),
+                Role = Roles.User,
+                CreatedAt = DateTime.UtcNow
+            });
+
+            await _context.SaveChangesAsync();
+
+            var dto = new LoginRequestDto
+            {
+                Email = "email@example.com",
+                Password = "correctpassword"
+            };
+
+            var result = await _authService.LoginAsync(dto);
+
+            var user = await _context.Users.SingleAsync();
+
+            Assert.Equal(dto.Email.ToLower(), result.Email);
+            Assert.Equal(Roles.User, result.Role);
+            Assert.Equal("jwt-fake-token", result.Token);
+
+            Assert.Equal(user.Id, result.Id);
+
+        }
+
+        [Fact]
+        public async Task LoginAsync_UserExistsWithIncorrectPassword_ThrowsUnauthorizedException()
+        {
+
+            _context.Users.Add(new User
+            {
+                Email = "email@example.com",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("correctpassword"),
+                Role = Roles.User,
+                CreatedAt = DateTime.UtcNow
+            });
+
+            await _context.SaveChangesAsync();
+
+            var dto = new LoginRequestDto
+            {
+                Email = "email@example.com",
+                Password = "wrongpassword"
+            };
+
+            var exception = await Assert.ThrowsAsync<UnauthorizedAccessException>(() => _authService.LoginAsync(dto));
+            Assert.Equal("Invalid password.", exception.Message);
+
+        }
+
+
+        [Fact]
+        public async Task LoginAsync_UserDoesNotExist_ThrowsNotFoundException()
+        {
+            var dto = new LoginRequestDto
+            {
+                Email = "email@example.com",
+                Password = "password123"
+            };
+
+            var exception = await Assert.ThrowsAsync<NotFoundException>(() => _authService.LoginAsync(dto));
+            Assert.Equal("Account doesn't exist.", exception.Message);
+
         }
 
         private static string GetProjectRoot()
