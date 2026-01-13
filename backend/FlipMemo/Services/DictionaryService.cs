@@ -33,7 +33,7 @@ public class DictionaryService(ApplicationDbContext context) : IDictionaryServic
             .SingleOrDefaultAsync(d => d.Id == DictionaryId)
             ?? throw new NotFoundException("Dictionary doesn't exist.");
 
-        if (dictionary.Words is null)
+        if (!dictionary.Words.Any())
             throw new NotFoundException("Dictionary doesn't have any words.");
 
         var words = new List<WordDto>();
