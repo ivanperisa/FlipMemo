@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36310.24
@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlipMemo", "FlipMemo\FlipMe
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{81DDED9D-158B-E303-5F62-77A2896D2A5A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlipMemo.Tests", "..\FlipMemo.Tests\FlipMemo.Tests.csproj", "{75AEC7F9-624A-4F63-AF36-DE6CC44AD700}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlipMemo.Tests", "FlipMemo.Tests\FlipMemo.Tests.csproj", "{75AEC7F9-624A-4F63-AF36-DE6CC44AD700}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

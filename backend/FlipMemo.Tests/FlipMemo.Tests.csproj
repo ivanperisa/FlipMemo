@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\backend\FlipMemo\FlipMemo.csproj" />
+    <ProjectReference Include="..\FlipMemo\FlipMemo.csproj" />
   </ItemGroup>
 
   <ItemGroup>
