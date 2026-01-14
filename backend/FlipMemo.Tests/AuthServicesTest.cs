@@ -85,6 +85,69 @@ namespace FlipMemo.Tests
         }
 
         [Fact]
+        public async Task RegisterAsync_UserExistsWithoutFirstLogin_ChangesTempPasswordAndSendsMail()
+        {
+            var dto = new RegisterRequestDto
+            {
+                Email = "email@example.com"
+            };
+
+            await _context.Users.AddAsync(new User
+            {
+                Email = "email@example.com",
+                MustChangePassword = true,
+                Role = Roles.User,
+                PasswordHash = "randomhash",
+                CreatedAt = DateTime.UtcNow
+            });
+
+            await _context.SaveChangesAsync();
+
+            var result = await _authService.RegisterAsync(dto);
+
+            var user = await _context.Users.SingleAsync();
+
+            Assert.NotEqual("randomhash", user.PasswordHash);
+            Assert.Equal(1, _context.Users.Count());
+
+            _mockEmailService.Verify(
+                e => e.SendAsync(
+                    user.Email,
+                    It.IsAny<string>(),
+                    null,
+                    It.IsAny<string>()),
+                    Times.Once);
+
+            Assert.Equal(user.Id, result.Id);
+        }
+
+        [Fact]
+
+        public async void RegisterAsync_UserAlreadyDidLogin_ThrowConflictException()
+        {
+            var dto = new RegisterRequestDto
+            {
+                Email = "example@email.com"
+            };
+
+            await _context.Users.AddAsync(new User
+            {
+                Email = "example@email.com",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("random"),
+                MustChangePassword = false,
+                Role = Roles.User,
+                CreatedAt = DateTime.UtcNow,
+
+            });
+
+            await _context.SaveChangesAsync();
+
+            var exception = await Assert.ThrowsAsync<ConflictException>(() => _authService.RegisterAsync(dto));
+
+            Assert.Equal("Account already exists.", exception.Message);
+
+        }
+        [Fact]
         public async Task LoginAsync_UserExistsWithCorrectPassword_ReturnsUserAndToken()
         {
 
