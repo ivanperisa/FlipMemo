@@ -121,7 +121,7 @@ namespace FlipMemo.Migrations
             migrationBuilder.AlterColumn<string>(
                 name: "AudioFile",
                 table: "Words",
-                type: "text",
+                type: "bytea",
                 nullable: true,
                 oldClrType: typeof(byte[]),
                 oldType: "bytea",

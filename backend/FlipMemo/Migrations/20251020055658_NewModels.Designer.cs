@@ -177,7 +177,7 @@ namespace FlipMemo.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("WordId"));
 
                     b.Property<string>("AudioFile")
-                        .HasColumnType("text");
+                        .HasColumnType("bytea");
 
                     b.Property<string>("CroatianPhrases")
                         .IsRequired()
