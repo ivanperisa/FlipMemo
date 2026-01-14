@@ -1,7 +1,5 @@
-﻿using FlipMemo.DTOs;
+﻿using FlipMemo.DTOs.Game;
 using FlipMemo.Interfaces;
-using FlipMemo.Interfaces.External;
-using FlipMemo.Services.External;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,47 +7,80 @@ namespace FlipMemo.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
-public class GameController(IGameService gameService, IPronunciationScorer pronunciationScorer) : ControllerBase
+public class GameController(IGameService gameService) : ControllerBase
 {
-    [HttpGet]
-    [Authorize(Policy = "UserOrAdmin")]
+    [HttpGet("question")]
+    //[Authorize(Policy = "UserOrAdmin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetWords([FromQuery] StartGameRequestDto dto)
+    public async Task<IActionResult> GetQuestion([FromQuery] StartGameRequestDto dto)
     {
-        var words = await gameService.Pick4RandomAsync(dto);
-        return Ok(words);
+        var question = await gameService.GetQuestionAsync(dto);
+
+        return Ok(question);
     }
 
-    [HttpPut("CheckAnswerTranslate")]
-    [Authorize(Policy = "UserOrAdmin")]
+    [HttpPut("check-choice")]
+    //[Authorize(Policy = "UserOrAdmin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CheckAnswerTranslate([FromQuery] GameAnswerDto dto)
+    public async Task<IActionResult> CheckChoice([FromQuery] GameAnswerDto dto)
     {
-        await gameService.CheckAnswerTranslate(dto);
+        await gameService.CheckChoiceAsync(dto);
 
         return Ok();
     }
 
-    [HttpPost("CheckAnswerVoice")]
-    [Authorize(Policy = "UserOrAdmin")]
+    [HttpGet("listening/question")]
+    //[Authorize(Policy = "UserOrAdmin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [Consumes("multipart/form-data")]
-    public async Task<IActionResult> CheckAnswerVoice([FromForm] GameAnswerWithVoiceDto dto)
+    public async Task<IActionResult> GetListeningQuestion([FromQuery] StartGameRequestDto dto)
     {
-        using var audioStream = dto.AudioFile.OpenReadStream();
+        var question = await gameService.GetListeningQuestionAsync(dto);
 
-        int score = await pronunciationScorer.GetPronunciationScoreAsync(audioStream);
+        Response.Headers.Append("X-Word-Id", question.WordId.ToString());
 
-        await gameService.ProcessVoiceAnswerAsync(dto.WordId, score);
+        return File(question.AudioBytes, "audio/mpeg");
+    }
 
-        return Ok(new { Score = score });
+    [HttpPut("listening/check-answer")]
+    //[Authorize(Policy = "UserOrAdmin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> CheckListeningAnswer([FromQuery] ListeningAnswerDto dto)
+    {
+        await gameService.CheckListeningAnswerAsync(dto);
 
+        return Ok();
+    }
+
+    [HttpGet("speaking/question")]
+    //[Authorize(Policy = "UserOrAdmin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetSpeakingQuestion([FromQuery] StartGameRequestDto dto)
+    {
+        var question = await gameService.GetSpeakingQuestionAsync(dto);
+
+        return Ok(question);
+    }
+
+    [HttpPut("speaking/check-answer")]
+    //[Authorize(Policy = "UserOrAdmin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> CheckSpeakingAnswer([FromQuery] SpeakingAnswerDto dto)
+    {
+        var result = await gameService.CheckSpeakingAnswerAsync(dto);
+
+        return Ok(result);
     }
 }
 

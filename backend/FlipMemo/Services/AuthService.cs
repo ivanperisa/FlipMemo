@@ -1,5 +1,8 @@
 ﻿using FlipMemo.Data;
-using FlipMemo.DTOs;
+using FlipMemo.DTOs.Password;
+using FlipMemo.DTOs.UserAndAuth;
+using FlipMemo.DTOs.UserAndAuth.Login;
+using FlipMemo.DTOs.UserAndAuth.Registration;
 using FlipMemo.Interfaces;
 using FlipMemo.Models;
 using FlipMemo.Utils;
@@ -9,44 +12,52 @@ using static BCrypt.Net.BCrypt;
 
 namespace FlipMemo.Services;
 
-public class AuthService(ApplicationDbContext context, IEmailService emailService, IJwtService jwtService, IWebHostEnvironment env) : IAuthService
+public class AuthService(
+    ApplicationDbContext context,
+    IEmailService emailService,
+    IJwtService jwtService,
+    IWebHostEnvironment env,
+    IConfiguration config) : IAuthService
 {
     public async Task<UserResponseDto> RegisterAsync(RegisterRequestDto dto)
     {
-        var userExists = await context.Users
+        var user = await context.Users
             .FirstOrDefaultAsync(u => u.Email == dto.Email.ToLower());
 
         var initialPassword = Guid.NewGuid().ToString("N")[..8];
         var hashedPassword = HashPassword(initialPassword);
 
-        if (userExists == null)
+        if (user == null)
         {
-            userExists = new User()
+            user = new User()
             {
                 Email = dto.Email.ToLower(),
                 Role = Roles.User,
                 CreatedAt = DateTime.UtcNow
             };
-            context.Users.Add(userExists);
+            context.Users.Add(user);
         }
-        else if (!userExists.MustChangePassword)
+        else if (!user.MustChangePassword)
             throw new ConflictException("Account already exists.");
 
-        userExists.PasswordHash = hashedPassword;
+        user.PasswordHash = hashedPassword;
 
         var subject = "FlipMemo - Temporary Password";
-        var path = Path.Combine(env.ContentRootPath, "HTMLdesigns", "RegistrationMail.html");
-        var body = await File.ReadAllTextAsync(path);
-        body = body.Replace("{initialPassword}", initialPassword);
+        var path = Path.Combine(env.ContentRootPath, "HTML", "RegistrationMail.html");
+        var frontUrl = config.GetSection("Front:Url");
 
-        await emailService.SendAsync(userExists.Email, subject, body);
+        var html = await File.ReadAllTextAsync(path);
+        html = html.Replace("{{initialPassword}}", initialPassword);
+        html = html.Replace("{{frontUrl}}", $"{frontUrl.Value!}/login");
+
+        await emailService.SendAsync(user.Email, subject, plainText: null, html);
 
         await context.SaveChangesAsync();
 
         return new UserResponseDto {
-            Id = userExists.Id,
-            Email = userExists.Email,
-            Role = userExists.Role
+            Id = user.Id,
+            Email = user.Email,
+            Role = user.Role
         };
     }
 
@@ -87,7 +98,7 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
     public async Task<GoogleLoginResponseDto> GoogleLoginAsync(GoogleLoginRequestDto dto) 
     {
         var payload = await GoogleJsonWebSignature.ValidateAsync(dto.GoogleToken);
-        var user = await context.Users.SingleOrDefaultAsync(u => u.Email == payload.Email);
+        var user = await context.Users.SingleOrDefaultAsync(u => u.Email == payload.Email.ToLower());
 
         if (user is null)
         {
@@ -104,12 +115,12 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
             };
 
             var subject = "FlipMemo - Your New Password";
-            var path = Path.Combine(env.ContentRootPath, "HTMLdesigns", "GoogleLoginMail.html");
-            var body = await File.ReadAllTextAsync(path);
-            body = body.Replace("{name}", payload.Name);
-            body = body.Replace("{TemporaryPassword}", initialPassword);
+            var path = Path.Combine(env.ContentRootPath, "HTML", "GoogleLoginMail.html");
+            var html = await File.ReadAllTextAsync(path);
+            html = html.Replace("{{name}}", payload.Name);
+            html = html.Replace("{{initialPassword}}", initialPassword);
 
-            await emailService.SendAsync(user.Email, subject, body);
+            await emailService.SendAsync(user.Email, subject, plainText: null, html);
 
             context.Users.Add(user);
         }
@@ -177,11 +188,11 @@ public class AuthService(ApplicationDbContext context, IEmailService emailServic
         await context.SaveChangesAsync();
 
         var subject = "FlipMemo - Password Reset Request";
-        var path = Path.Combine(env.ContentRootPath, "HTMLdesigns", "ResetPasswordMail.html");
-        var body = await File.ReadAllTextAsync(path);
-        body = body.Replace("{link}", resetUrl);
+        var path = Path.Combine(env.ContentRootPath, "HTML", "ResetPasswordMail.html");
+        var html = await File.ReadAllTextAsync(path);
+        html = html.Replace("{{resetUrl}}", resetUrl);
 
-        await emailService.SendAsync(user.Email, subject, body);
+        await emailService.SendAsync(user.Email, subject, plainText: null, html);
     }
 
     public async Task ResetPasswordAsync(ResetPasswordQueryDto queryDto, ResetPasswordBodyDto bodyDto)

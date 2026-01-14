@@ -1,5 +1,5 @@
 ﻿using FlipMemo.Data;
-using FlipMemo.DTOs;
+using FlipMemo.DTOs.UserAndAuth;
 using FlipMemo.Interfaces;
 using FlipMemo.Utils;
 using Microsoft.EntityFrameworkCore;

@@ -149,10 +149,31 @@ namespace FlipMemo.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime?>("LastReviewed")
+                    b.Property<int>("ListeningBox")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("ListeningLastReviewed")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("Score")
+                    b.Property<bool>("ListeningLearned")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("ListeningNextReview")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("SpeakingBox")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("SpeakingLastReviewed")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("SpeakingLearned")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("SpeakingNextReview")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("SpeakingScore")
                         .HasColumnType("integer");
 
                     b.Property<int>("UserId")
@@ -178,8 +199,8 @@ namespace FlipMemo.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AudioFile")
-                        .HasColumnType("text");
+                    b.Property<byte[]>("AudioFile")
+                        .HasColumnType("bytea");
 
                     b.PrimitiveCollection<List<string>>("SourcePhrases")
                         .HasColumnType("text[]");

@@ -1,27 +1,24 @@
-﻿using System.Net;
+﻿using FlipMemo.Interfaces;
+using FlipMemo.Utils;
+using Microsoft.Extensions.Options;
+using SendGrid;
+using SendGrid.Helpers.Mail;
 using System.Net.Mail;
-using FlipMemo.Interfaces;
 
 namespace FlipMemo.Services;
 
-public class EmailService(IConfiguration config) : IEmailService
+public class EmailService(IOptions<EmailSettings> options, ILogger<EmailService> logger) : IEmailService
 {
-    public async Task SendAsync(string to, string subject, string body)
+    public async Task SendAsync(string sendingTo, string subject, string? plainText, string? html)
     {
-        var host = config["Email:Host"];
-        var port = int.Parse(config["Email:Port"]!);
-        var username = config["Email:Username"];
-        var password = config["Email:Password"];
-        var from = config["Email:From"];
+        var emailSettings = options.Value;
 
-        using var client = new SmtpClient(host, port)
-        {
-            Credentials = new NetworkCredential(username, password),
-            EnableSsl = true
-        };
+        var client = new SendGridClient(emailSettings.SendGridApiKey);
+        var from = new EmailAddress(emailSettings.From, emailSettings.Name);
+        var to = new EmailAddress(sendingTo);
 
-        var mail = new MailMessage(from!, to, subject, body);
-        mail.IsBodyHtml = true;
-        await client.SendMailAsync(mail);
+        var email = MailHelper.CreateSingleEmail(from, to, subject, null , html);
+
+        await client.SendEmailAsync(email);
     }
 }

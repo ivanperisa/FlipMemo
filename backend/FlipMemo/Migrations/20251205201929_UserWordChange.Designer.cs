@@ -173,7 +173,7 @@ namespace FlipMemo.Migrations
                     b.ToTable("Voices");
                 });
 
-            modelBuilder.Entity("FlipMemo.Models.Word", b =>
+            modelBuilder.Entity("FlipMemo.Models.Answer", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -182,7 +182,7 @@ namespace FlipMemo.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AudioFile")
-                        .HasColumnType("text");
+                        .HasColumnType("bytea");
 
                     b.PrimitiveCollection<List<string>>("SourcePhrases")
                         .HasColumnType("text[]");
@@ -212,7 +212,7 @@ namespace FlipMemo.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("FlipMemo.Models.Word", null)
+                    b.HasOne("FlipMemo.Models.Answer", null)
                         .WithMany()
                         .HasForeignKey("WordsId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -233,7 +233,7 @@ namespace FlipMemo.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("FlipMemo.Models.Word", "Word")
+                    b.HasOne("FlipMemo.Models.Answer", "Answer")
                         .WithMany("UserWords")
                         .HasForeignKey("WordId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -243,7 +243,7 @@ namespace FlipMemo.Migrations
 
                     b.Navigation("User");
 
-                    b.Navigation("Word");
+                    b.Navigation("Answer");
                 });
 
             modelBuilder.Entity("FlipMemo.Models.Voice", b =>
@@ -254,7 +254,7 @@ namespace FlipMemo.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("FlipMemo.Models.Word", "Word")
+                    b.HasOne("FlipMemo.Models.Answer", "Answer")
                         .WithMany("Voices")
                         .HasForeignKey("WordId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -262,7 +262,7 @@ namespace FlipMemo.Migrations
 
                     b.Navigation("User");
 
-                    b.Navigation("Word");
+                    b.Navigation("Answer");
                 });
 
             modelBuilder.Entity("FlipMemo.Models.Dictionary", b =>
@@ -277,7 +277,7 @@ namespace FlipMemo.Migrations
                     b.Navigation("Voices");
                 });
 
-            modelBuilder.Entity("FlipMemo.Models.Word", b =>
+            modelBuilder.Entity("FlipMemo.Models.Answer", b =>
                 {
                     b.Navigation("UserWords");
 

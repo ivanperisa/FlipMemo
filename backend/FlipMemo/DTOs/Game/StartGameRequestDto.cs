@@ -1,8 +1,7 @@
-namespace FlipMemo.DTOs;
+namespace FlipMemo.DTOs.Game;
 
 public class StartGameRequestDto
 {
+    public int UserId { get; set; }
     public int DictionaryId { get; set; }
-
-    public int userId { get; set; }
 }

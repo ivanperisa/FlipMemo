@@ -36,7 +36,7 @@ namespace FlipMemo.Migrations
                     ForeignPhrase = table.Column<string>(type: "text", nullable: false),
                     CroatianWord = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     CroatianPhrases = table.Column<string>(type: "text", nullable: false),
-                    AudioFile = table.Column<string>(type: "text", nullable: true)
+                    AudioFile = table.Column<string>(type: "bytea", nullable: true)
                 },
                 constraints: table =>
                 {
