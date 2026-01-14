@@ -123,7 +123,7 @@ namespace FlipMemo.Tests
 
         [Fact]
 
-        public async void RegisterAsync_UserAlreadyDidLogin_ThrowConflictException()
+        public async Task RegisterAsync_UserAlreadyDidLogin_ThrowConflictException()
         {
             var dto = new RegisterRequestDto
             {
