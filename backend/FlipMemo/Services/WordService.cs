@@ -54,13 +54,22 @@ public class WordService(ApplicationDbContext context, IWordDictionaryApiService
         foreach(var dictionaryId in dto.DictionaryIds)
         {
             var List = new List<UserWord>();
+            var VoiceList = new List<Voice>();
             var Users = await context.UserWords
             .Where(uw => uw.DictionaryId == dictionaryId)
             .Select(uw => uw.UserId)
             .Distinct()
             .ToListAsync();
 
-            foreach(var userId in Users)
+            /*
+            var UsersVoice = await context.Voices
+                .Where(v => v.Word.DictionaryId == dictionaryId)
+                .Select(v => v.UserId)
+                .Distinct()
+                .ToListAsync();
+            */
+
+            foreach (var userId in Users)
             {
                 var exist = await context.UserWords
                 .Where(uw => uw.UserId == userId && uw.WordId == word.Id)
@@ -74,6 +83,23 @@ public class WordService(ApplicationDbContext context, IWordDictionaryApiService
                     });
                 context.UserWords.AddRange(List);
             }
+
+            /*
+            foreach (var userId in UsersVoice)
+            {
+                var existVoice = await context.Voices
+                .Where(v => v.UserId == userId && v.WordId == word.Id)
+                .AnyAsync();
+                if (!existVoice)
+                    VoiceList.Add(new Voice
+                    {
+                        UserId = userId,
+                        WordId = word.Id,
+                        DictionaryId = dictionaryId
+                    });
+                context.Voices.AddRange(VoiceList);
+            }
+            */
         }
 
         await context.SaveChangesAsync();
