@@ -30,14 +30,14 @@ namespace FlipMemo.Tests
             _MockSpeechRecongnitionService = new Mock<ISpeechRecognitionService>();
             _gameService = new GameService(_context, _MockSpeechRecongnitionService.Object);
         }
-        internal async Task FillDataBase()
+        internal async Task FillDataBase(bool SetBoxes = false, bool learned = false)
         {
             var dictionary = new Dictionary
             {
                 Id = 1,
                 Language = "ENG",
                 Name = "test",
-                
+
             };
             await _context.AddAsync(dictionary);
 
@@ -48,18 +48,32 @@ namespace FlipMemo.Tests
                 new (){Id = 3, Dictionaries = [dictionary], SourceWord = "test3"},
                 new (){Id = 4, Dictionaries = [dictionary], SourceWord = "test4"},
             };
-
-            await _context.Users.AddAsync(new User
+            var user = new User
             {
                 CreatedAt = DateTime.Now,
                 Email = "example@email.com",
                 Id = 1,
                 MustChangePassword = false,
                 Role = Roles.User
-            });
+            };
+            await _context.Users.AddAsync(user);
 
             await _context.Words.AddRangeAsync(Words);
+            await _context.SaveChangesAsync();
+            if (SetBoxes)
+            {
+                var UserWords = _context.Words.Select(w => new UserWord
+                {
+                    UserId = user.Id,
+                    WordId = w.Id,
+                    DictionaryId = dictionary.Id,
+                    Learned = learned,
+                    NextReview = null,
+                    Box = 1
+                }).ToList();
 
+                await _context.UserWords.AddRangeAsync(UserWords);
+            }
             await _context.SaveChangesAsync();
         }
         [Fact]
@@ -77,9 +91,9 @@ namespace FlipMemo.Tests
 
             Assert.Equal("Dictionary not found.", exception.Message);
         }
-        [Fact]
 
-        public async Task GetQuestionAsync_DictionaryExistsAndUserHaveWord_PickWordsForGame()
+        [Fact]
+        public async Task GetQuestionAsync_DictionaryExistsAndUserHaveWordForReview_PickWordsForGame()
         {
             await FillDataBase();
 
@@ -93,6 +107,36 @@ namespace FlipMemo.Tests
 
             Assert.NotNull(result);
             Assert.Equal(4, result.Answers!.Count);
+        }
+        [Fact]
+        public async Task GetQuestionAsync_DictionaryExistsAndUserDoesNotHaveWordForRewiew_ThrowsNotFoundException()
+        {
+            await FillDataBase(true);
+
+            var dto = new StartGameRequestDto
+            {
+                DictionaryId = 1,
+                UserId = 1
+            };
+
+            var exception = await Assert.ThrowsAnyAsync<NotFoundException>(() => _gameService.GetQuestionAsync(dto));
+
+            Assert.Equal("No words available for review.", exception.Message);
+        }
+        [Fact]
+        public async Task GetQuestionAsync_DictionaryExistsAndUserLearnedAllWords_ThrowsNotFoundException()
+        {
+            await FillDataBase(true);
+
+            var dto = new StartGameRequestDto
+            {
+                DictionaryId = 1,
+                UserId = 1
+            };
+
+            var exception = await Assert.ThrowsAsync<NotFoundException>(() => _gameService.GetQuestionAsync(dto));
+
+            Assert.Equal("No words available for review.", exception.Message);
         }
     }
 }
