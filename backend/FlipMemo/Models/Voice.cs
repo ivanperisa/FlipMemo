@@ -17,6 +17,7 @@ public class Voice
     public DateTime? ListeningLastReviewed { get; set; }
     public DateTime? ListeningNextReview { get; set; }
     public bool ListeningLearned { get; set; } = false;
+
     public UserWord UserWord { get; set; } = null!;
     public User User { get; set; } = null!;
     public Word Word { get; set; } = null!;
