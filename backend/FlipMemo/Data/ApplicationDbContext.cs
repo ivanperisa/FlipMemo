@@ -60,7 +60,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         modelBuilder.Entity<UserWord>(entity =>
         {
-            entity.HasKey(uw => new { uw.UserId, uw.WordId, uw.DictionaryId});
+            entity.HasKey(uw => new { uw.UserId, uw.WordId, uw.DictionaryId });
 
             entity.HasOne(uw => uw.User)
                 .WithMany(u => u.UserWords)
@@ -80,11 +80,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         modelBuilder.Entity<Voice>(entity =>
         {
-            entity.HasKey(v => v.Id);
-
-            entity.HasOne(v => v.UserWord)
-                .WithMany(uw => uw.Voices)
-                .HasForeignKey(v => new { v.UserId, v.WordId, v.DictionaryId });
+            entity.HasKey(v => new { v.UserId, v.WordId, v.DictionaryId });
 
             entity.HasOne(v => v.User)
                 .WithMany(u => u.Voices)

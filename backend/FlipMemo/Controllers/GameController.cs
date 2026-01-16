@@ -28,9 +28,9 @@ public class GameController(IGameService gameService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CheckChoice([FromQuery] GameAnswerDto dto)
     {
-        await gameService.CheckChoiceAsync(dto);
+        var result = await gameService.CheckChoiceAsync(dto);
 
-        return Ok();
+        return Ok(result);
     }
 
     [HttpGet("listening/question")]
@@ -54,9 +54,9 @@ public class GameController(IGameService gameService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CheckListeningAnswer([FromQuery] ListeningAnswerDto dto)
     {
-        await gameService.CheckListeningAnswerAsync(dto);
+        var result = await gameService.CheckListeningAnswerAsync(dto);
 
-        return Ok();
+        return Ok(result);
     }
 
     [HttpGet("speaking/question")]

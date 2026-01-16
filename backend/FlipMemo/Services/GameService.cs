@@ -1,13 +1,13 @@
-    using FlipMemo.Data;
-    using FlipMemo.DTOs.Game;
-    using FlipMemo.DTOs.WordAndDictionary;
-    using FlipMemo.Interfaces;
-    using FlipMemo.Interfaces.External;
-    using FlipMemo.Models;
-    using FlipMemo.Utils;
-    using Microsoft.EntityFrameworkCore;
+using FlipMemo.Data;
+using FlipMemo.DTOs.Game;
+using FlipMemo.DTOs.WordAndDictionary;
+using FlipMemo.Interfaces;
+using FlipMemo.Interfaces.External;
+using FlipMemo.Models;
+using FlipMemo.Utils;
+using Microsoft.EntityFrameworkCore;
 
-    namespace FlipMemo.Services;
+namespace FlipMemo.Services;
 
     public class GameService(ApplicationDbContext context, ISpeechRecognitionService speechService) : IGameService
     {
@@ -57,10 +57,10 @@
             };
         }
 
-        public async Task CheckChoiceAsync(GameAnswerDto dto)
+        public async Task<GameAnswerResponseDto> CheckChoiceAsync(GameAnswerDto dto)
         {
             var userWord = await context.UserWords
-                .FirstOrDefaultAsync(uw => uw.UserId == dto.UserId && uw.WordId == dto.QuestionWordId)
+                .FirstOrDefaultAsync(uw => uw.UserId == dto.UserId && uw.WordId == dto.QuestionWordId && uw.DictionaryId == dto.DictionaryId)
                 ?? throw new NotFoundException("User word not found.");
 
             bool isCorrect = dto.ChosenWordId == dto.QuestionWordId;
@@ -69,6 +69,12 @@
             UpdateUserWordBox(userWord, isCorrect);
 
             await context.SaveChangesAsync();
+
+            return new GameAnswerResponseDto
+            {
+                IsCorrect = isCorrect,
+                Box = userWord.Box
+            };
         }
 
         #endregion
@@ -82,10 +88,12 @@
                 .SingleOrDefaultAsync(d => d.Id == dto.DictionaryId)
                 ?? throw new NotFoundException("Dictionary not found.");
 
-            var voices = await GetOrCreateVoicesAsync(dto.UserId, dictionary);
+            var voices = await GetOrCreateVoicesAsync(dto.UserId, dto.DictionaryId, dictionary);
 
             var dueVoices = voices
-                .Where(v => !v.ListeningLearned && (v.ListeningBox == 0 || (v.ListeningNextReview.HasValue && v.ListeningNextReview.Value <= DateTime.UtcNow)))
+                .Where(v => !v.ListeningLearned 
+                    && v.Word.AudioFile != null
+                    && (v.ListeningBox == 0 || (v.ListeningNextReview.HasValue && v.ListeningNextReview.Value <= DateTime.UtcNow)))
                 .OrderBy(v => v.ListeningBox)
                 .ThenBy(v => v.ListeningNextReview)
                 .ToList();
@@ -93,7 +101,7 @@
             if (dueVoices.Count == 0)
                 throw new NotFoundException("No words available for listening review.");
 
-            var correctWord = dueVoices[0].UserWord.Word;
+            var correctWord = dueVoices[0].Word;
 
             if (correctWord.AudioFile == null)
                 throw new NotFoundException("No words available for listening review.");
@@ -101,22 +109,18 @@
             return new ListeningQuestionResponseDto
             {
                 WordId = correctWord.Id,
-                AudioBytes = correctWord.AudioFile
+                AudioBytes = correctWord.AudioFile!
             };
         }
 
         public async Task<ListeningAnswerResponseDto> CheckListeningAnswerAsync(ListeningAnswerDto dto)
         {
             var voice = await context.Voices
-                .Include(v => v.UserWord)
-                    .ThenInclude(uw => uw.Word)
-                .FirstOrDefaultAsync(v => 
-                    v.UserId == dto.UserId && 
-                    v.WordId == dto.WordId &&
-                    v.DictionaryId == dto.DictionaryId)
+                .Include(uw => uw.Word)
+                .FirstOrDefaultAsync(v => v.UserId == dto.UserId && v.WordId == dto.WordId && v.DictionaryId == dto.DictionaryId)
                 ?? throw new NotFoundException("Voice record not found.");
 
-            bool isCorrect = string.Equals(dto.Answer?.Trim(), voice.UserWord.Word.SourceWord?.Trim(), StringComparison.OrdinalIgnoreCase);
+            bool isCorrect = string.Equals(dto.Answer?.Trim(), voice.Word.SourceWord?.Trim(), StringComparison.OrdinalIgnoreCase);
 
             voice.ListeningLastReviewed = DateTime.UtcNow;
 
@@ -127,7 +131,7 @@
             return new ListeningAnswerResponseDto
             {
                 IsCorrect = isCorrect,
-                CorrectAnswer = voice.UserWord.Word.SourceWord!
+                CorrectAnswer = voice.Word.SourceWord!
             };
         }
 
@@ -142,7 +146,7 @@
                 .SingleOrDefaultAsync(d => d.Id == dto.DictionaryId)
                 ?? throw new NotFoundException("Dictionary not found.");
 
-            var voices = await GetOrCreateVoicesAsync(dto.UserId, dictionary);
+            var voices = await GetOrCreateVoicesAsync(dto.UserId, dto.DictionaryId, dictionary);
 
             var dueVoices = voices
                 .Where(v => !v.SpeakingLearned && (v.SpeakingBox == 0 || (v.SpeakingNextReview.HasValue && v.SpeakingNextReview.Value <= DateTime.UtcNow)))
@@ -160,30 +164,13 @@
                 Word = ConvertToDto(correctWord)
             };
         }
-    //Svaka igra se uvijek odvija u kontekstu jednog rječnika, zato svaki DTO mora znati DictionaryId
+
         public async Task<SpeakingAnswerResponseDto> CheckSpeakingAnswerAsync(SpeakingAnswerDto dto)
         {
-            var userWord = await context.UserWords
-                .Include(uw => uw.Word)
-                .Include(uw => uw.Voices)
-                .FirstOrDefaultAsync(uw =>
-                    uw.UserId == dto.UserId &&
-                    uw.WordId == dto.WordId &&
-                    uw.DictionaryId == dto.DictionaryId)
-            ?? throw new NotFoundException("UserWord not found.");
-
-            var voice = userWord.Voices.FirstOrDefault();
-
-            if (voice == null)
-            {
-                voice = new Voice
-            {
-                    UserId = userWord.UserId,
-                    WordId = userWord.WordId,
-                    DictionaryId = userWord.DictionaryId
-                };
-            context.Voices.Add(voice);
-            }
+            var voice = await context.Voices
+                .Include(v => v.Word)
+                .FirstOrDefaultAsync(v => v.UserId == dto.UserId && v.WordId == dto.WordId && v.DictionaryId == dto.DictionaryId)
+                ?? throw new NotFoundException("Voice record not found.");
 
             byte[] audioBytes;
             using (var memoryStream = new MemoryStream())
@@ -192,8 +179,7 @@
                 audioBytes = memoryStream.ToArray();
             }
 
-            var recognitionResult = await speechService.RecognizeSpeechAsync(audioBytes, voice.UserWord.Word.SourceWord, dto.Language);
-            //tu mozda netreba voice.userword.word
+            var recognitionResult = await speechService.RecognizeSpeechAsync(audioBytes, voice.Word.SourceWord, dto.Language);
             int score = recognitionResult.Score;
             bool isCorrect = score >= _speakingScoreThreshold;
 
@@ -313,44 +299,33 @@
             return userWords;
         }
 
-        private async Task<List<Voice>> GetOrCreateVoicesAsync(int userId, Dictionary dictionary)
+        private async Task<List<Voice>> GetOrCreateVoicesAsync(int userId, int dictionaryId, Dictionary dictionary)
         {
-            var dictionaryId = dictionary.Id;
-
-            var userWords = await context.UserWords
-                .Where(uw => uw.UserId == userId && uw.DictionaryId == dictionaryId)
-                .Include(uw => uw.Word)
-                .Include(uw => uw.Voices)
+            var voices = await context.Voices
+                .Where(v => v.UserId == userId && v.DictionaryId == dictionaryId)
+                .Include(v => v.Word)
                 .ToListAsync();
 
-            var voicesToAdd = new List<Voice>();
-
-            foreach (var userWord in userWords)
+            if (voices.Count == 0)
             {
-                if (!userWord.Voices.Any())
+                var newVoices = dictionary.Words.Select(w => new Voice
                 {
-                    voicesToAdd.Add(new Voice
-                    {
-                        UserId = userWord.UserId,
-                        WordId = userWord.WordId,
-                        DictionaryId = userWord.DictionaryId
-                    });
-                }
-            }
+                    UserId = userId,
+                    DictionaryId = dictionaryId,
+                    WordId = w.Id
+                }).ToList();
 
-            if (voicesToAdd.Count > 0)
-            {
-                context.Voices.AddRange(voicesToAdd);
+                context.Voices.AddRange(newVoices);
                 await context.SaveChangesAsync();
 
-                userWords = await context.UserWords
-                    .Where(uw => uw.UserId == userId && uw.DictionaryId == dictionaryId)
-                    .Include(uw => uw.Word)
-                    .Include(uw => uw.Voices)
+                voices = await context.Voices
+                    .Where(v => v.UserId == userId && v.DictionaryId == dictionaryId)
+                    .Include(v => v.Word)
                     .ToListAsync();
             }
-            return userWords.SelectMany(uw => uw.Voices).ToList();
-    }
+
+            return voices;
+        }
 
 
         private static DateTime CalculateNextReview(int box)

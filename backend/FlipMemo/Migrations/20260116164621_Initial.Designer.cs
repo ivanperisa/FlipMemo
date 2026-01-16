@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FlipMemo.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260116142809_Initial")]
+    [Migration("20260116164621_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -146,11 +146,11 @@ namespace FlipMemo.Migrations
 
             modelBuilder.Entity("FlipMemo.Models.Voice", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("UserId")
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.Property<int>("WordId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("DictionaryId")
                         .HasColumnType("integer");
@@ -182,19 +182,11 @@ namespace FlipMemo.Migrations
                     b.Property<int>("SpeakingScore")
                         .HasColumnType("integer");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("WordId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
+                    b.HasKey("UserId", "WordId", "DictionaryId");
 
                     b.HasIndex("DictionaryId");
 
                     b.HasIndex("WordId");
-
-                    b.HasIndex("UserId", "WordId", "DictionaryId");
 
                     b.ToTable("Voices");
                 });
@@ -292,17 +284,9 @@ namespace FlipMemo.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("FlipMemo.Models.UserWord", "UserWord")
-                        .WithMany("Voices")
-                        .HasForeignKey("UserId", "WordId", "DictionaryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Dictionary");
 
                     b.Navigation("User");
-
-                    b.Navigation("UserWord");
 
                     b.Navigation("Word");
                 });
@@ -318,11 +302,6 @@ namespace FlipMemo.Migrations
                 {
                     b.Navigation("UserWords");
 
-                    b.Navigation("Voices");
-                });
-
-            modelBuilder.Entity("FlipMemo.Models.UserWord", b =>
-                {
                     b.Navigation("Voices");
                 });
 
