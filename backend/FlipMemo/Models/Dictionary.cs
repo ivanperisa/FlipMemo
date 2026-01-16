@@ -8,4 +8,5 @@ public class Dictionary
 
     public ICollection<Word> Words { get; set; } = null!;
     public ICollection<UserWord> UserWords { get; set; } = null!;
+    public ICollection<Voice> Voices { get; set; } = null!;
 }

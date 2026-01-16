@@ -82,6 +82,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         {
             entity.HasKey(v => v.Id);
 
+            entity.HasOne(v => v.UserWord)
+                .WithMany(uw => uw.Voices)
+                .HasForeignKey(v => new { v.UserId, v.WordId, v.DictionaryId });
+
             entity.HasOne(v => v.User)
                 .WithMany(u => u.Voices)
                 .HasForeignKey(v => v.UserId)
@@ -91,8 +95,13 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .WithMany(w => w.Voices)
                 .HasForeignKey(v => v.WordId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(v => v.Dictionary)
+                .WithMany(d => d.Voices)
+                .HasForeignKey(v => v.DictionaryId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
-        
+
         base.OnModelCreating(modelBuilder);
     }
 }
