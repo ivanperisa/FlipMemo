@@ -149,6 +149,9 @@ namespace FlipMemo.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("DictionaryId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("ListeningBox")
                         .HasColumnType("integer");
 
@@ -184,9 +187,11 @@ namespace FlipMemo.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("DictionaryId");
 
                     b.HasIndex("WordId");
+
+                    b.HasIndex("UserId", "WordId", "DictionaryId");
 
                     b.ToTable("Voices");
                 });
@@ -266,6 +271,12 @@ namespace FlipMemo.Migrations
 
             modelBuilder.Entity("FlipMemo.Models.Voice", b =>
                 {
+                    b.HasOne("FlipMemo.Models.Dictionary", "Dictionary")
+                        .WithMany("Voices")
+                        .HasForeignKey("DictionaryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("FlipMemo.Models.User", "User")
                         .WithMany("Voices")
                         .HasForeignKey("UserId")
@@ -278,7 +289,17 @@ namespace FlipMemo.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("FlipMemo.Models.UserWord", "UserWord")
+                        .WithMany("Voices")
+                        .HasForeignKey("UserId", "WordId", "DictionaryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Dictionary");
+
                     b.Navigation("User");
+
+                    b.Navigation("UserWord");
 
                     b.Navigation("Word");
                 });
@@ -286,12 +307,19 @@ namespace FlipMemo.Migrations
             modelBuilder.Entity("FlipMemo.Models.Dictionary", b =>
                 {
                     b.Navigation("UserWords");
+
+                    b.Navigation("Voices");
                 });
 
             modelBuilder.Entity("FlipMemo.Models.User", b =>
                 {
                     b.Navigation("UserWords");
 
+                    b.Navigation("Voices");
+                });
+
+            modelBuilder.Entity("FlipMemo.Models.UserWord", b =>
+                {
                     b.Navigation("Voices");
                 });
 

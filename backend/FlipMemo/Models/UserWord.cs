@@ -13,4 +13,5 @@ public class UserWord
     public User User { get; set; } = null!;
     public Word Word { get; set; } = null!;
     public Dictionary Dictionary { get; set; } = null!;
+    public ICollection<Voice> Voices { get; set; } = null!;
 }
