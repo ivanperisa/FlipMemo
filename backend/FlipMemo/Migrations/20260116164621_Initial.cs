@@ -128,8 +128,6 @@ namespace FlipMemo.Migrations
                 name: "Voices",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UserId = table.Column<int>(type: "integer", nullable: false),
                     WordId = table.Column<int>(type: "integer", nullable: false),
                     DictionaryId = table.Column<int>(type: "integer", nullable: false),
@@ -145,18 +143,12 @@ namespace FlipMemo.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Voices", x => x.Id);
+                    table.PrimaryKey("PK_Voices", x => new { x.UserId, x.WordId, x.DictionaryId });
                     table.ForeignKey(
                         name: "FK_Voices_Dictionaries_DictionaryId",
                         column: x => x.DictionaryId,
                         principalTable: "Dictionaries",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Voices_UserWords_UserId_WordId_DictionaryId",
-                        columns: x => new { x.UserId, x.WordId, x.DictionaryId },
-                        principalTable: "UserWords",
-                        principalColumns: new[] { "UserId", "WordId", "DictionaryId" },
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Voices_Users_UserId",
@@ -193,11 +185,6 @@ namespace FlipMemo.Migrations
                 column: "DictionaryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Voices_UserId_WordId_DictionaryId",
-                table: "Voices",
-                columns: new[] { "UserId", "WordId", "DictionaryId" });
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Voices_WordId",
                 table: "Voices",
                 column: "WordId");
@@ -210,10 +197,10 @@ namespace FlipMemo.Migrations
                 name: "DictionaryWord");
 
             migrationBuilder.DropTable(
-                name: "Voices");
+                name: "UserWords");
 
             migrationBuilder.DropTable(
-                name: "UserWords");
+                name: "Voices");
 
             migrationBuilder.DropTable(
                 name: "Dictionaries");

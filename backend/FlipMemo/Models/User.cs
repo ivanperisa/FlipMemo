@@ -15,6 +15,6 @@ public class User
     public string? PasswordResetTokenHash { get; set; }
     public DateTime? PasswordResetTokenExpiry { get; set; }
 
-    public ICollection<UserWord> UserWords { get; set; } = null!;
-    public ICollection<Voice> Voices { get; set; } = null!;
+    public ICollection<UserWord> UserWords { get; set; } = [];
+    public ICollection<Voice> Voices { get; set; } = [];
 }
