@@ -2,9 +2,9 @@ namespace FlipMemo.Models;
 
 public class Voice
 {
-    public int Id { get; set; }
     public int UserId { get; set; }
     public int WordId { get; set; }
+    public int DictionaryId { get; set; }
 
     public int SpeakingBox { get; set; } = 0;
     public DateTime? SpeakingLastReviewed { get; set; }
@@ -19,4 +19,5 @@ public class Voice
 
     public User User { get; set; } = null!;
     public Word Word { get; set; } = null!;
+    public Dictionary Dictionary { get; set; } = null!;
 }
