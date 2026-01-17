@@ -9,6 +9,7 @@ using FlipMemo.Models;
 using FlipMemo.Services;
 using FlipMemo.Utils;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -130,6 +131,7 @@ namespace FlipMemo.Tests
             await _context.SaveChangesAsync();
         }
         #endregion
+
         #region TranslateMethods
 
         #region GetQuestionAsync
@@ -217,7 +219,7 @@ namespace FlipMemo.Tests
         }
 
         [Fact]
-        public async Task CheckChoiceAsync_UserWordExistsAndUserAnswerWasCorrect_UpdatesUserWordProgress()
+        public async Task CheckChoiceAsync_UserWordExistsAndUserAnswerWasCorrect_UpdatesProgress()
         {
             await FillDataBase(true);
 
@@ -239,7 +241,7 @@ namespace FlipMemo.Tests
         }
 
         [Fact]
-        public async Task CheckChoiceAsync_UserWordExistsAndUserAnswerWasWrong_ResetsUserWordProgress()
+        public async Task CheckChoiceAsync_UserWordExistsAndUserAnswerWasWrong_ResetsProgress()
         {
             await FillDataBase(true);
 
@@ -265,7 +267,7 @@ namespace FlipMemo.Tests
 
         #region ListeningMethods
 
-        #region GetListeninGQuestionAsync
+        #region GetListeningQuestionAsync
         [Fact]
         public async Task GetListeningQuestionAsync_DictionaryWasNotFound_ThrowsNotFoundException()
         {
@@ -283,7 +285,7 @@ namespace FlipMemo.Tests
         }
 
         [Fact]
-        public async Task GetListeningQuestionAsync_DictionaryExistsAndUserHaveWordForReview_PickWordsForGame()
+        public async Task GetListeningQuestionAsync_DictionaryExistsAndUserHaveWordForReview_PickWordForGame()
         {
             await FillDataBaseListeningAndVoice();
 
@@ -329,7 +331,7 @@ namespace FlipMemo.Tests
             Assert.Equal("No words available for listening review.", exception.Message);
         }
         #endregion
-        #region CheckListeningAnswer
+        #region CheckListeningAnswerAsync
         [Fact]
         public async Task CheckListeningAnswerAsync_VoiceRecordDoesNotExists_ThrowsNotFoundException()
         {
@@ -349,7 +351,7 @@ namespace FlipMemo.Tests
         }
 
         [Fact]
-        public async Task CheckListeningAnswerAsync_UserWordExistsAndUserAnswerWasCorrect_UpdatesVoiceProgress()
+        public async Task CheckListeningAnswerAsync_VoiceRecordExistsAndUserAnswerWasCorrect_UpdatesProgress()
         {
             await FillDataBaseListeningAndVoice(true);
 
@@ -371,7 +373,7 @@ namespace FlipMemo.Tests
         }
 
         [Fact]
-        public async Task CheckListeningAnswerAsync_UserWordExistsAndUserAnswerWasWrong_ResetsUserWordProgress()
+        public async Task CheckListeningAnswerAsync_VoiceRecordExistsAndUserAnswerWasWrong_Resetsrogress()
         {
             await FillDataBaseListeningAndVoice(true);
 
@@ -392,10 +394,12 @@ namespace FlipMemo.Tests
             Assert.NotNull(userVoice!.ListeningLastReviewed);
         }
         #endregion
+
         #endregion
 
         #region SpeakingMethods
 
+        #region GetSpeakingQuestionAsync
         [Fact]
         public async Task GetSpeakingQuestionAsync_DictionaryWasNotFound_ThrowsNotFoundException()
         {
@@ -413,7 +417,7 @@ namespace FlipMemo.Tests
         }
 
         [Fact]
-        public async Task GetSpeakingQuestionAsync_DictionaryExistsAndUserHaveWordForReview_PickWordsForGame()
+        public async Task GetSpeakingQuestionAsync_DictionaryExistsAndUserHaveWordForReview_PickWordForGame()
         {
             await FillDataBaseListeningAndVoice();
 
@@ -457,6 +461,99 @@ namespace FlipMemo.Tests
 
             Assert.Equal("No words available for speaking review.", exception.Message);
         }
+        #endregion
+        #region CheckSpeakingAnswerAsync
+        [Fact]
+        public async Task CheckSpeakingAnswerAsync_VoiceRecordDoesNotExists_ThrowsNotFoundException()
+        {
+            await FillDataBaseListeningAndVoice();
+
+            var dto = new SpeakingAnswerDto
+            {
+                UserId = 1,
+                DictionaryId = 1,
+                WordId = 1,
+                Language = "English",
+                AudioFile = new FormFile(new MemoryStream([1, 2, 3, 4]), 0, 4, "AudioFile", "test.t") 
+                            { Headers = new HeaderDictionary(), ContentType = "test.t" }
+            };
+
+            var exception = await Assert.ThrowsAnyAsync<NotFoundException>(() => _gameService.CheckSpeakingAnswerAsync(dto));
+
+            Assert.Equal("Voice record not found.", exception.Message);
+        }
+
+        [Fact]
+        public async Task CheckSpeakingAnswerAsync_VoiceRecordExistsAndUserScoreIsHigh_UpdatesProgress()
+        {
+            await FillDataBaseListeningAndVoice(true);
+
+            _MockSpeechRecongnitionService
+                .Setup(x => x.RecognizeSpeechAsync(
+                    It.IsAny<byte[]>(),
+                    It.IsAny<string>(),
+                    It.IsAny<string>()))
+                .ReturnsAsync(new SpeechRecognitionResult
+                {
+                    Score = 70
+                });
+
+            var dto = new SpeakingAnswerDto
+            {
+                UserId = 1,
+                DictionaryId = 1,
+                WordId = 1,
+                Language = "English",
+                AudioFile = new FormFile(new MemoryStream([1, 2, 3, 4]), 0, 4, "AudioFile", "test.t")
+                { Headers = new HeaderDictionary(), ContentType = "test.t" }
+            };
+
+            var result = await _gameService.CheckSpeakingAnswerAsync(dto);
+            var userVoice = await _context.Voices.SingleOrDefaultAsync(w => w.WordId == 1);
+
+            Assert.True(result.IsCorrect);
+            Assert.Equal(2, result.Box);
+            Assert.NotNull(userVoice!.SpeakingNextReview);
+            Assert.NotNull(userVoice!.SpeakingLastReviewed);
+            Assert.True(result.Score >= 70);
+        }
+
+        [Fact]
+        public async Task CheckSpeakingAnswerAsync_VoiceRecordExistsAndUserAnswerScoreIsLow_ResetsProgress()
+        {
+            await FillDataBaseListeningAndVoice(true);
+
+            _MockSpeechRecongnitionService
+                .Setup(x => x.RecognizeSpeechAsync(
+                    It.IsAny<byte[]>(),
+                    It.IsAny<string>(),
+                    It.IsAny<string>()))
+                .ReturnsAsync(new SpeechRecognitionResult
+                {
+                    Score = 45
+                });
+
+            var dto = new SpeakingAnswerDto
+            {
+                UserId = 1,
+                DictionaryId = 1,
+                WordId = 1,
+                Language = "English",
+                AudioFile = new FormFile(new MemoryStream([1, 2, 3, 4]), 0, 4, "AudioFile", "test.t")
+                { Headers = new HeaderDictionary(), ContentType = "test.t" }
+            };
+
+            var result = await _gameService.CheckSpeakingAnswerAsync(dto);
+            var userVoice = await _context.Voices.SingleOrDefaultAsync(w => w.WordId == 1);
+
+            Assert.False(result.IsCorrect);
+            Assert.Equal(0, result.Box);
+            Assert.NotNull(userVoice!.SpeakingNextReview);
+            Assert.NotNull(userVoice!.SpeakingLastReviewed);
+            Assert.False(result.Score >= 70);
+        }
+        #endregion
+
         #endregion
     }
 }

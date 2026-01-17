@@ -194,7 +194,8 @@ namespace FlipMemo.Services;
             return new SpeakingAnswerResponseDto
             {
                 IsCorrect = isCorrect,
-                Score = score
+                Score = score,
+                Box = voice.SpeakingBox
             };
         }
 
