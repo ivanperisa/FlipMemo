@@ -5,7 +5,6 @@ import { Mosaic } from "react-loading-indicators";
 import PageTransition from "../components/PageTransition";
 import Particles from "../styles/Particles";
 import Header from "../components/Header";
-import { useLearning } from "../context/LearningContext";
 
 export const GameTemplate = () => {
     // VARIJABLE

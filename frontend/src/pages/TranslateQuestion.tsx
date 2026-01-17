@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router";
+import { useNavigate } from "react-router";
 import { useEffect, useState, useRef } from "react";
 import { Mosaic } from "react-loading-indicators";
 import PageTransition from "../components/PageTransition";
@@ -7,6 +7,7 @@ import Header from "../components/Header";
 import axiosInstance from "../api/axiosInstance";
 import { useAuth } from "../context/AuthProvider";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLearning } from "../context/LearningContext";
 
 interface StartGameRequestDto {
     dictionaryId: string;
@@ -51,8 +52,8 @@ interface Question {
 }
 
 const Mode = {
-    HRV: "hrv",
-    ENG: "eng",
+    HRV: "translate-to",
+    ENG: "translate-from",
 } as const;
 
 // Stacked Cards Component for cycling through phrases
@@ -80,27 +81,27 @@ const StackedPhraseCards = ({ phrases, className = "" }: { phrases: string[], cl
             )}
             
             {/* Main visible card */}
-            <div className="bg-white border-2 border-[var(--color-primary-dark)] rounded-lg p-3 shadow-md min-h-[60px] flex items-center justify-center">
-                <p className="font-space text-[#8B6B7A] text-sm text-center italic">
+            <div className="bg-white border-2 border-[var(--color-primary-dark)] rounded-lg p-3 shadow-md min-h-[60px] flex items-center justify-center overflow-hidden">
+                <p className="font-space text-[#8B6B7A] text-sm text-center italic break-words overflow-wrap-anywhere">
                     "{phrases[currentIndex]}"
                 </p>
             </div>
 
             {/* Navigation arrows */}
             {phrases.length > 1 && (
-                <div className="flex items-center justify-between mt-2">
+                <div className="flex items-center justify-between mt-2 gap-2 flex-shrink-0">
                     <button 
                         onClick={prevCard}
-                        className="w-7 h-7 rounded-full bg-[var(--color-primary-dark)] text-white font-bold flex items-center justify-center hover:bg-[var(--color-primary-extra-dark)] transition-all hover:cursor-pointer"
+                        className="w-7 h-7 min-w-[28px] min-h-[28px] rounded-full bg-[var(--color-primary-dark)] text-white font-bold flex items-center justify-center hover:bg-[var(--color-primary-extra-dark)] transition-all hover:cursor-pointer flex-shrink-0"
                     >
                         ‹
                     </button>
-                    <span className="font-space text-xs text-[#8B6B7A]">
+                    <span className="font-space text-xs text-[#8B6B7A] flex-shrink-0">
                         {currentIndex + 1} / {phrases.length}
                     </span>
                     <button 
                         onClick={nextCard}
-                        className="w-7 h-7 rounded-full bg-[var(--color-primary-dark)] text-white font-bold flex items-center justify-center hover:bg-[var(--color-primary-extra-dark)] transition-all hover:cursor-pointer"
+                        className="w-7 h-7 min-w-[28px] min-h-[28px] rounded-full bg-[var(--color-primary-dark)] text-white font-bold flex items-center justify-center hover:bg-[var(--color-primary-extra-dark)] transition-all hover:cursor-pointer flex-shrink-0"
                     >
                         ›
                     </button>
@@ -118,12 +119,14 @@ export const TranslateFromQuestion = () => {
     // KONTEKSTI
     const [Loading, setLoading] = useState<boolean>(false);
     const { id } = useAuth();
-    const { dictionaryId, mode } = useParams();
+    const { dictionaryId, gameMode } = useLearning();
     const [question, setQuestion] = useState<Question | null>(null);
     const [selectedAnswer, setSelectedAnswer] = useState<DisplayWord | null>(null);
     const [hasAnswered, setHasAnswered] = useState(false);
     const [dictionaryIsEmpty, setDictionaryIsEmpty] = useState(false);
     const [resultLoading, setResultLoading] = useState(false);
+    const [fetchError, setFetchError] = useState<string | null>(null);
+    const [answerError, setAnswerError] = useState<string | null>(null);
 
     // For scrolling
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -144,7 +147,7 @@ export const TranslateFromQuestion = () => {
     const wrongSoundRef = useRef<HTMLAudioElement>(null);
 
     // PROVJERE
-    if (mode !== "hrv" && mode !== "eng") {
+    if (gameMode !== "translate-from" && gameMode !== "translate-to") {
         navigate("/*");
         return;
     }
@@ -174,7 +177,7 @@ export const TranslateFromQuestion = () => {
                     
                     console.log(correctAnswerId);
                     if (correctAnswerId !== undefined) {
-                        if (mode === Mode.HRV) {
+                        if (gameMode === Mode.ENG) {
                             const question: Question = {
                                 questionWord: {
                                     id: response.data.sourceWord.id,
@@ -191,7 +194,7 @@ export const TranslateFromQuestion = () => {
                             setQuestion(question);
                             console.log(question);    
                         }
-                        else if (mode === Mode.ENG) {
+                        else if (gameMode === Mode.HRV) {
                             const question: Question = {
                                 questionWord: {
                                     id: response.data.sourceWord.id,
@@ -213,8 +216,10 @@ export const TranslateFromQuestion = () => {
             })
             .catch((error) => {
                 if (error.status === 404 
-                    && error.response.data.message.startsWith("No words available")) {
+                    && error.response?.data?.message?.startsWith("No words available")) {
                     setDictionaryIsEmpty(true);
+                } else {
+                    setFetchError(error.response?.data?.message || "Došlo je do greške pri učitavanju pitanja. Pokušajte ponovno.");
                 }
                 console.log("StartGameError:", error);
             })
@@ -294,8 +299,8 @@ export const TranslateFromQuestion = () => {
                     }, 600);
                 }, 300);
 
-            } catch (error) {
-
+            } catch (error: any) {
+                setAnswerError(error.response?.data?.message || "Došlo je do greške pri slanju odgovora.");
             } finally {
                 setResultLoading(false);
             }
@@ -322,6 +327,8 @@ export const TranslateFromQuestion = () => {
         setFlyingWord(null);
         setFlyingStartPos(null);
         setTargetBowlIndex(null);
+        setFetchError(null);
+        setAnswerError(null);
         fetchNextQuestion();
     }
 
@@ -344,45 +351,40 @@ export const TranslateFromQuestion = () => {
     return (
         <PageTransition>
             <div className="min-h-screen flex flex-col items-center justify-start w-screen">
-                {Loading ? (
-                    <div className="min-h-screen flex items-center justify-center">
-                        <Mosaic 
-                            color="var(--color-primary-dark)" 
-                            size="medium" 
-                            text="" 
-                            textColor="" 
-                        />
-                    </div>
-                ) : (
-                    <>
-                        {/* Background Particles */}
-                        <div className="absolute z-0 w-screen h-screen">
-                            <Particles
-                                particleColors={['#ffffff', '#ffffff']}
-                                particleCount={150}
-                                particleSpread={8}
-                                speed={0.08}
-                                particleBaseSize={180}
-                                moveParticlesOnHover={true}
-                                alphaParticles={false}
-                                disableRotation={false}
+                {/* Background Particles - always visible */}
+                <div className="absolute z-0 w-screen h-screen">
+                    <Particles
+                        particleColors={['#ffffff', '#ffffff']}
+                        particleCount={150}
+                        particleSpread={8}
+                        speed={0.08}
+                        particleBaseSize={180}
+                        moveParticlesOnHover={true}
+                        alphaParticles={false}
+                        disableRotation={false}
+                    />
+                </div>
+
+                {/* Main Layout */}
+                <div ref={scrollRef} className="h-[100vh] w-full flex flex-col items-center justify-between relative z-10 overflow-y-auto">
+                    {/* Header - always visible */}
+                    <Header />
+
+                    {Loading ? (
+                        <div className="flex-1 flex items-center justify-center">
+                            <Mosaic 
+                                color="var(--color-primary-dark)" 
+                                size="medium" 
+                                text="" 
+                                textColor="" 
                             />
                         </div>
-
-                        {/* Main Layout */}
-                        <div ref={scrollRef} className="h-[100vh] w-full flex flex-col items-center justify-between relative z-10 overflow-y-auto">
-                            {/* Header */}
-                            <Header />
-                            {/* <button onClick={() => playCorrect()}>
-                                zvuk
-                            </button> */}
+                    ) : (
+                        <>
 
                             {dictionaryIsEmpty ? (
                                 <div className="flex flex-col items-center justify-center w-full flex-1 gap-6">
                                     <div className="z-10 w-[90vw] md:w-[70vw] lg:w-[60vw] flex flex-col items-center justify-center gap-6 bg-white/80 rounded-lg shadow-lg backdrop-blur-lg border-2 border-[var(--color-primary-dark)] min-w-[350px] max-w-[900px] p-8">
-                                        {/* <div className="w-16 h-16 rounded-full bg-[var(--color-primary-light)] flex items-center justify-center">
-                                            <span className="text-3xl">📚</span>
-                                        </div> */}
                                         <h2 className="font-space text-2xl font-bold text-[var(--color-primary-dark)] text-center">
                                             Nema više riječi
                                         </h2>
@@ -390,6 +392,26 @@ export const TranslateFromQuestion = () => {
                                             Izgleda da nemate više riječi za ovaj riječnik. Vratite se kasnije za nove izazove!
                                         </p>
                                         <div className="w-12 h-1 bg-[var(--color-primary)] rounded-full mt-2"></div>
+                                    </div>
+                                </div>
+                            ) : fetchError ? (
+                                <div className="flex flex-col items-center justify-center w-full flex-1 gap-6">
+                                    <div className="z-10 w-[90vw] md:w-[70vw] lg:w-[60vw] flex flex-col items-center justify-center gap-6 bg-white/80 rounded-lg shadow-lg backdrop-blur-lg border-2 border-[#dc2626] min-w-[350px] max-w-[900px] p-8">
+                                        <div className="w-16 h-16 rounded-full bg-[#fecaca] flex items-center justify-center">
+                                            <span className="text-3xl">⚠️</span>
+                                        </div>
+                                        <h2 className="font-space text-2xl font-bold text-[#dc2626] text-center">
+                                            Greška
+                                        </h2>
+                                        <p className="font-space text-base text-[#dc2626] text-center max-w-sm">
+                                            {fetchError}
+                                        </p>
+                                        <button
+                                            onClick={() => handleQuestionAnswered()}
+                                            className="mt-4 px-8 py-3 bg-[#dc2626] text-white font-space rounded-full hover:bg-[#b91c1c] transition-all hover:cursor-pointer shadow-md"
+                                        >
+                                            Pokušaj ponovno
+                                        </button>
                                     </div>
                                 </div>
                             ) : (
@@ -510,10 +532,29 @@ export const TranslateFromQuestion = () => {
                                         </div>
 
                                         {/* Game answer button - with smooth transition */}
-                                        <div className="relative h-[56px] mt-10 w-[320px] sm:w-[360px]">
-                                            <div className={`flex items-center justify-center
+                                        <div className="relative mt-10 w-[320px] sm:w-[360px] flex flex-col items-center">
+                                            {/* Answer Error Display */}
+                                            {answerError && (
+                                                <div className="flex flex-col items-center gap-3 mb-4">
+                                                    <div className="bg-[#fef2f2] border-2 border-[#dc2626] rounded-lg px-4 py-3 shadow-md">
+                                                        <p className="font-space text-sm text-[#dc2626] text-center">
+                                                            {answerError}
+                                                        </p>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => setAnswerError(null)}
+                                                        type="button"
+                                                        className="rounded-full bg-[#dc2626] text-white font-space text-[16px] tracking-wide px-6 py-3 hover:bg-[#b91c1c] hover:cursor-pointer transition-all shadow-md"
+                                                    >
+                                                        Pokušaj ponovno
+                                                    </button>
+                                                </div>
+                                            )}
+                                            
+                                            {/* Loading spinner */}
+                                            <div className={`h-[56px] flex items-center justify-center
                                                 transition-all duration-300 ease-in-out 
-                                                ${!resultLoading ? 'opacity-0 pointer-events-none scale-95' : 'opacity-100 scale-100'}`}>
+                                                ${!resultLoading ? 'opacity-0 pointer-events-none scale-95 absolute' : 'opacity-100 scale-100'}`}>
                                                 <Mosaic
                                                     color="var(--color-primary-dark)" 
                                                     size="small" 
@@ -521,30 +562,34 @@ export const TranslateFromQuestion = () => {
                                                     textColor="" 
                                                 />
                                             </div>
+                                            
+                                            {/* Odgovori button */}
                                             <button
                                                 onClick={handleQuestionAnswered}
                                                 type="button"
                                                 disabled={selectedAnswer === null}
                                                 className={`
-                                                    absolute inset-0 rounded-full font-space text-[18px] tracking-wide
+                                                    h-[56px] w-full rounded-full font-space text-[18px] tracking-wide
                                                     bg-(--color-primary-dark) text-on-dark shadow-lg
                                                     hover:opacity-90 hover:shadow-xl hover:cursor-pointer
                                                     disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed
                                                     transition-transform duration-300 ease-in-out
-                                                    ${hasAnswered || resultLoading ? 'opacity-0 pointer-events-none scale-95' : 'opacity-100 scale-100'}
+                                                    ${hasAnswered || resultLoading || answerError ? 'opacity-0 pointer-events-none scale-95 absolute' : 'opacity-100 scale-100'}
                                                 `}
                                             >
                                                 Odgovori
                                             </button>
+                                            
+                                            {/* Slijedeća riječ button */}
                                             <button
                                                 onClick={() => handleNextQuestion()}
                                                 type="button"
                                                 className={`
-                                                    absolute inset-0 rounded-full bg-(--color-primary-dark) 
+                                                    h-[56px] w-full rounded-full bg-(--color-primary-dark) 
                                                     text-on-dark shadow-lg font-space text-[18px] tracking-wide 
                                                     hover:opacity-90 hover:shadow-xl hover:cursor-pointer
                                                     transition-all duration-300 ease-in-out
-                                                    ${(hasAnswered && !resultLoading) ? 'opacity-100 scale-100' : 'opacity-0 pointer-events-none scale-95'}
+                                                    ${(hasAnswered && !resultLoading && !answerError) ? 'opacity-100 scale-100' : 'opacity-0 pointer-events-none scale-95 absolute'}
                                                 `}
                                             >
                                                 Slijedeća riječ
@@ -647,10 +692,9 @@ export const TranslateFromQuestion = () => {
                                     </AnimatePresence>
                                 </>
                             )}
-
-                        </div>
-                    </>
-                )}
+                        </>
+                    )}
+                </div>
             </div>
         </PageTransition>
     );

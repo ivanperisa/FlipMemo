@@ -3,7 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router";
 import { Home, Login, Logout, Missing, Welcome, ForgotPassword, Register,
     ChangePassword, ChooseStyle,ChooseWordSet, AdminDictionary, AdminPage, 
     AdminAddDictionary,
-    AdminAddWord, UserControl,TranslateFromQuestion,TranslateToQuestion,ListeningQuestion,SpeakingQuestion} from './pages/PagesImport.ts';
+    AdminAddWord, UserControl,TranslateFromQuestion,ListeningQuestion,SpeakingQuestion} from './pages/PagesImport.ts';
 import AuthProvider from "./context/AuthProvider.tsx";
 import ProtectedRoutes from "./routes/ProtectedRoutes.tsx";
 import AdminProtectedRoute from "./routes/AdminProtectedRoute.tsx";
@@ -30,8 +30,7 @@ const AnimatedRoutes = () => {
              <Route path="/chooseWordSet" element={<ChooseWordSet />} />
              <Route path='/listeningQuestion' element={<ListeningQuestion />} />
              <Route path='/speakingQuestion' element={<SpeakingQuestion />} />
-             <Route path='/translateToQuestion' element={<TranslateToQuestion />} />
-             <Route path='/translateFromQuestion/:dictionaryId/:mode' element={<TranslateFromQuestion />} />
+             <Route path='/translateQuestion' element={<TranslateFromQuestion />} />
             </Route>
 
                 {/* admin zasticene rute */}
