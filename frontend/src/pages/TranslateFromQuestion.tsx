@@ -24,13 +24,18 @@ interface WordDto {
 interface StartGameResponseDto {
     sourceWord?: WordDto;
     answers?: WordDto[];
-    //correctAnswerId?: number;
 }
 
 interface GameAnswerDto {
     UserId: number;
+    DictionaryId: number;
     QuestionWordId: number;
     ChosenWordId: number;
+}
+
+interface GameAnswerResponseDto {
+    isCorrect: boolean;
+    box: number;
 }
 
 interface DisplayWord {
@@ -118,6 +123,7 @@ export const TranslateFromQuestion = () => {
     const [selectedAnswer, setSelectedAnswer] = useState<DisplayWord | null>(null);
     const [hasAnswered, setHasAnswered] = useState(false);
     const [dictionaryIsEmpty, setDictionaryIsEmpty] = useState(false);
+    const [resultLoading, setResultLoading] = useState(false);
 
     // For scrolling
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -149,7 +155,7 @@ export const TranslateFromQuestion = () => {
     }
 
     // FUNKCIJE
-    const fetchNextQuestion = () => {
+    const fetchNextQuestion = async () => {
         setLoading(true);
         console.log("Fetching question.");
         if (dictionaryId && id) {
@@ -220,67 +226,80 @@ export const TranslateFromQuestion = () => {
         fetchNextQuestion();
     }, []);
 
-    const handleQuestionAnswered = () => {
+    const handleQuestionAnswered = async () => {
         if (question !== null && selectedAnswer !== null) {
-            const isCorrect = selectedAnswer.id === question.correctAnswerId;
-            if (isCorrect) 
-                playCorrect();
-            else
-                playWrong();
+            setResultLoading(true);
 
-            setHasAnswered(true);
-            
-            const bowlIndex = isCorrect ? 1 : 0; // Bowl 2 (index 1) for correct, Bowl 1 (index 0) for incorrect
-            setTargetBowlIndex(bowlIndex);
-            
-            // Scroll to bottom first, then start animation
-            setTimeout(() => {
-                //window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-                if (scrollRef.current) {
-                    console.log("Scrolling");
-                    scrollRef.current.scrollTo({
-                        top: scrollRef.current.scrollHeight,
-                        behavior: 'smooth'
-                    });
-                }
-                
-                // Wait for scroll to complete, then start animation
-                setTimeout(() => {
-                    const correctAnswerId = question.correctAnswerId;
-                    const correctAnswerElement = answerRefs.current.get(correctAnswerId);
-                    const targetBowl = bowlRefs.current[bowlIndex];
-                    
-                    if (correctAnswerElement && targetBowl) {
-                        const answerRect = correctAnswerElement.getBoundingClientRect();
-                        const bowlRect = targetBowl.getBoundingClientRect();
-                        
-                        // Get the correct answer's word
-                        const correctAnswer = question.answerWords.find(a => a.id === correctAnswerId);
-                        if (correctAnswer) {
-                            setFlyingWord(correctAnswer.displayWord);
-                            setFlyingStartPos({
-                                x: answerRect.left + answerRect.width / 2,
-                                y: answerRect.top + answerRect.height / 2
-                            });
-                            setAnimationTarget({
-                                x: bowlRect.left + bowlRect.width / 2,
-                                y: bowlRect.top + bowlRect.height / 2
-                            });
-                            setIsAnimating(true);
-                        }
-                    }
-                }, 600);
-            }, 300);
-            
             const answerRequest: GameAnswerDto = {
                 UserId: Number(id),
+                DictionaryId: Number(dictionaryId),
                 QuestionWordId: question?.questionWord.id,
                 ChosenWordId: selectedAnswer?.id,
             }
             console.log(answerRequest);
-            axiosInstance.put("/api/v1/game/check-choice", undefined, {
-                params: answerRequest    
-            });
+
+
+            try {
+                const response = await axiosInstance.put<GameAnswerResponseDto>(
+                    "/api/v1/game/check-choice", 
+                    undefined, 
+                    {params: answerRequest});
+
+                    const bowlIndex = response.data.box;
+                    setTargetBowlIndex(bowlIndex);
+                    const isCorrect = selectedAnswer.id === question.correctAnswerId;
+                    if (isCorrect) 
+                        playCorrect();
+                    else
+                        playWrong();
+
+                    setHasAnswered(true);
+                
+                    // Scroll to bottom first, then start animation
+                    setTimeout(() => {
+                        //window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                        if (scrollRef.current) {
+                            console.log("Scrolling");
+                            scrollRef.current.scrollTo({
+                                top: scrollRef.current.scrollHeight,
+                                behavior: 'smooth'
+                            });
+                        }
+                    
+                    // Wait for scroll to complete, then start animation
+                    setTimeout(() => {
+                        const correctAnswerId = question.correctAnswerId;
+                        const correctAnswerElement = answerRefs.current.get(correctAnswerId);
+                        const targetBowl = bowlRefs.current[bowlIndex];
+                        
+                        if (correctAnswerElement && targetBowl) {
+                            const answerRect = correctAnswerElement.getBoundingClientRect();
+                            const bowlRect = targetBowl.getBoundingClientRect();
+                            
+                            // Get the correct answer's word
+                            const correctAnswer = question.answerWords.find(a => a.id === correctAnswerId);
+                            if (correctAnswer) {
+                                setFlyingWord(correctAnswer.displayWord);
+                                setFlyingStartPos({
+                                    x: answerRect.left + answerRect.width / 2,
+                                    y: answerRect.top + answerRect.height / 2
+                                });
+                                setAnimationTarget({
+                                    x: bowlRect.left + bowlRect.width / 2,
+                                    y: bowlRect.top + bowlRect.height / 2
+                                });
+                                setIsAnimating(true);
+                            }
+                        }
+                    }, 600);
+                }, 300);
+
+            } catch (error) {
+
+            } finally {
+                setResultLoading(false);
+            }
+
         }
         console.log("Nije selected answer");
     };
@@ -492,6 +511,16 @@ export const TranslateFromQuestion = () => {
 
                                         {/* Game answer button - with smooth transition */}
                                         <div className="relative h-[56px] mt-10 w-[320px] sm:w-[360px]">
+                                            <div className={`flex items-center justify-center
+                                                transition-all duration-300 ease-in-out 
+                                                ${!resultLoading ? 'opacity-0 pointer-events-none scale-95' : 'opacity-100 scale-100'}`}>
+                                                <Mosaic
+                                                    color="var(--color-primary-dark)" 
+                                                    size="small" 
+                                                    text="" 
+                                                    textColor="" 
+                                                />
+                                            </div>
                                             <button
                                                 onClick={handleQuestionAnswered}
                                                 type="button"
@@ -501,8 +530,8 @@ export const TranslateFromQuestion = () => {
                                                     bg-(--color-primary-dark) text-on-dark shadow-lg
                                                     hover:opacity-90 hover:shadow-xl hover:cursor-pointer
                                                     disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed
-                                                    transition-all duration-300 ease-in-out
-                                                    ${hasAnswered ? 'opacity-0 pointer-events-none scale-95' : 'opacity-100 scale-100'}
+                                                    transition-transform duration-300 ease-in-out
+                                                    ${hasAnswered || resultLoading ? 'opacity-0 pointer-events-none scale-95' : 'opacity-100 scale-100'}
                                                 `}
                                             >
                                                 Odgovori
@@ -515,7 +544,7 @@ export const TranslateFromQuestion = () => {
                                                     text-on-dark shadow-lg font-space text-[18px] tracking-wide 
                                                     hover:opacity-90 hover:shadow-xl hover:cursor-pointer
                                                     transition-all duration-300 ease-in-out
-                                                    ${hasAnswered ? 'opacity-100 scale-100' : 'opacity-0 pointer-events-none scale-95'}
+                                                    ${(hasAnswered && !resultLoading) ? 'opacity-100 scale-100' : 'opacity-0 pointer-events-none scale-95'}
                                                 `}
                                             >
                                                 Slijedeća riječ
