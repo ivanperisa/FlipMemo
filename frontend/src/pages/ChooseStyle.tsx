@@ -4,6 +4,7 @@ import PageTransition from "../components/PageTransition";
 import Particles from "../styles/Particles";
 import { useState } from "react";
 import Header from "../components/Header";
+import { useLearning } from "../context/LearningContext";
 const Home = () => {
 
     //KONTEKSTI
@@ -12,9 +13,7 @@ const Home = () => {
 
     //VARIJABLE
     const [selectedMode, setSelectedMode] = useState<string | null>(null);
-
-    
-
+    const {setGameMode} = useLearning();
 
     //MODELI
     const learningModes = [
@@ -56,7 +55,7 @@ const Home = () => {
                     <button
                     key={mode.id}
                     onClick={() => {setSelectedMode(mode.id);
-                               
+                             
                     }}
         className={`
             w-full flex items-center gap-4 px-6 py-4 lg:py-3 lg:px-4
@@ -88,7 +87,13 @@ const Home = () => {
             {/* Gumb za nastavak */}
             <button 
                 disabled={!selectedMode}
-                onClick={() => navigate('/learningSession')}
+                onClick={() => {
+                    if (selectedMode) {
+                        setGameMode(selectedMode as 'translate-from' | 'translate-to' | 'listening' | 'speaking');
+                    }
+                    if (selectedMode === 'translate-from' || selectedMode === 'translate-to')
+                        navigate("/translateQuestion");
+                }}
                 className="mt-8 lg:mt-4 w-full py-4 lg:py-3 bg-(--color-primary-dark) text-on-dark font-space rounded-full disabled:opacity-30"
             >
                 Dalje
