@@ -120,8 +120,8 @@ namespace FlipMemo.Tests
                     DictionaryId = dictionary.Id,
                     ListeningLearned = learned,
                     SpeakingLearned = learned,
-                    ListeningNextReview = null,
-                    SpeakingNextReview = null,
+                    ListeningNextReview = nextReview,
+                    SpeakingNextReview = nextReview,
                     ListeningBox = 1,
                     SpeakingBox = 1,
                 }).ToList();
@@ -260,8 +260,12 @@ namespace FlipMemo.Tests
             Assert.NotNull(userWord!.LastReviewed);
         }
         #endregion
+
         #endregion
+
         #region ListeningMethods
+
+        #region GetListeninGQuestionAsync
         [Fact]
         public async Task GetListeningQuestionAsync_DictionaryWasNotFound_ThrowsNotFoundException()
         {
@@ -297,7 +301,7 @@ namespace FlipMemo.Tests
         [Fact]
         public async Task GetListeningQuestionAsync_DictionaryExistsAndUserDoesNotHaveWordForRewiew_ThrowsNotFoundException()
         {
-            await FillDataBaseListeningAndVoice(true);
+            await FillDataBaseListeningAndVoice(true, false, false);
 
             var dto = new StartGameRequestDto
             {
@@ -325,7 +329,73 @@ namespace FlipMemo.Tests
             Assert.Equal("No words available for listening review.", exception.Message);
         }
         #endregion
+        #region CheckListeningAnswer
+        [Fact]
+        public async Task CheckListeningAnswerAsync_VoiceRecordDoesNotExists_ThrowsNotFoundException()
+        {
+            await FillDataBaseListeningAndVoice();
+
+            var dto = new ListeningAnswerDto
+            {
+                UserId = 1,
+                DictionaryId = 1,
+                Answer = "test1",
+                WordId = 1
+            };
+
+            var exception = await Assert.ThrowsAnyAsync<NotFoundException>(() => _gameService.CheckListeningAnswerAsync(dto));
+
+            Assert.Equal("Voice record not found.", exception.Message);
+        }
+
+        [Fact]
+        public async Task CheckListeningAnswerAsync_UserWordExistsAndUserAnswerWasCorrect_UpdatesVoiceProgress()
+        {
+            await FillDataBaseListeningAndVoice(true);
+
+            var dto = new ListeningAnswerDto
+            {
+                UserId = 1,
+                DictionaryId = 1,
+                Answer = "test1",
+                WordId = 1
+            };
+
+            var result = await _gameService.CheckListeningAnswerAsync(dto);
+            var userVoice= await _context.Voices.SingleOrDefaultAsync(w => w.WordId == 1);
+
+            Assert.True(result.IsCorrect);
+            Assert.Equal(2, result.Box);
+            Assert.NotNull(userVoice!.ListeningNextReview);
+            Assert.NotNull(userVoice!.ListeningLastReviewed);
+        }
+
+        [Fact]
+        public async Task CheckListeningAnswerAsync_UserWordExistsAndUserAnswerWasWrong_ResetsUserWordProgress()
+        {
+            await FillDataBaseListeningAndVoice(true);
+
+            var dto = new ListeningAnswerDto
+            {
+                UserId = 1,
+                DictionaryId = 1,
+                Answer = "miss",
+                WordId = 1
+            };
+
+            var result = await _gameService.CheckListeningAnswerAsync(dto);
+            var userVoice = await _context.Voices.SingleOrDefaultAsync(w => w.WordId == 1);
+
+            Assert.False(result.IsCorrect);
+            Assert.Equal(0, result.Box);
+            Assert.NotNull(userVoice!.ListeningNextReview);
+            Assert.NotNull(userVoice!.ListeningLastReviewed);
+        }
+        #endregion
+        #endregion
+
         #region SpeakingMethods
+
         [Fact]
         public async Task GetSpeakingQuestionAsync_DictionaryWasNotFound_ThrowsNotFoundException()
         {
@@ -360,7 +430,7 @@ namespace FlipMemo.Tests
         [Fact]
         public async Task GetSpeakingQuestionAsync_DictionaryExistsAndUserDoesNotHaveWordForRewiew_ThrowsNotFoundException()
         {
-            await FillDataBaseListeningAndVoice(true);
+            await FillDataBaseListeningAndVoice(true, false, false);
 
             var dto = new StartGameRequestDto
             {

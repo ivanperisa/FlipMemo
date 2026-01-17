@@ -128,11 +128,12 @@ namespace FlipMemo.Services;
 
             await context.SaveChangesAsync();
 
-            return new ListeningAnswerResponseDto
-            {
-                IsCorrect = isCorrect,
-                CorrectAnswer = voice.Word.SourceWord!
-            };
+        return new ListeningAnswerResponseDto
+        {
+            IsCorrect = isCorrect,
+            CorrectAnswer = voice.Word.SourceWord!,
+            Box = voice.ListeningBox
+        };
         }
 
         #endregion
