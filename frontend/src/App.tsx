@@ -31,7 +31,7 @@ const AnimatedRoutes = () => {
              <Route path='/listeningQuestion' element={<ListeningQuestion />} />
              <Route path='/speakingQuestion' element={<SpeakingQuestion />} />
              <Route path='/translateToQuestion' element={<TranslateToQuestion />} />
-             <Route path='/translateFromQuestion' element={<TranslateFromQuestion />} />
+             <Route path='/translateFromQuestion/:dictionaryId/:mode' element={<TranslateFromQuestion />} />
             </Route>
 
                 {/* admin zasticene rute */}
