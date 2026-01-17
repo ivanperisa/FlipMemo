@@ -1,6 +1,6 @@
 ﻿namespace FlipMemo.DTOs.Game;
 
-public class SpeechRecognitionResult
+public class SpeechScorerResult
 {
     public int Score { get; set; }
 }

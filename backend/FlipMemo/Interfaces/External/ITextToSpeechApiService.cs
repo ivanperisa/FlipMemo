@@ -2,5 +2,5 @@
 
 public interface ITextToSpeechApiService
 {
-    Task<byte[]> GetTextToSpeechAudioAsync(string text, string lang);
+    Task<byte[]> GetTextToSpeechAudioAsync(string text, string lang, CancellationToken cancellationToken = default);
 }

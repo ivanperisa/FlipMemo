@@ -6,17 +6,17 @@ namespace FlipMemo.Services.External;
 
 public class WordDictionaryApiService(HttpClient httpClient) : IWordDictionaryApiService
 {
-    public async Task<GetWordExamplesResponseDto> GetWordExamplesAsync(string word)
+    public async Task<GetWordExamplesResponseDto> GetWordExamplesAsync(string word, CancellationToken cancellationToken = default)
     {
         var options = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
         };
 
-        var response = await httpClient.GetAsync($"example/?entry={word}");
+        var response = await httpClient.GetAsync($"example/?entry={word}", cancellationToken);
         response.EnsureSuccessStatusCode();
 
-        var json = await response.Content.ReadAsStringAsync();
+        var json = await response.Content.ReadAsStringAsync(cancellationToken);
         var wordExamplesDto = JsonSerializer.Deserialize<GetWordExamplesResponseDto>(json, options);
 
         if (wordExamplesDto?.Example! != null)

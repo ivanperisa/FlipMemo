@@ -6,17 +6,17 @@ namespace FlipMemo.Services.External;
 
 public class WordsApiService(HttpClient httpClient) : IWordsApiService
 {
-    public async Task<SearchWordsResponseDto> SearchWordsAsync(string startingLetters)
+    public async Task<SearchWordsResponseDto> SearchWordsAsync(string startingLetters, CancellationToken cancellationToken = default)
     {
         var options = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        var response = await httpClient.GetAsync($"/words/?letterPattern=^{startingLetters}[a-zA-Z]*$&lettersmin=4&limit=10&page=1&frequencymin=7&frequencymax=8");
+        var response = await httpClient.GetAsync($"/words/?letterPattern=^{startingLetters}[a-zA-Z]*$&lettersmin=4&limit=10&page=1&frequencymin=7&frequencymax=8", cancellationToken);
         response.EnsureSuccessStatusCode();
 
-        var json = await response.Content.ReadAsStringAsync();
+        var json = await response.Content.ReadAsStringAsync(cancellationToken);
         using var doc = JsonDocument.Parse(json);
         var data = doc.RootElement
             .GetProperty("results")

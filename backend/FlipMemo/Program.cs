@@ -25,7 +25,7 @@ builder.Services.AddScoped<IWordService, WordService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IGameService, GameService>();
-builder.Services.AddScoped<ISpeechRecognitionService, SpeechRecognitionService>();
+builder.Services.AddScoped<ISpeechScorerService, SpeechScorerService>();
 
 builder.Services.AddCors(options =>
 {
@@ -147,6 +147,13 @@ builder.Services.AddHttpClient<ITextToSpeechApiService, TextToSpeechApiService>(
     client.BaseAddress = new Uri("https://text-to-speach-api.p.rapidapi.com/");
     client.DefaultRequestHeaders.Add("X-RapidAPI-Key", builder.Configuration["RapidApi:ApiKey"]);
     client.DefaultRequestHeaders.Add("X-RapidAPI-Host", "text-to-speach-api.p.rapidapi.com");
+});
+
+builder.Services.AddHttpClient<ISpeechScorerService, SpeechScorerService>(client =>
+{
+    client.BaseAddress = new Uri("https://speech-to-text-ai.p.rapidapi.com/");
+    client.DefaultRequestHeaders.Add("X-RapidAPI-Key", builder.Configuration["RapidApi:ApiKey"]);
+    client.DefaultRequestHeaders.Add("X-RapidAPI-Host", "speech-to-text-ai.p.rapidapi.com");
 });
 
 var app = builder.Build();

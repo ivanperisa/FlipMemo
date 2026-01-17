@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FlipMemo.Services;
 
-    public class GameService(ApplicationDbContext context, ISpeechRecognitionService speechService) : IGameService
+    public class GameService(ApplicationDbContext context, ISpeechScorerService speechService) : IGameService
     {
         private static readonly int[] _reviewIntervals = [1, 2, 4, 8, 16];
         private const int _maxBoxUntilLearned = 3;
@@ -180,8 +180,7 @@ namespace FlipMemo.Services;
                 audioBytes = memoryStream.ToArray();
             }
 
-            var recognitionResult = await speechService.RecognizeSpeechAsync(audioBytes, voice.Word.SourceWord, dto.Language);
-            int score = recognitionResult.Score;
+            var score = await speechService.GetSpeechScoreAsync(audioBytes, voice.Word.SourceWord, dto.Language);
             bool isCorrect = score >= _speakingScoreThreshold;
 
             voice.SpeakingScore = score;

@@ -4,5 +4,5 @@ namespace FlipMemo.Interfaces;
 
 public interface IWordDictionaryApiService
 {
-    Task<GetWordExamplesResponseDto> GetWordExamplesAsync(string word);
+    Task<GetWordExamplesResponseDto> GetWordExamplesAsync(string word, CancellationToken cancellationToken = default);
 }

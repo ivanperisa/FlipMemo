@@ -7,7 +7,7 @@ namespace FlipMemo.Services.External;
 
 public class DeepTranslateApiService(HttpClient httpClient) : IDeepTranslateApiService
 {
-    public async Task<TextTranslationResponseDto> GetTranslationAsync(TextTranslationRequestDto requestDto)
+    public async Task<TextTranslationResponseDto> GetTranslationAsync(TextTranslationRequestDto requestDto, CancellationToken cancellationToken = default)
     {
         var options = new JsonSerializerOptions
         {
@@ -17,10 +17,10 @@ public class DeepTranslateApiService(HttpClient httpClient) : IDeepTranslateApiS
         var json = JsonSerializer.Serialize(requestDto, options);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-        var response = await httpClient.PostAsync("language/translate/v2", content);
+        var response = await httpClient.PostAsync("language/translate/v2", content, cancellationToken);
         response.EnsureSuccessStatusCode();
 
-        var responseString = await response.Content.ReadAsStringAsync();
+        var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
 
         using var document = JsonDocument.Parse(responseString);
         var translatedTextList = document.RootElement

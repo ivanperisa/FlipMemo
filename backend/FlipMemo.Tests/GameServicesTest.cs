@@ -12,7 +12,7 @@ namespace FlipMemo.Tests
 {
     public class GameServicesTest
     {
-        private readonly Mock<ISpeechRecognitionService> _MockSpeechRecongnitionService;
+        private readonly Mock<ISpeechScorerService> _MockSpeechRecongnitionService;
         private readonly GameService _gameService;
         private readonly ApplicationDbContext _context;
 
@@ -22,7 +22,7 @@ namespace FlipMemo.Tests
                .UseInMemoryDatabase(Guid.NewGuid().ToString())
                .Options;
             _context = new ApplicationDbContext(options);
-            _MockSpeechRecongnitionService = new Mock<ISpeechRecognitionService>();
+            _MockSpeechRecongnitionService = new Mock<ISpeechScorerService>();
             _gameService = new GameService(_context, _MockSpeechRecongnitionService.Object);
         }
         #region Helpers
@@ -482,11 +482,11 @@ namespace FlipMemo.Tests
             await FillDataBaseListeningAndVoice(true);
 
             _MockSpeechRecongnitionService
-                .Setup(x => x.RecognizeSpeechAsync(
+                .Setup(x => x.GetSpeechScoreAsync(
                     It.IsAny<byte[]>(),
                     It.IsAny<string>(),
                     It.IsAny<string>()))
-                .ReturnsAsync(new SpeechRecognitionResult
+                .ReturnsAsync(new SpeechScorerResult
                 {
                     Score = 70
                 });
@@ -517,11 +517,11 @@ namespace FlipMemo.Tests
             await FillDataBaseListeningAndVoice(true);
 
             _MockSpeechRecongnitionService
-                .Setup(x => x.RecognizeSpeechAsync(
+                .Setup(x => x.GetSpeechScoreAsync(
                     It.IsAny<byte[]>(),
                     It.IsAny<string>(),
                     It.IsAny<string>()))
-                .ReturnsAsync(new SpeechRecognitionResult
+                .ReturnsAsync(new SpeechScorerResult
                 {
                     Score = 45
                 });
