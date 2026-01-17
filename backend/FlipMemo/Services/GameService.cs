@@ -11,8 +11,8 @@ namespace FlipMemo.Services;
 
     public class GameService(ApplicationDbContext context, ISpeechRecognitionService speechService) : IGameService
     {
-        private static readonly int[] _reviewIntervals = [2, 4, 6, 8, 16];
-        private const int _maxBox = 4;
+        private static readonly int[] _reviewIntervals = [1, 2, 4, 8, 16];
+        private const int _maxBoxUntilLearned = 3;
         private const int _answerOptionsCount = 3;
         private const int _defaultReviewInterval = 30;
         private const int _speakingScoreThreshold = 70;
@@ -128,12 +128,12 @@ namespace FlipMemo.Services;
 
             await context.SaveChangesAsync();
 
-        return new ListeningAnswerResponseDto
-        {
-            IsCorrect = isCorrect,
-            CorrectAnswer = voice.Word.SourceWord!,
-            Box = voice.ListeningBox
-        };
+            return new ListeningAnswerResponseDto
+            {
+                IsCorrect = isCorrect,
+                CorrectAnswer = voice.Word.SourceWord!,
+                Box = voice.ListeningBox
+            };
         }
 
         #endregion
@@ -207,9 +207,8 @@ namespace FlipMemo.Services;
         {
             if (isCorrect)
             {
-                if (userWord.Box < _maxBox)
+                if (userWord.Box < _maxBoxUntilLearned)
                 {
-                    userWord.Box++;
                     userWord.NextReview = CalculateNextReview(userWord.Box);
                 }
                 else
@@ -217,6 +216,7 @@ namespace FlipMemo.Services;
                     userWord.Learned = true;
                     userWord.NextReview = null;
                 }
+                userWord.Box++;
             }
             else
             {
@@ -229,9 +229,8 @@ namespace FlipMemo.Services;
         {
             if (isCorrect)
             {
-                if (voice.ListeningBox < _maxBox)
+                if (voice.ListeningBox < _maxBoxUntilLearned)
                 {
-                    voice.ListeningBox++;
                     voice.ListeningNextReview = CalculateNextReview(voice.ListeningBox);
                 }
                 else
@@ -239,6 +238,7 @@ namespace FlipMemo.Services;
                     voice.ListeningLearned = true;
                     voice.ListeningNextReview = null;
                 }
+                voice.ListeningBox++;
             }
             else
             {
@@ -251,9 +251,8 @@ namespace FlipMemo.Services;
         {
             if (isCorrect)
             {
-                if (voice.SpeakingBox < _maxBox)
+                if (voice.SpeakingBox < _maxBoxUntilLearned)
                 {
-                    voice.SpeakingBox++;
                     voice.SpeakingNextReview = CalculateNextReview(voice.SpeakingBox);
                 }
                 else
@@ -261,6 +260,7 @@ namespace FlipMemo.Services;
                     voice.SpeakingLearned = true;
                     voice.SpeakingNextReview = null;
                 }
+                voice.SpeakingBox++;
             }
             else
             {
@@ -333,7 +333,7 @@ namespace FlipMemo.Services;
         private static DateTime CalculateNextReview(int box)
         {
             var days = box < _reviewIntervals.Length ? _reviewIntervals[box] : _defaultReviewInterval;
-            return DateTime.UtcNow.AddDays(days);
+            return DateTime.UtcNow.AddMinutes(days);
         }
 
         private static WordDto ConvertToDto(Word word)

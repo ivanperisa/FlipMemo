@@ -11,7 +11,8 @@ namespace FlipMemo.Services;
 public class WordService(
     ApplicationDbContext context,
     IWordDictionaryApiService wordsApiService,
-    IDeepTranslateApiService deepTranslateApiService) : IWordService
+    IDeepTranslateApiService deepTranslateApiService,
+    ITextToSpeechApiService textToSpeechApiService) : IWordService
 {
     public async Task<CreateWordResponseDto> CreateWordAsync(CreateWordRequestDto dto)
     {
@@ -73,6 +74,7 @@ public class WordService(
     private async Task<Word> CreateNewWordAsync(CreateWordRequestDto dto)
     {
         var examples = await wordsApiService.GetWordExamplesAsync(dto.Word);
+        var audioFile = await textToSpeechApiService.GetTextToSpeechAudioAsync(dto.Word, dto.SourceLanguage);
 
         var translationRequest = new TextTranslationRequestDto
         {
@@ -88,7 +90,8 @@ public class WordService(
             SourceWord = dto.Word,
             SourcePhrases = examples.Example,
             TargetWord = translation.TranslatedText[0],
-            TargetPhrases = [.. translation.TranslatedText.Skip(1)]
+            TargetPhrases = [.. translation.TranslatedText.Skip(1)],
+            AudioFile = audioFile
         };
     }
 

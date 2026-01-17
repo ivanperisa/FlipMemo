@@ -142,6 +142,13 @@ builder.Services.AddHttpClient<IDeepTranslateApiService, DeepTranslateApiService
     client.DefaultRequestHeaders.Add("X-RapidAPI-Host", "deep-translate1.p.rapidapi.com");
 });
 
+builder.Services.AddHttpClient<ITextToSpeechApiService, TextToSpeechApiService>(client =>
+{
+    client.BaseAddress = new Uri("https://text-to-speach-api.p.rapidapi.com/");
+    client.DefaultRequestHeaders.Add("X-RapidAPI-Key", builder.Configuration["RapidApi:ApiKey"]);
+    client.DefaultRequestHeaders.Add("X-RapidAPI-Host", "text-to-speach-api.p.rapidapi.com");
+});
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
