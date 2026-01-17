@@ -1,19 +1,12 @@
 ﻿using FlipMemo.Data;
 using FlipMemo.DTOs.Game;
-using FlipMemo.DTOs.UserAndAuth;
-using FlipMemo.DTOs.UserAndAuth.Login;
-using FlipMemo.DTOs.UserAndAuth.Registration;
-using FlipMemo.Interfaces;
 using FlipMemo.Interfaces.External;
 using FlipMemo.Models;
 using FlipMemo.Services;
 using FlipMemo.Utils;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Moq;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace FlipMemo.Tests
 {
