@@ -30,6 +30,7 @@ namespace FlipMemo.Tests
             _MockSpeechRecongnitionService = new Mock<ISpeechRecognitionService>();
             _gameService = new GameService(_context, _MockSpeechRecongnitionService.Object);
         }
+        #region Helpers
         internal async Task FillDataBase(bool SetBoxes = false, bool learned = false)
         {
             var dictionary = new Dictionary
@@ -76,7 +77,48 @@ namespace FlipMemo.Tests
             }
             await _context.SaveChangesAsync();
         }
+        internal async Task FillDateBaseListeningAndVoice(bool setBoxes = false, bool learned = false)
+        {
+            var dictionary = new Dictionary
+            {
+                Id = 1,
+                Language = "ENG",
+                Name = "test",
+
+            };
+            await _context.AddAsync(dictionary);
+
+            var Words = new Word[]
+            {
+                new (){Id = 1, Dictionaries = [dictionary], SourceWord = "test1"},
+                new (){Id = 2, Dictionaries = [dictionary], SourceWord = "test2"},
+                new (){Id = 3, Dictionaries = [dictionary], SourceWord = "test3"},
+                new (){Id = 4, Dictionaries = [dictionary], SourceWord = "test4"},
+            };
+            var user = new User
+            {
+                CreatedAt = DateTime.Now,
+                Email = "example@email.com",
+                Id = 1,
+                MustChangePassword = false,
+                Role = Roles.User
+            };
+            await _context.Users.AddAsync(user);
+
+            await _context.Words.AddRangeAsync(Words);
+            await _context.SaveChangesAsync();
+
+            if (setBoxes)
+            {
+                var UserVoices = await _context.Words.Select(w => new Voice
+                {
+                    Id = w.Id,
+                });
+            }
+        }
+        #endregion
         [Fact]
+        #region TranslateMethods
         public async Task GetQuestionAsync_DictionaryWasNotFound_ThrowsNotFoundException()
         {
             await FillDataBase();
@@ -138,5 +180,9 @@ namespace FlipMemo.Tests
 
             Assert.Equal("No words available for review.", exception.Message);
         }
+        #endregion
+        #region ListeningMethods
+
+        #endregion
     }
 }
