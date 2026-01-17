@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Moq;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace FlipMemo.Tests
 {
@@ -31,8 +32,9 @@ namespace FlipMemo.Tests
             _gameService = new GameService(_context, _MockSpeechRecongnitionService.Object);
         }
         #region Helpers
-        internal async Task FillDataBase(bool SetBoxes = false, bool learned = false)
+        internal async Task FillDataBase(bool SetBoxes = false, bool learned = false, bool next = true)
         {
+            DateTime nextReview = next ? DateTime.UtcNow : DateTime.UtcNow.AddDays(1);
             var dictionary = new Dictionary
             {
                 Id = 1,
@@ -69,7 +71,7 @@ namespace FlipMemo.Tests
                     WordId = w.Id,
                     DictionaryId = dictionary.Id,
                     Learned = learned,
-                    NextReview = null,
+                    NextReview = nextReview,
                     Box = 1
                 }).ToList();
 
@@ -77,8 +79,9 @@ namespace FlipMemo.Tests
             }
             await _context.SaveChangesAsync();
         }
-        internal async Task FillDateBaseListeningAndVoice(bool setBoxes = false, bool learned = false)
+        internal async Task FillDataBaseListeningAndVoice(bool setBoxes = false, bool learned = false, bool next = true)
         {
+            DateTime nextReview = next ? DateTime.UtcNow : DateTime.UtcNow.AddDays(1);
             var dictionary = new Dictionary
             {
                 Id = 1,
@@ -90,10 +93,10 @@ namespace FlipMemo.Tests
 
             var Words = new Word[]
             {
-                new (){Id = 1, Dictionaries = [dictionary], SourceWord = "test1"},
-                new (){Id = 2, Dictionaries = [dictionary], SourceWord = "test2"},
-                new (){Id = 3, Dictionaries = [dictionary], SourceWord = "test3"},
-                new (){Id = 4, Dictionaries = [dictionary], SourceWord = "test4"},
+                new (){Id = 1, Dictionaries = [dictionary], SourceWord = "test1", AudioFile = [1, 2, 3]},
+                new (){Id = 2, Dictionaries = [dictionary], SourceWord = "test2", AudioFile = [1, 2, 3]},
+                new (){Id = 3, Dictionaries = [dictionary], SourceWord = "test3", AudioFile =[1, 2, 3]},
+                new (){Id = 4, Dictionaries = [dictionary], SourceWord = "test4", AudioFile =[1, 2, 3]},
             };
             var user = new User
             {
@@ -110,15 +113,27 @@ namespace FlipMemo.Tests
 
             if (setBoxes)
             {
-                var UserVoices = await _context.Words.Select(w => new Voice
+                var UserVoice = _context.Words.Select(w => new Voice
                 {
-                    Id = w.Id,
-                });
+                    UserId = user.Id,
+                    WordId = w.Id,
+                    DictionaryId = dictionary.Id,
+                    ListeningLearned = learned,
+                    SpeakingLearned = learned,
+                    ListeningNextReview = null,
+                    SpeakingNextReview = null,
+                    ListeningBox = 1,
+                    SpeakingBox = 1,
+                }).ToList();
+                await _context.Voices.AddRangeAsync(UserVoice);
             }
+            await _context.SaveChangesAsync();
         }
         #endregion
-        [Fact]
         #region TranslateMethods
+
+        #region GetQuestionAsync
+        [Fact]
         public async Task GetQuestionAsync_DictionaryWasNotFound_ThrowsNotFoundException()
         {
             await FillDataBase();
@@ -153,7 +168,7 @@ namespace FlipMemo.Tests
         [Fact]
         public async Task GetQuestionAsync_DictionaryExistsAndUserDoesNotHaveWordForRewiew_ThrowsNotFoundException()
         {
-            await FillDataBase(true);
+            await FillDataBase(true, false, false);
 
             var dto = new StartGameRequestDto
             {
@@ -168,7 +183,7 @@ namespace FlipMemo.Tests
         [Fact]
         public async Task GetQuestionAsync_DictionaryExistsAndUserLearnedAllWords_ThrowsNotFoundException()
         {
-            await FillDataBase(true);
+            await FillDataBase(true, true);
 
             var dto = new StartGameRequestDto
             {
@@ -181,8 +196,197 @@ namespace FlipMemo.Tests
             Assert.Equal("No words available for review.", exception.Message);
         }
         #endregion
-        #region ListeningMethods
+        #region CheckChoiceAsync
 
+        [Fact]
+        public async Task CheckChoiceAsync_UserWordDoesNotExists_ThrowsNotFoundException()
+        {
+            await FillDataBase();
+
+            var dto = new GameAnswerDto
+            {
+                UserId = 1,
+                DictionaryId = 1,
+                ChosenWordId = int.MaxValue,
+                QuestionWordId = int.MaxValue
+            };
+
+            var exception = await Assert.ThrowsAnyAsync<NotFoundException>(() => _gameService.CheckChoiceAsync(dto));
+
+            Assert.Equal("User word not found.", exception.Message);
+        }
+
+        [Fact]
+        public async Task CheckChoiceAsync_UserWordExistsAndUserAnswerWasCorrect_UpdatesUserWordProgress()
+        {
+            await FillDataBase(true);
+
+            var dto = new GameAnswerDto
+            {
+                UserId = 1,
+                DictionaryId = 1,
+                ChosenWordId = 1,
+                QuestionWordId = 1
+            };
+
+            var result =  await _gameService.CheckChoiceAsync(dto);
+            var userWord = await _context.UserWords.SingleOrDefaultAsync(w => w.WordId == 1);
+
+            Assert.True(result.IsCorrect);
+            Assert.Equal(2, result.Box);
+            Assert.NotNull(userWord!.NextReview);
+            Assert.NotNull(userWord!.LastReviewed);
+        }
+
+        [Fact]
+        public async Task CheckChoiceAsync_UserWordExistsAndUserAnswerWasWrong_ResetsUserWordProgress()
+        {
+            await FillDataBase(true);
+
+            var dto = new GameAnswerDto
+            {
+                UserId = 1,
+                DictionaryId = 1,
+                ChosenWordId = 2,
+                QuestionWordId = 1
+            };
+
+            var result = await _gameService.CheckChoiceAsync(dto);
+            var userWord = await _context.UserWords.SingleOrDefaultAsync(w => w.WordId == 1);
+
+            Assert.False(result.IsCorrect);
+            Assert.Equal(0, result.Box);
+            Assert.NotNull(userWord!.NextReview);
+            Assert.NotNull(userWord!.LastReviewed);
+        }
+        #endregion
+        #endregion
+        #region ListeningMethods
+        [Fact]
+        public async Task GetListeningQuestionAsync_DictionaryWasNotFound_ThrowsNotFoundException()
+        {
+            await FillDataBaseListeningAndVoice();
+
+            var dto = new StartGameRequestDto
+            {
+                DictionaryId = 2,
+                UserId = 1
+            };
+
+            var exception = await Assert.ThrowsAsync<NotFoundException>(() => _gameService.GetListeningQuestionAsync(dto));
+
+            Assert.Equal("Dictionary not found.", exception.Message);
+        }
+
+        [Fact]
+        public async Task GetListeningQuestionAsync_DictionaryExistsAndUserHaveWordForReview_PickWordsForGame()
+        {
+            await FillDataBaseListeningAndVoice();
+
+            var dto = new StartGameRequestDto
+            {
+                DictionaryId = 1,
+                UserId = 1
+            };
+
+            var result = await _gameService.GetListeningQuestionAsync(dto);
+
+            Assert.NotNull(result);
+            Assert.NotNull(result.AudioBytes);
+        }
+        [Fact]
+        public async Task GetListeningQuestionAsync_DictionaryExistsAndUserDoesNotHaveWordForRewiew_ThrowsNotFoundException()
+        {
+            await FillDataBaseListeningAndVoice(true);
+
+            var dto = new StartGameRequestDto
+            {
+                DictionaryId = 1,
+                UserId = 1
+            };
+
+            var exception = await Assert.ThrowsAnyAsync<NotFoundException>(() => _gameService.GetListeningQuestionAsync(dto));
+
+            Assert.Equal("No words available for listening review.", exception.Message);
+        }
+        [Fact]
+        public async Task GetListeningQuestionAsync_DictionaryExistsAndUserLearnedAllWords_ThrowsNotFoundException()
+        {
+            await FillDataBaseListeningAndVoice(true, true);
+
+            var dto = new StartGameRequestDto
+            {
+                DictionaryId = 1,
+                UserId = 1
+            };
+
+            var exception = await Assert.ThrowsAsync<NotFoundException>(() => _gameService.GetListeningQuestionAsync(dto));
+
+            Assert.Equal("No words available for listening review.", exception.Message);
+        }
+        #endregion
+        #region SpeakingMethods
+        [Fact]
+        public async Task GetSpeakingQuestionAsync_DictionaryWasNotFound_ThrowsNotFoundException()
+        {
+            await FillDataBaseListeningAndVoice();
+
+            var dto = new StartGameRequestDto
+            {
+                DictionaryId = 2,
+                UserId = 1
+            };
+
+            var exception = await Assert.ThrowsAsync<NotFoundException>(() => _gameService.GetSpeakingQuestionAsync(dto));
+
+            Assert.Equal("Dictionary not found.", exception.Message);
+        }
+
+        [Fact]
+        public async Task GetSpeakingQuestionAsync_DictionaryExistsAndUserHaveWordForReview_PickWordsForGame()
+        {
+            await FillDataBaseListeningAndVoice();
+
+            var dto = new StartGameRequestDto
+            {
+                DictionaryId = 1,
+                UserId = 1
+            };
+
+            var result = await _gameService.GetSpeakingQuestionAsync(dto);
+
+            Assert.NotNull(result);
+        }
+        [Fact]
+        public async Task GetSpeakingQuestionAsync_DictionaryExistsAndUserDoesNotHaveWordForRewiew_ThrowsNotFoundException()
+        {
+            await FillDataBaseListeningAndVoice(true);
+
+            var dto = new StartGameRequestDto
+            {
+                DictionaryId = 1,
+                UserId = 1
+            };
+
+            var exception = await Assert.ThrowsAnyAsync<NotFoundException>(() => _gameService.GetSpeakingQuestionAsync(dto));
+
+            Assert.Equal("No words available for speaking review.", exception.Message);
+        }
+        [Fact]
+        public async Task GetSpeakingQuestionAsync_DictionaryExistsAndUserLearnedAllWords_ThrowsNotFoundException()
+        {
+            await FillDataBaseListeningAndVoice(true, true);
+
+            var dto = new StartGameRequestDto
+            {
+                DictionaryId = 1,
+                UserId = 1
+            };
+
+            var exception = await Assert.ThrowsAsync<NotFoundException>(() => _gameService.GetSpeakingQuestionAsync(dto));
+
+            Assert.Equal("No words available for speaking review.", exception.Message);
+        }
         #endregion
     }
 }
