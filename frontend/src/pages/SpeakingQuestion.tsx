@@ -8,10 +8,12 @@ import axiosInstance from "../api/axiosInstance";
 import { useAuth } from "../context/AuthProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLearning } from "../context/LearningContext";
+import mapGameModeToBackend from "../utils/gameModes";
 
 interface StartGameRequestDto {
     dictionaryId: string;
     userId: string;
+    Mode?: number | null;
 }
 
 interface WordDto {
@@ -114,6 +116,7 @@ export const SpeakingQuestion = () => {
             const query: StartGameRequestDto = {
                 dictionaryId,
                 userId: id,
+                Mode: mapGameModeToBackend(gameMode),
             };
 
             try {
@@ -251,6 +254,7 @@ export const SpeakingQuestion = () => {
                         WordId: questionWord.id,
                         DictionaryId: Number(dictionaryId),
                         Language: language,
+                        Mode: mapGameModeToBackend(gameMode),
                     },
                     headers: {
                         "Content-Type": "multipart/form-data",

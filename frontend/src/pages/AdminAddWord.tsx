@@ -34,8 +34,13 @@ const AdminAddWord = () => {
 
   const onFinish = (values: { wordLanguage: string; word: string }) => {
     setLoading(true);
+    const params: Record<string, string> = {
+      StartingLetters: values.word,
+      Language: values.wordLanguage?.toLowerCase(),
+    };
+
     axiosInstance
-      .get("/api/v1/Word", { params: { StartingLetters: values.word } })
+      .get("/api/v1/Word", { params })
       .then((response) => {
         setSuggestedWords(response.data.words);
         setShowSuggestions(true);
@@ -82,9 +87,23 @@ const AdminAddWord = () => {
     form.resetFields();
     
     console.log(selectedWord, wordLanguage);
-    const targetLang = "hr";
+    const firstDict = dictArray.find(d => selectedDihs.includes(d.id));
+    const dictLang = firstDict?.language?.toLowerCase();
+    let targetLang: string;
+    if (dictLang && wordLanguage && dictLang !== wordLanguage) {
+      targetLang = dictLang;
+    } else if (wordLanguage) {
+      targetLang = wordLanguage === 'en' ? 'hr' : 'en';
+    } else {
+      targetLang = 'en';
+    }
 
-    const body = { DictionaryIds: selectedDihs, Word: selectedWord, SourceLanguage: wordLanguage, TargetLanguage: targetLang };
+    const body = {
+      dictionaryIds: selectedDihs,
+      word: selectedWord,
+      sourceLanguage: wordLanguage,
+      targetLanguage: targetLang,
+    };
 
     axiosInstance.post("/api/v1/Word", body)
     .then((response) => {
@@ -166,7 +185,8 @@ const AdminAddWord = () => {
                     style={{ color: 'var(--color-primary)' }} />
                 }
               >
-                <Select.Option value="EN">Engleski</Select.Option>
+                <Select.Option value="en">Engleski</Select.Option>
+                <Select.Option value="hr">Hrvatski</Select.Option>
               </Select>
             </Form.Item>
 

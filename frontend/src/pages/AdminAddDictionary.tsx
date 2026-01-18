@@ -28,7 +28,7 @@ const AdminAddDictionary = () => {
         const onFinish = (values: { dictionaryName: string; dictionaryLanguage: string; }) => {
         console.log("Adding dictionary");
 
-        const body = { name: values.dictionaryName, language: values.dictionaryLanguage};
+        const body = { name: values.dictionaryName, language: (values.dictionaryLanguage || '').toLowerCase() };
 
         axiosInstance.post('api/v1/Dictionary', body)
         .then((response) => {
@@ -135,6 +135,7 @@ const AdminAddDictionary = () => {
                                 className="rounded-5xl shadow-md w-screen text-xl p-4 h-16 text-xl p-4 h-16"
                             >
                                 <Select.Option value="en">Engleski</Select.Option>
+                                <Select.Option value="hr">Hrvatski</Select.Option>
                             </Select>
                             
                         </Form.Item>

@@ -8,10 +8,12 @@ import axiosInstance from "../api/axiosInstance";
 import { useAuth } from "../context/AuthProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLearning } from "../context/LearningContext";
+import mapGameModeToBackend from "../utils/gameModes";
 
 interface StartGameRequestDto {
     dictionaryId: string;
     userId: string;
+    Mode?: number | null;
 }
 
 interface WordDto {
@@ -32,6 +34,7 @@ interface GameAnswerDto {
     DictionaryId: number;
     QuestionWordId: number;
     ChosenWordId: number;
+    Mode?: number | null;
 }
 
 interface GameAnswerResponseDto {
@@ -165,6 +168,7 @@ export const TranslateFromQuestion = () => {
             const query: StartGameRequestDto = {
                 dictionaryId: dictionaryId,
                 userId: id,
+                Mode: mapGameModeToBackend(gameMode),
             }
             axiosInstance.get<StartGameResponseDto>("/api/v1/game/question", {
                 params: query
@@ -240,6 +244,7 @@ export const TranslateFromQuestion = () => {
                 DictionaryId: Number(dictionaryId),
                 QuestionWordId: question?.questionWord.id,
                 ChosenWordId: selectedAnswer?.id,
+                Mode: mapGameModeToBackend(gameMode),
             }
             console.log(answerRequest);
 

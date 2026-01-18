@@ -123,13 +123,11 @@ const Home = () => {
             {/* Gumb za nastavak */}
             <button 
                 disabled={!currentWordSet}
-                onClick={() => {
+                    onClick={() => {
                     if (!currentWordSet) return;
                     
-                    // Spremamo odabrani WordSet u context
-                    
                     setDictionaryId(String(currentWordSet.id));
-                    setDictionaryLanguage(currentWordSet.language || null);
+                    setDictionaryLanguage((currentWordSet.language || '').toLowerCase() || null);
                     navigate('/chooseStyle');
                 }}
                 className="mt-8 w-full py-4 bg-(--color-primary-dark) text-on-dark font-space rounded-full disabled:opacity-30"
