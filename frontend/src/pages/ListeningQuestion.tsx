@@ -343,7 +343,7 @@ export const ListeningQuestion = () => {
                         <div className="w-full flex flex-col items-center gap-4 pb-4 border-b-2 border-[var(--color-primary-light)]">
                           <div className="flex flex-col items-center justify-center gap-2 w-full max-w-[700px]">
                             <p className="font-space text-xs text-[#8B6B7A] uppercase tracking-wider w-full text-left">
-                              POSLUSAJ RIJEČ:
+                              POSLUšAJ RIJEČ:
                             </p>
                             
                             <div className="w-full rounded-2xl border-2 border-[var(--color-primary-dark)] bg-white px-5 py-4 shadow-md overflow-hidden">
@@ -386,11 +386,11 @@ export const ListeningQuestion = () => {
                             }`}
                           >
                             <p className="font-space text-sm">
-                              {isCorrect ? "Tocno!" : "Netocno."}
+                              {isCorrect ? "Točno!" : "Netočno."}
                             </p>
                             {correctAnswer && (
                               <p className="font-space text-sm mt-1">
-                                Tocan odgovor:{" "}
+                                Točan odgovor:{" "}
                                 <span className="font-semibold">
                                   {correctAnswer}
                                 </span>
@@ -470,7 +470,7 @@ export const ListeningQuestion = () => {
                           }
                         `}
                       >
-                        Sljedeca rijec
+                        Sljedeća riječ
                       </button>
                     </div>
 
@@ -547,7 +547,7 @@ export const ListeningQuestion = () => {
                       className="w-28 h-28 bg-[var(--color-primary-dark)] rounded-t-3xl flex flex-col items-center justify-center shadow-lg hover:cursor-pointer hover:opacity-90 transition-all"
                     >
                       <span className="font-space text-sm text-white">
-                        nauceno
+                        naučeno
                       </span>
                       <span className="font-space text-lg text-white font-bold mt-1"></span>
                     </motion.div>

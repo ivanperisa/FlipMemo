@@ -345,10 +345,10 @@ export const SpeakingQuestion = () => {
                                 <div className="flex flex-col items-center justify-center w-full flex-1 gap-6">
                                     <div className="z-10 w-[90vw] md:w-[70vw] lg:w-[60vw] flex flex-col items-center justify-center gap-6 bg-white/80 rounded-lg shadow-lg backdrop-blur-lg border-2 border-[var(--color-primary-dark)] min-w-[350px] max-w-[900px] p-8">
                                         <h2 className="font-space text-2xl font-bold text-[var(--color-primary-dark)] text-center">
-                                            Nema vise rijeci
+                                            Nema vise riječi
                                         </h2>
                                         <p className="font-space text-base text-[#8B6B7A] text-center max-w-sm">
-                                            Izgleda da nemate vise rijeci za ovaj rijecnik. Vratite se kasnije za nove izazove!
+                                            Izgleda da nemate vise riječi za ovaj riječnik. Vratite se kasnije za nove izazove!
                                         </p>
                                         <div className="w-12 h-1 bg-[var(--color-primary)] rounded-full mt-2"></div>
                                     </div>
@@ -360,7 +360,7 @@ export const SpeakingQuestion = () => {
                                             <span className="text-3xl">!</span>
                                         </div>
                                         <h2 className="font-space text-2xl font-bold text-[#dc2626] text-center">
-                                            Greska
+                                            Greška
                                         </h2>
                                         <p className="font-space text-base text-[#dc2626] text-center max-w-sm">
                                             {fetchError}
@@ -369,7 +369,7 @@ export const SpeakingQuestion = () => {
                                             onClick={() => fetchNextQuestion()}
                                             className="mt-4 px-8 py-3 bg-[#dc2626] text-white font-space rounded-full hover:bg-[#b91c1c] transition-all hover:cursor-pointer shadow-md"
                                         >
-                                            Pokusaj ponovno
+                                            Pokušaj ponovno
                                         </button>
                                     </div>
                                 </div>
@@ -383,7 +383,7 @@ export const SpeakingQuestion = () => {
                                                 <div className="w-full flex flex-col gap-6">
                                                     <div className="w-full flex flex-col items-center gap-4 pb-4 border-b-2 border-[var(--color-primary-light)]">
                                                         <p className="font-space text-xs text-[#8B6B7A] uppercase tracking-wider w-full text-left">
-                                                            Izgovori rijec:
+                                                            Izgovori riječ:
                                                         </p>
                                                         <div className="w-full rounded-2xl border-2 border-[var(--color-primary-dark)] bg-white px-5 py-6 shadow-md flex items-center justify-center">
                                                             <span className="font-space text-3xl text-[#8B6B7A]">
@@ -449,7 +449,7 @@ export const SpeakingQuestion = () => {
                                                             }`}
                                                         >
                                                             <p className="font-space text-sm">
-                                                                {isCorrect ? "Tocno!" : "Netocno."}
+                                                                {isCorrect ? "Točno!" : "Netočno."}
                                                             </p>
                                                             {score !== null && (
                                                                 <p className="font-space text-sm mt-1">
@@ -476,7 +476,7 @@ export const SpeakingQuestion = () => {
                                                         type="button"
                                                         className="rounded-full bg-[#dc2626] text-white font-space text-[16px] tracking-wide px-6 py-3 hover:bg-[#b91c1c] hover:cursor-pointer transition-all shadow-md"
                                                     >
-                                                        Pokusaj ponovno
+                                                        Pokušaj ponovno
                                                     </button>
                                                 </div>
                                             )}
@@ -535,7 +535,7 @@ export const SpeakingQuestion = () => {
                                                 `
                                                 }
                                             >
-                                                Sljedeca rijec
+                                                Sljedeća riječ
                                             </button>
                                         </div>
 
@@ -601,7 +601,7 @@ export const SpeakingQuestion = () => {
                                             transition={{ duration: 0.3 }}
                                             className="w-28 h-28 bg-[var(--color-primary-dark)] rounded-t-3xl flex flex-col items-center justify-center shadow-lg hover:cursor-pointer hover:opacity-90 transition-all"
                                         >
-                                            <span className="font-space text-sm text-white">nauceno</span>
+                                            <span className="font-space text-sm text-white">naučeno</span>
                                             <span className="font-space text-lg text-white font-bold mt-1"></span>
                                         </motion.div>
                                     </div>
