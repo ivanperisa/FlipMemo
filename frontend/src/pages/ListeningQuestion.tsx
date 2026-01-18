@@ -366,7 +366,7 @@ export const ListeningQuestion = () => {
 
                         <div className="w-full flex flex-col gap-3" ref={answerInputRef}>
                           <p className="font-space text-xs text-[#8B6B7A] uppercase tracking-wider">
-                            Unesi riječ koju si čuo:
+                            Unesi riječ:
                           </p>
                           <input
                             type="text"
