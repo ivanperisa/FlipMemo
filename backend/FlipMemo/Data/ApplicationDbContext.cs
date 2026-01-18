@@ -8,8 +8,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<User> Users { get; set; }
     public DbSet<Dictionary> Dictionaries { get; set; }
     public DbSet<Word> Words { get; set; }
-    public DbSet<Voice> Voices { get; set; }
-    public DbSet<UserWord> UserWords { get; set; }
+    public DbSet<StudyProgress> StudyProgresses { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -58,44 +57,27 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .HasMaxLength(100);
         });
 
-        modelBuilder.Entity<UserWord>(entity =>
+        modelBuilder.Entity<StudyProgress>(entity =>
         {
-            entity.HasKey(uw => new { uw.UserId, uw.WordId, uw.DictionaryId });
+            entity.HasKey(sp => new { sp.UserId, sp.WordId, sp.DictionaryId, sp.Mode });
 
-            entity.HasOne(uw => uw.User)
-                .WithMany(u => u.UserWords)
-                .HasForeignKey(uw => uw.UserId)
+            entity.Property(sp => sp.Mode)
+                .HasConversion<int>();
+
+            entity.HasOne(sp => sp.User)
+                .WithMany(u => u.StudyProgresses)
+                .HasForeignKey(sp => sp.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasOne(uw => uw.Word)
-                .WithMany(w => w.UserWords)
-                .HasForeignKey(uw => uw.WordId)
-                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(sp => sp.Word)
+                .WithMany(w => w.StudyProgresses)
+                .HasForeignKey(sp => sp.WordId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            entity.HasOne(uw => uw.Dictionary)
-                .WithMany(d => d.UserWords)
-                .HasForeignKey(uw => uw.DictionaryId)
-                .OnDelete(DeleteBehavior.Cascade);
-        });
-
-        modelBuilder.Entity<Voice>(entity =>
-        {
-            entity.HasKey(v => new { v.UserId, v.WordId, v.DictionaryId });
-
-            entity.HasOne(v => v.User)
-                .WithMany(u => u.Voices)
-                .HasForeignKey(v => v.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            entity.HasOne(v => v.Word)
-                .WithMany(w => w.Voices)
-                .HasForeignKey(v => v.WordId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            entity.HasOne(v => v.Dictionary)
-                .WithMany(d => d.Voices)
-                .HasForeignKey(v => v.DictionaryId)
-                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(sp => sp.Dictionary)
+                .WithMany(d => d.StudyProgresses)
+                .HasForeignKey(sp => sp.DictionaryId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         base.OnModelCreating(modelBuilder);
