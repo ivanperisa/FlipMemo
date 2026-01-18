@@ -91,8 +91,13 @@ const Home = () => {
                     if (selectedMode) {
                         setGameMode(selectedMode as 'translate-from' | 'translate-to' | 'listening' | 'speaking');
                     }
-                    if (selectedMode === 'translate-from' || selectedMode === 'translate-to')
+                    if (selectedMode === 'translate-from' || selectedMode === 'translate-to') {
                         navigate("/translateQuestion");
+                    } else if (selectedMode === 'listening') {
+                        navigate("/listeningQuestion");
+                    } else if (selectedMode === 'speaking') {
+                        navigate("/speakingQuestion");
+                    }
                 }}
                 className="mt-8 lg:mt-4 w-full py-4 lg:py-3 bg-(--color-primary-dark) text-on-dark font-space rounded-full disabled:opacity-30"
             >
