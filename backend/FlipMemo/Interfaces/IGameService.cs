@@ -5,11 +5,11 @@ namespace FlipMemo.Interfaces;
 public interface IGameService
 {
     Task<StartGameResponseDto> GetQuestionAsync(StartGameRequestDto dto);
-    Task<GameAnswerResponseDto> CheckChoiceAsync(GameAnswerDto dto);
+    Task<GameAnswerResponseDto> CheckChoiceAsync(GameAnswerRequestDto dto);
 
     Task<ListeningQuestionResponseDto> GetListeningQuestionAsync(StartGameRequestDto dto);
-    Task<ListeningAnswerResponseDto> CheckListeningAnswerAsync(ListeningAnswerDto dto);
+    Task<ListeningAnswerResponseDto> CheckListeningAnswerAsync(ListeningAnswerRequestDto dto);
 
     Task<SpeakingQuestionResponseDto> GetSpeakingQuestionAsync(StartGameRequestDto dto);
-    Task<SpeakingAnswerResponseDto> CheckSpeakingAnswerAsync(SpeakingAnswerDto dto);
+    Task<SpeakingAnswerResponseDto> CheckSpeakingAnswerAsync(SpeakingAnswerRequestDto dto);
 }

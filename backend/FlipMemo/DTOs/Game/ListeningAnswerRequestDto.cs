@@ -1,6 +1,6 @@
 ﻿namespace FlipMemo.DTOs.Game;
 
-public class ListeningAnswerDto
+public class ListeningAnswerRequestDto
 {
     public int UserId { get; set; }
     public int DictionaryId { get; set; }

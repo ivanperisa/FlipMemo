@@ -22,7 +22,7 @@ public class AuthService(
     public async Task<UserResponseDto> RegisterAsync(RegisterRequestDto dto)
     {
         var user = await context.Users
-            .FirstOrDefaultAsync(u => u.Email == dto.Email.ToLower());
+            .FirstOrDefaultAsync(u => u.Email.ToLower() == dto.Email.ToLower());
 
         var initialPassword = Guid.NewGuid().ToString("N")[..8];
         var hashedPassword = HashPassword(initialPassword);
@@ -64,7 +64,7 @@ public class AuthService(
     public async Task<LoginResponseDto> LoginAsync(LoginRequestDto dto)
     {
         var user = await context.Users
-            .SingleOrDefaultAsync(u => u.Email == dto.Email.ToLower())
+            .SingleOrDefaultAsync(u => u.Email.ToLower() == dto.Email.ToLower())
             ?? throw new NotFoundException("Account doesn't exist.");
 
         if (!Verify(dto.Password, user.PasswordHash))
@@ -98,7 +98,7 @@ public class AuthService(
     public async Task<GoogleLoginResponseDto> GoogleLoginAsync(GoogleLoginRequestDto dto) 
     {
         var payload = await GoogleJsonWebSignature.ValidateAsync(dto.GoogleToken);
-        var user = await context.Users.SingleOrDefaultAsync(u => u.Email == payload.Email.ToLower());
+        var user = await context.Users.SingleOrDefaultAsync(u => u.Email.ToLower() == payload.Email.ToLower());
 
         if (user is null)
         {
@@ -177,7 +177,7 @@ public class AuthService(
     public async Task ForgotPasswordAsync(ForgotPasswordRequestDto dto, string resetUrl, string resetToken)
     {
         var user = await context.Users
-            .SingleOrDefaultAsync(u => u.Email == dto.Email.ToLower());
+            .SingleOrDefaultAsync(u => u.Email.ToLower() == dto.Email.ToLower());
 
         if (user == null)
             return;
@@ -198,7 +198,7 @@ public class AuthService(
     public async Task ResetPasswordAsync(ResetPasswordQueryDto queryDto, ResetPasswordBodyDto bodyDto)
     {
         var user = await context.Users
-            .SingleOrDefaultAsync(u => u.Email == queryDto.Email.ToLower())
+            .SingleOrDefaultAsync(u => u.Email.ToLower() == queryDto.Email.ToLower())
             ?? throw new NotFoundException("Account doesn't exist");
 
         if (user.PasswordResetTokenHash == null || user.PasswordResetTokenExpiry == null)

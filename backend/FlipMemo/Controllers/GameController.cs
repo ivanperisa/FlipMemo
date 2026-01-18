@@ -26,7 +26,7 @@ public class GameController(IGameService gameService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CheckChoice([FromQuery] GameAnswerDto dto)
+    public async Task<IActionResult> CheckChoice([FromQuery] GameAnswerRequestDto dto)
     {
         var result = await gameService.CheckChoiceAsync(dto);
 
@@ -52,7 +52,7 @@ public class GameController(IGameService gameService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CheckListeningAnswer([FromQuery] ListeningAnswerDto dto)
+    public async Task<IActionResult> CheckListeningAnswer([FromQuery] ListeningAnswerRequestDto dto)
     {
         var result = await gameService.CheckListeningAnswerAsync(dto);
 
@@ -76,7 +76,7 @@ public class GameController(IGameService gameService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CheckSpeakingAnswer([FromQuery] SpeakingAnswerDto dto)
+    public async Task<IActionResult> CheckSpeakingAnswer([FromQuery] SpeakingAnswerRequestDto dto)
     {
         var result = await gameService.CheckSpeakingAnswerAsync(dto);
 
