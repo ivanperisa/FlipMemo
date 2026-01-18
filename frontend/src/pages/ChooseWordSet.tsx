@@ -34,7 +34,7 @@ const Home = () => {
 
     //KONTEKSTI
     const navigate = useNavigate();
-    const { setDictionaryId } = useLearning();
+    const { setDictionaryId, setDictionaryLanguage } = useLearning();
 
     //FUNKCIJE
     useEffect(() => {
@@ -129,6 +129,7 @@ const Home = () => {
                     // Spremamo odabrani WordSet u context
                     
                     setDictionaryId(String(currentWordSet.id));
+                    setDictionaryLanguage(currentWordSet.language || null);
                     navigate('/chooseStyle');
                 }}
                 className="mt-8 w-full py-4 bg-(--color-primary-dark) text-on-dark font-space rounded-full disabled:opacity-30"

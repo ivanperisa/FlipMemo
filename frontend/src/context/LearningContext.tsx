@@ -7,6 +7,7 @@ export type GameMode = 'translate-from' | 'translate-to' | 'listening' | 'speaki
 // Storage keys
 const STORAGE_KEYS = {
     DICTIONARY_ID: 'flipmemo_dictionaryId',
+    DICTIONARY_LANGUAGE: 'flipmemo_dictionaryLanguage',
     GAME_MODE: 'flipmemo_gameMode',
 } as const;
 
@@ -14,6 +15,10 @@ interface LearningContextType {
     // Dictionary ID
     dictionaryId: string | null;
     setDictionaryId: (id: string | null) => void;
+
+    // Dictionary Language
+    dictionaryLanguage: string | null;
+    setDictionaryLanguage: (language: string | null) => void;
     
     // Game Mode
     gameMode: GameMode | null;
@@ -45,12 +50,21 @@ const getStoredGameMode = (): GameMode | null => {
     }
 };
 
+const getStoredDictionaryLanguage = (): string | null => {
+    try {
+        return localStorage.getItem(STORAGE_KEYS.DICTIONARY_LANGUAGE);
+    } catch {
+        return null;
+    }
+};
+
 // Create Context
 const LearningContext = createContext<LearningContextType | undefined>(undefined);
 
 // Provider Component
 export const LearningProvider = ({ children }: LearningProviderProps) => {
     const [dictionaryId, setDictionaryIdState] = useState<string | null>(getStoredDictionaryId);
+    const [dictionaryLanguage, setDictionaryLanguageState] = useState<string | null>(getStoredDictionaryLanguage);
     const [gameMode, setGameModeState] = useState<GameMode | null>(getStoredGameMode);
 
     // Wrapper for setDictionaryId that also persists to localStorage
@@ -64,6 +78,19 @@ export const LearningProvider = ({ children }: LearningProviderProps) => {
             }
         } catch (e) {
             console.error('Failed to save dictionaryId to localStorage:', e);
+        }
+    };
+
+    const setDictionaryLanguage = (language: string | null) => {
+        setDictionaryLanguageState(language);
+        try {
+            if (language) {
+                localStorage.setItem(STORAGE_KEYS.DICTIONARY_LANGUAGE, language);
+            } else {
+                localStorage.removeItem(STORAGE_KEYS.DICTIONARY_LANGUAGE);
+            }
+        } catch (e) {
+            console.error('Failed to save dictionaryLanguage to localStorage:', e);
         }
     };
 
@@ -84,6 +111,8 @@ export const LearningProvider = ({ children }: LearningProviderProps) => {
     const contextValue = {
         dictionaryId,
         setDictionaryId,
+        dictionaryLanguage,
+        setDictionaryLanguage,
         gameMode,
         setGameMode,
     };

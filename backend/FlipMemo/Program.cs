@@ -36,7 +36,8 @@ builder.Services.AddCors(options =>
         policy.WithOrigins($"{url}")
               .AllowAnyMethod()
               .AllowAnyHeader()
-              .AllowCredentials();
+              .AllowCredentials()
+              .WithExposedHeaders("X-Word-Id");
     });
 });
 
