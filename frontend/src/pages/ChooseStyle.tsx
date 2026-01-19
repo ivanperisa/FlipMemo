@@ -50,22 +50,23 @@ const Home = () => {
 
     {/* OPCIJE I GUMB */}
     <div className="w-full max-w-[600px] rounded-3xl px-8 z-10 mx-5 my-0 flex flex-col justify-center lg:h-auto">
-                        <div className="space-y-4 lg:space-y-2">
+        <div className="space-y-4 lg:space-y-2">
                 {learningModes.map(mode => (
                     <button
                     key={mode.id}
                     onClick={() => {setSelectedMode(mode.id);
                              
                     }}
-        className={`
-            w-full flex items-center gap-4 px-6 py-4 lg:py-3 lg:px-4
-            bg-white rounded-full shadow-md
-            transition-all
-            ${selectedMode === mode.id 
-                ? 'ring-4 ring-[var(--color-primary-dark)] bg-[var(--color-primary-light)]' 
-                : 'hover:shadow-lg hover:scale-102'
-            }
-        `}
+                    className={`
+                        w-full flex items-center gap-4 px-6 py-4 lg:py-3 lg:px-4
+                        bg-white rounded-full shadow-md
+                        transition-all
+                        cursor-pointer
+                        ${selectedMode === mode.id 
+                            ? 'ring-4 ring-[var(--color-primary-dark)] bg-[var(--color-primary-light)]' 
+                            : 'hover:shadow-lg hover:scale-102'
+                        }
+                    `}
     >
         {/* Pink circle indicator */}
         <div className={`
@@ -99,7 +100,7 @@ const Home = () => {
                         navigate("/speakingQuestion");
                     }
                 }}
-                className="mt-8 lg:mt-4 w-full py-4 lg:py-3 bg-(--color-primary-dark) text-on-dark font-space rounded-full disabled:opacity-30"
+                className={`mt-8 lg:mt-4 w-full py-4 lg:py-3 bg-(--color-primary-dark) text-on-dark font-space rounded-full disabled:opacity-30 ${selectedMode && 'cursor-pointer'}`}
             >
                 Dalje
             </button>

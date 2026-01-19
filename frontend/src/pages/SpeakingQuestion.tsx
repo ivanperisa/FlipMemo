@@ -8,10 +8,12 @@ import axiosInstance from "../api/axiosInstance";
 import { useAuth } from "../context/AuthProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLearning } from "../context/LearningContext";
+import mapGameModeToBackend from "../utils/gameModes";
 
 interface StartGameRequestDto {
     dictionaryId: string;
     userId: string;
+    Mode?: number | null
 }
 
 interface WordDto {
@@ -40,6 +42,8 @@ export const SpeakingQuestion = () => {
     const [dictionaryIsEmpty, setDictionaryIsEmpty] = useState(false);
     const [fetchError, setFetchError] = useState<string | null>(null);
     const [answerError, setAnswerError] = useState<string | null>(null);
+
+    const scrollRef = useRef<HTMLDivElement>(null);
 
     // KONTEKSTI
     const navigate = useNavigate();
@@ -114,6 +118,7 @@ export const SpeakingQuestion = () => {
             const query: StartGameRequestDto = {
                 dictionaryId,
                 userId: id,
+                Mode: mapGameModeToBackend(gameMode),
             };
 
             try {
@@ -251,6 +256,7 @@ export const SpeakingQuestion = () => {
                         WordId: questionWord.id,
                         DictionaryId: Number(dictionaryId),
                         Language: language,
+                        Mode: mapGameModeToBackend(gameMode),
                     },
                     headers: {
                         "Content-Type": "multipart/form-data",
@@ -258,33 +264,48 @@ export const SpeakingQuestion = () => {
                 }
             );
 
+            if (response.data.isCorrect)
+                playCorrect();
+            else
+                playWrong();
+
             setIsCorrect(response.data.isCorrect);
             setScore(response.data.score);
-            setTargetBowlIndex(response.data.box);
             setHasAnswered(true);
 
-            if (response.data.isCorrect) {
-                playCorrect();
+            setTimeout(() => {
+
+                if (scrollRef.current) {
+                    console.log("Scrolling");
+                    scrollRef.current.scrollTo({
+                        top: scrollRef.current.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                }
+
+                
                 const targetBowl = bowlRefs.current[response.data.box];
                 const startElement = micButtonRef.current;
                 if (targetBowl && startElement) {
-                    const startRect = startElement.getBoundingClientRect();
-                    const bowlRect = targetBowl.getBoundingClientRect();
+                    setTimeout(() => {
+                        setTargetBowlIndex(response.data.box);
+                        const startRect = startElement.getBoundingClientRect();
+                        const bowlRect = targetBowl.getBoundingClientRect();
 
-                    setFlyingWord(questionWord.sourceWord);
-                    setFlyingStartPos({
-                        x: startRect.left + startRect.width / 2,
-                        y: startRect.top + startRect.height / 2,
-                    });
-                    setAnimationTarget({
-                        x: bowlRect.left + bowlRect.width / 2,
-                        y: bowlRect.top + bowlRect.height / 2,
-                    });
-                    setIsAnimating(true);
+                        setFlyingWord(questionWord.sourceWord);
+                        setFlyingStartPos({
+                            x: startRect.left + startRect.width / 2,
+                            y: startRect.top + startRect.height / 2,
+                        });
+                        setAnimationTarget({
+                            x: bowlRect.left + bowlRect.width / 2,
+                            y: bowlRect.top + bowlRect.height / 2,
+                        });
+                        setIsAnimating(true);
+                    }, 600)
                 }
-            } else {
-                playWrong();
-            }
+            }, 300)
+            
         } catch (error: any) {
             setAnswerError(
                 error.response?.data?.message ||
@@ -326,7 +347,7 @@ export const SpeakingQuestion = () => {
                 </div>
 
                 {/* Main Layout */}
-                <div className="h-[100vh] w-full flex flex-col items-center justify-between relative z-10 overflow-y-auto">
+                <div ref={scrollRef} className="h-[100vh] w-full flex flex-col items-center justify-between relative z-10 overflow-y-auto">
                     {/* Header */}
                     <Header />
 
@@ -550,7 +571,8 @@ export const SpeakingQuestion = () => {
                                                 bowlRefs.current[0] = el;
                                             }}
                                             animate={{ scale: targetBowlIndex === 0 ? 1.5 : 1 }}
-                                            transition={{ duration: 0.3 }}
+                                            transition={{ duration: 0.3, ease: "linear" }}
+                                            style={{ transformOrigin: 'bottom center' }}
                                             className="w-28 h-28 bg-[var(--color-primary-dark)] rounded-t-3xl flex flex-col items-center justify-center shadow-lg hover:cursor-pointer hover:opacity-90 transition-all"
                                         >
                                             <span className="font-space text-sm text-white">sad</span>
@@ -562,7 +584,8 @@ export const SpeakingQuestion = () => {
                                                 bowlRefs.current[1] = el;
                                             }}
                                             animate={{ scale: targetBowlIndex === 1 ? 1.5 : 1 }}
-                                            transition={{ duration: 0.3 }}
+                                            transition={{ duration: 0.3, ease: "linear" }}
+                                            style={{ transformOrigin: 'bottom center' }}
                                             className="w-28 h-28 bg-[var(--color-primary-dark)] rounded-t-3xl flex flex-col items-center justify-center shadow-lg hover:cursor-pointer hover:opacity-90 transition-all"
                                         >
                                             <span className="font-space text-sm text-white">minuta</span>
@@ -574,7 +597,8 @@ export const SpeakingQuestion = () => {
                                                 bowlRefs.current[2] = el;
                                             }}
                                             animate={{ scale: targetBowlIndex === 2 ? 1.5 : 1 }}
-                                            transition={{ duration: 0.3 }}
+                                            transition={{ duration: 0.3, ease: "linear" }}
+                                            style={{ transformOrigin: 'bottom center' }}
                                             className="w-28 h-28 bg-[var(--color-primary-dark)] rounded-t-3xl flex flex-col items-center justify-center shadow-lg hover:cursor-pointer hover:opacity-90 transition-all"
                                         >
                                             <span className="font-space text-sm text-white">sat</span>
@@ -586,7 +610,8 @@ export const SpeakingQuestion = () => {
                                                 bowlRefs.current[3] = el;
                                             }}
                                             animate={{ scale: targetBowlIndex === 3 ? 1.5 : 1 }}
-                                            transition={{ duration: 0.3 }}
+                                            transition={{ duration: 0.3, ease: "linear" }}
+                                            style={{ transformOrigin: 'bottom center' }}
                                             className="w-28 h-28 bg-[var(--color-primary-dark)] rounded-t-3xl flex flex-col items-center justify-center shadow-lg hover:cursor-pointer hover:opacity-90 transition-all"
                                         >
                                             <span className="font-space text-sm text-white">dan</span>
@@ -598,7 +623,8 @@ export const SpeakingQuestion = () => {
                                                 bowlRefs.current[4] = el;
                                             }}
                                             animate={{ scale: targetBowlIndex === 4 ? 1.5 : 1 }}
-                                            transition={{ duration: 0.3 }}
+                                            transition={{ duration: 0.3, ease: "linear" }}
+                                            style={{ transformOrigin: 'bottom center' }}
                                             className="w-28 h-28 bg-[var(--color-primary-dark)] rounded-t-3xl flex flex-col items-center justify-center shadow-lg hover:cursor-pointer hover:opacity-90 transition-all"
                                         >
                                             <span className="font-space text-sm text-white">naučeno</span>

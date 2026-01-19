@@ -8,10 +8,12 @@ import axiosInstance from "../api/axiosInstance";
 import { useAuth } from "../context/AuthProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLearning } from "../context/LearningContext";
+import mapGameModeToBackend from "../utils/gameModes";
 
 interface StartGameRequestDto {
     dictionaryId: string;
     userId: string;
+    Mode?: number | null;
 }
 
 interface WordDto {
@@ -32,6 +34,7 @@ interface GameAnswerDto {
     DictionaryId: number;
     QuestionWordId: number;
     ChosenWordId: number;
+    Mode?: number | null
 }
 
 interface GameAnswerResponseDto {
@@ -165,6 +168,7 @@ export const TranslateFromQuestion = () => {
             const query: StartGameRequestDto = {
                 dictionaryId: dictionaryId,
                 userId: id,
+                Mode: mapGameModeToBackend(gameMode),
             }
             axiosInstance.get<StartGameResponseDto>("/api/v1/game/question", {
                 params: query
@@ -240,6 +244,7 @@ export const TranslateFromQuestion = () => {
                 DictionaryId: Number(dictionaryId),
                 QuestionWordId: question?.questionWord.id,
                 ChosenWordId: selectedAnswer?.id,
+                Mode: mapGameModeToBackend(gameMode),
             }
             console.log(answerRequest);
 
@@ -251,7 +256,6 @@ export const TranslateFromQuestion = () => {
                     {params: answerRequest});
 
                     const bowlIndex = response.data.box;
-                    setTargetBowlIndex(bowlIndex);
                     const isCorrect = selectedAnswer.id === question.correctAnswerId;
                     if (isCorrect) 
                         playCorrect();
@@ -271,33 +275,35 @@ export const TranslateFromQuestion = () => {
                             });
                         }
                     
-                    // Wait for scroll to complete, then start animation
-                    setTimeout(() => {
-                        const correctAnswerId = question.correctAnswerId;
-                        const correctAnswerElement = answerRefs.current.get(correctAnswerId);
-                        const targetBowl = bowlRefs.current[bowlIndex];
-                        
-                        if (correctAnswerElement && targetBowl) {
-                            const answerRect = correctAnswerElement.getBoundingClientRect();
-                            const bowlRect = targetBowl.getBoundingClientRect();
+                        // Wait for scroll to complete, then start animation
+                        setTimeout(() => {
+                            setTargetBowlIndex(bowlIndex);
+                            const correctAnswerId = question.correctAnswerId;
+                            const correctAnswerElement = answerRefs.current.get(correctAnswerId);
+                            const targetBowl = bowlRefs.current[bowlIndex];
                             
-                            // Get the correct answer's word
-                            const correctAnswer = question.answerWords.find(a => a.id === correctAnswerId);
-                            if (correctAnswer) {
-                                setFlyingWord(correctAnswer.displayWord);
-                                setFlyingStartPos({
-                                    x: answerRect.left + answerRect.width / 2,
-                                    y: answerRect.top + answerRect.height / 2
-                                });
-                                setAnimationTarget({
-                                    x: bowlRect.left + bowlRect.width / 2,
-                                    y: bowlRect.top + bowlRect.height / 2
-                                });
-                                setIsAnimating(true);
-                            }
-                        }
-                    }, 600);
-                }, 300);
+                                if (correctAnswerElement && targetBowl) {
+                                    const answerRect = correctAnswerElement.getBoundingClientRect();
+                                    const bowlRect = targetBowl.getBoundingClientRect();
+                                    
+                                    // Get the correct answer's word
+                                    const correctAnswer = question.answerWords.find(a => a.id === correctAnswerId);
+                                    if (correctAnswer) {
+                                        setFlyingWord(correctAnswer.displayWord);
+                                        setFlyingStartPos({
+                                            x: answerRect.left + answerRect.width / 2,
+                                            y: answerRect.top + answerRect.height / 2
+                                        });
+                                        setAnimationTarget({
+                                            x: bowlRect.left + bowlRect.width / 2,
+                                            y: bowlRect.top + bowlRect.height / 2
+                                        });
+                                        setIsAnimating(true);
+                                    }
+                                }
+                            }, 600);
+
+                    }, 300);
 
             } catch (error: any) {
                 setAnswerError(error.response?.data?.message || "Došlo je do greške pri slanju odgovora.");
@@ -605,7 +611,8 @@ export const TranslateFromQuestion = () => {
                                         <motion.div
                                             ref={(el) => { bowlRefs.current[0] = el; }}
                                             animate={{ scale: targetBowlIndex === 0 ? 1.5 : 1 }}
-                                            transition={{ duration: 0.3 }}
+                                            transition={{ duration: 0.3, ease: "linear" }}
+                                            style={{ transformOrigin: 'bottom center' }}
                                             className="w-28 h-28 bg-[var(--color-primary-dark)] rounded-t-3xl flex flex-col items-center justify-center shadow-lg hover:cursor-pointer hover:opacity-90 transition-all"
                                         >
                                             <span className="font-space text-sm text-white">sad</span>
@@ -616,7 +623,8 @@ export const TranslateFromQuestion = () => {
                                         <motion.div
                                             ref={(el) => { bowlRefs.current[1] = el; }}
                                             animate={{ scale: targetBowlIndex === 1 ? 1.5 : 1 }}
-                                            transition={{ duration: 0.3 }}
+                                            transition={{ duration: 0.3, ease: "linear" }}
+                                            style={{ transformOrigin: 'bottom center' }}
                                             className="w-28 h-28 bg-[var(--color-primary-dark)] rounded-t-3xl flex flex-col items-center justify-center shadow-lg hover:cursor-pointer hover:opacity-90 transition-all"
                                         >
                                             <span className="font-space text-sm text-white">minuta</span>
@@ -627,7 +635,8 @@ export const TranslateFromQuestion = () => {
                                         <motion.div
                                             ref={(el) => { bowlRefs.current[2] = el; }}
                                             animate={{ scale: targetBowlIndex === 2 ? 1.5 : 1 }}
-                                            transition={{ duration: 0.3 }}
+                                            transition={{ duration: 0.3, ease: "linear" }}
+                                            style={{ transformOrigin: 'bottom center' }}
                                             className="w-28 h-28 bg-[var(--color-primary-dark)] rounded-t-3xl flex flex-col items-center justify-center shadow-lg hover:cursor-pointer hover:opacity-90 transition-all"
                                         >
                                             <span className="font-space text-sm text-white">sat</span>
@@ -638,7 +647,8 @@ export const TranslateFromQuestion = () => {
                                         <motion.div
                                             ref={(el) => { bowlRefs.current[3] = el; }}
                                             animate={{ scale: targetBowlIndex === 3 ? 1.5 : 1 }}
-                                            transition={{ duration: 0.3 }}
+                                            transition={{ duration: 0.3, ease: "linear" }}
+                                            style={{ transformOrigin: 'bottom center' }}
                                             className="w-28 h-28 bg-[var(--color-primary-dark)] rounded-t-3xl flex flex-col items-center justify-center shadow-lg hover:cursor-pointer hover:opacity-90 transition-all"
                                         >
                                             <span className="font-space text-sm text-white">dan</span>
@@ -649,7 +659,8 @@ export const TranslateFromQuestion = () => {
                                         <motion.div
                                             ref={(el) => { bowlRefs.current[4] = el; }}
                                             animate={{ scale: targetBowlIndex === 4 ? 1.5 : 1 }}
-                                            transition={{ duration: 0.3 }}
+                                            transition={{ duration: 0.3, ease: "linear" }}
+                                            style={{ transformOrigin: 'bottom center' }}
                                             className="w-28 h-28 bg-[var(--color-primary-dark)] rounded-t-3xl flex flex-col items-center justify-center shadow-lg hover:cursor-pointer hover:opacity-90 transition-all"
                                         >
                                             <span className="font-space text-sm text-white">naučeno</span>

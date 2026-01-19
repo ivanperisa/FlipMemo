@@ -132,7 +132,7 @@ const Home = () => {
                     setDictionaryLanguage(currentWordSet.language || null);
                     navigate('/chooseStyle');
                 }}
-                className="mt-8 w-full py-4 bg-(--color-primary-dark) text-on-dark font-space rounded-full disabled:opacity-30"
+                className={`mt-8 w-full py-4 bg-(--color-primary-dark) text-on-dark font-space rounded-full disabled:opacity-30 ${currentWordSet && 'cursor-pointer'}`}
             >
                 Dalje
             </button>
