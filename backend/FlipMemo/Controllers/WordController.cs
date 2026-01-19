@@ -12,7 +12,7 @@ public class WordController(IWordService wordsService, IWordsApiService wordsApi
     [HttpGet]
     public async Task<IActionResult> SearchWords([FromQuery] SearchWordsRequestDto dto)
     {
-        var words = await wordsApiService.SearchWordsAsync(dto.StartingLetters);
+        var words = await wordsApiService.SearchWordsAsync(dto);
 
         return Ok(words);
     }
