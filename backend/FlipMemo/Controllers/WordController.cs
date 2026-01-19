@@ -24,4 +24,18 @@ public class WordController(IWordService wordsService, IWordsApiService wordsApi
 
         return Ok(response);
     }
+
+    [HttpGet("allWords")]
+    public async Task<IActionResult> GetAllWords()
+    {
+        var words = await wordsService.GetAllWordsAsync();
+        return Ok(words);
+    }
+
+    [HttpDelete("{wordId}")]
+    public async Task<IActionResult> DeleteWord(int wordId)
+    {
+        await wordsService.DeleteWordAsync(wordId);
+        return Ok(new { message = "Word deleted successfully." });
+    }
 }
