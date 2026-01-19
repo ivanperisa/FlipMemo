@@ -44,9 +44,9 @@ public class DictionaryService(ApplicationDbContext context) : IDictionaryServic
             {
                 Id = w.Id,
                 SourceWord = w.SourceWord,
-                SourcePhrases = w.SourcePhrases,
-                TargetWord = w.TargetWord,
-                TargetPhrases = w.TargetPhrases
+                SourcePhrases = w.SourcePhrases!,
+                TargetWord = w.TargetWord!,
+                TargetPhrases = w.TargetPhrases!
             });
         }
 
@@ -63,7 +63,7 @@ public class DictionaryService(ApplicationDbContext context) : IDictionaryServic
             .SingleOrDefaultAsync(w => w.Id == wordId)
             ?? throw new NotFoundException("Word doesn't exist.");
 
-        if (!word.Dictionaries.Any())
+        if (word.Dictionaries.Count == 0)
             throw new NotFoundException("Word is not used in any dictionaries.");
 
         var dictionaries = word.Dictionaries
@@ -111,17 +111,23 @@ public class DictionaryService(ApplicationDbContext context) : IDictionaryServic
         if (dictionaries.Count != dto.DictionaryIds.Count)
             throw new NotFoundException("One or more specified dictionaries don't exist.");
 
+        var newDictionaryIds = new List<int>();
+
         foreach (var dictionary in dictionaries)
         {
             if (!word.Dictionaries.Contains(dictionary))
             {
                 word.Dictionaries.Add(dictionary);
+                newDictionaryIds.Add(dictionary.Id);
             }
         }
 
-        await CreateStudyProgressRecordsAsync(wordId, dto.DictionaryIds);
-
         await context.SaveChangesAsync();
+
+        if (newDictionaryIds.Count > 0)
+        {
+            await CreateStudyProgressRecordsAsync(wordId, newDictionaryIds);
+        }
     }
 
     public async Task RemoveWordFromDictionaryAsync(int dictionaryId, int wordId)

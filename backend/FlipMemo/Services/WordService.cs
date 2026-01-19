@@ -25,11 +25,12 @@ public class WordService(
             {
                 Id = w.Id,
                 SourceWord = w.SourceWord,
-                SourcePhrases = w.SourcePhrases,
-                TargetWord = w.TargetWord,
-                TargetPhrases = w.TargetPhrases
+                SourcePhrases = w.SourcePhrases!,
+                TargetWord = w.TargetWord!,
+                TargetPhrases = w.TargetPhrases!
             })
             .ToListAsync();
+
         return new GetAllWordsResponseDto
         {
             Words = words
@@ -119,12 +120,18 @@ public class WordService(
 
         var translation = await deepTranslateApiService.GetTranslationAsync(translationRequest);
 
+        var targetWord = translation.TranslatedText?.Count > 0
+            ? translation.TranslatedText[0]
+            : string.Empty;
+
+        var targetPhrases = translation.TranslatedText?.Skip(1).ToList() ?? [];
+
         return new Word
         {
             SourceWord = dto.Word,
             SourcePhrases = sourcePhrases,
-            TargetWord = translation.TranslatedText[0],
-            TargetPhrases = [.. translation.TranslatedText.Skip(1)],
+            TargetWord = targetWord,
+            TargetPhrases = targetPhrases,
             AudioFile = audioFile
         };
     }

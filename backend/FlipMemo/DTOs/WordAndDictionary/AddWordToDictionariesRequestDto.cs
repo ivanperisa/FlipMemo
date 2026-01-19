@@ -1,7 +1,6 @@
-﻿namespace FlipMemo.DTOs.WordAndDictionary
+﻿namespace FlipMemo.DTOs.WordAndDictionary;
+
+public class AddWordToDictionariesRequestDto
 {
-    public class AddWordToDictionariesRequestDto
-    {
-        public List<int> DictionaryIds { get; set; } = null!;
-    }
+    public List<int> DictionaryIds { get; set; } = null!;
 }
