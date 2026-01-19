@@ -7,7 +7,7 @@ using System.Net.Mail;
 
 namespace FlipMemo.Services;
 
-public class EmailService(IOptions<EmailSettings> options, ILogger<EmailService> logger) : IEmailService
+public class EmailService(IOptions<EmailSettings> options) : IEmailService
 {
     public async Task SendAsync(string sendingTo, string subject, string? plainText, string? html)
     {

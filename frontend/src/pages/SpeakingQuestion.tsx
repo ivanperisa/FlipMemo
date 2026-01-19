@@ -13,7 +13,7 @@ import mapGameModeToBackend from "../utils/gameModes";
 interface StartGameRequestDto {
     dictionaryId: string;
     userId: string;
-    Mode?: number | null
+    Mode?: number | null;
 }
 
 interface WordDto {

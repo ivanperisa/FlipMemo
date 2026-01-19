@@ -90,78 +90,40 @@ namespace FlipMemo.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserWords",
+                name: "StudyProgresses",
                 columns: table => new
                 {
                     UserId = table.Column<int>(type: "integer", nullable: false),
                     WordId = table.Column<int>(type: "integer", nullable: false),
                     DictionaryId = table.Column<int>(type: "integer", nullable: false),
+                    Mode = table.Column<int>(type: "integer", nullable: false),
                     Box = table.Column<int>(type: "integer", nullable: false),
                     LastReviewed = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     NextReview = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    Learned = table.Column<bool>(type: "boolean", nullable: false)
+                    Learned = table.Column<bool>(type: "boolean", nullable: false),
+                    Score = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserWords", x => new { x.UserId, x.WordId, x.DictionaryId });
+                    table.PrimaryKey("PK_StudyProgresses", x => new { x.UserId, x.WordId, x.DictionaryId, x.Mode });
                     table.ForeignKey(
-                        name: "FK_UserWords_Dictionaries_DictionaryId",
+                        name: "FK_StudyProgresses_Dictionaries_DictionaryId",
                         column: x => x.DictionaryId,
                         principalTable: "Dictionaries",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_UserWords_Users_UserId",
+                        name: "FK_StudyProgresses_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UserWords_Words_WordId",
+                        name: "FK_StudyProgresses_Words_WordId",
                         column: x => x.WordId,
                         principalTable: "Words",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Voices",
-                columns: table => new
-                {
-                    UserId = table.Column<int>(type: "integer", nullable: false),
-                    WordId = table.Column<int>(type: "integer", nullable: false),
-                    DictionaryId = table.Column<int>(type: "integer", nullable: false),
-                    SpeakingBox = table.Column<int>(type: "integer", nullable: false),
-                    SpeakingLastReviewed = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    SpeakingNextReview = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    SpeakingLearned = table.Column<bool>(type: "boolean", nullable: false),
-                    SpeakingScore = table.Column<int>(type: "integer", nullable: false),
-                    ListeningBox = table.Column<int>(type: "integer", nullable: false),
-                    ListeningLastReviewed = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    ListeningNextReview = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    ListeningLearned = table.Column<bool>(type: "boolean", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Voices", x => new { x.UserId, x.WordId, x.DictionaryId });
-                    table.ForeignKey(
-                        name: "FK_Voices_Dictionaries_DictionaryId",
-                        column: x => x.DictionaryId,
-                        principalTable: "Dictionaries",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Voices_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Voices_Words_WordId",
-                        column: x => x.WordId,
-                        principalTable: "Words",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -170,23 +132,13 @@ namespace FlipMemo.Migrations
                 column: "WordsId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserWords_DictionaryId",
-                table: "UserWords",
+                name: "IX_StudyProgresses_DictionaryId",
+                table: "StudyProgresses",
                 column: "DictionaryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserWords_WordId",
-                table: "UserWords",
-                column: "WordId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Voices_DictionaryId",
-                table: "Voices",
-                column: "DictionaryId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Voices_WordId",
-                table: "Voices",
+                name: "IX_StudyProgresses_WordId",
+                table: "StudyProgresses",
                 column: "WordId");
         }
 
@@ -197,10 +149,7 @@ namespace FlipMemo.Migrations
                 name: "DictionaryWord");
 
             migrationBuilder.DropTable(
-                name: "UserWords");
-
-            migrationBuilder.DropTable(
-                name: "Voices");
+                name: "StudyProgresses");
 
             migrationBuilder.DropTable(
                 name: "Dictionaries");

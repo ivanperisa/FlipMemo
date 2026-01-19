@@ -6,7 +6,7 @@ namespace FlipMemo.Services.External;
 
 public class TextToSpeechApiService(HttpClient httpClient) : ITextToSpeechApiService
 {
-    public async Task<byte[]> GetTextToSpeechAudioAsync(string text, string lang, CancellationToken cancellationToken = default)
+    public async Task<byte[]> GetTextToSpeechAudioAsync(string text, string lang)
     {
         var options = new JsonSerializerOptions
         {
@@ -22,7 +22,7 @@ public class TextToSpeechApiService(HttpClient httpClient) : ITextToSpeechApiSer
         var json = JsonSerializer.Serialize(requestDto, options);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-        var response = await httpClient.PostAsync("/text-to-speech", content, cancellationToken);
+        var response = await httpClient.PostAsync("/text-to-speech", content);
         response.EnsureSuccessStatusCode();
 
         var audioBytes = await response.Content.ReadAsByteArrayAsync();

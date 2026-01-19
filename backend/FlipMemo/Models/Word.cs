@@ -10,6 +10,5 @@ public class Word
     public byte[]? AudioFile { get; set; }
 
     public ICollection<Dictionary> Dictionaries { get; set; } = [];
-    public ICollection<UserWord> UserWords { get; set; } = [];
-    public ICollection<Voice> Voices { get; set; } = [];
+    public ICollection<StudyProgress> StudyProgresses { get; set; } = [];
 }

@@ -11,8 +11,8 @@ import { useLearning } from "../context/LearningContext";
 import mapGameModeToBackend from "../utils/gameModes";
 
 interface StartGameRequestDto {
-    dictionaryId: string;
-    userId: string;
+    UserId: string;
+    DictionaryId: string;
     Mode?: number | null;
 }
 
@@ -34,7 +34,7 @@ interface GameAnswerDto {
     DictionaryId: number;
     QuestionWordId: number;
     ChosenWordId: number;
-    Mode?: number | null
+    Mode?: number | null;
 }
 
 interface GameAnswerResponseDto {
@@ -166,8 +166,8 @@ export const TranslateFromQuestion = () => {
         console.log("Fetching question.");
         if (dictionaryId && id) {
             const query: StartGameRequestDto = {
-                dictionaryId: dictionaryId,
-                userId: id,
+                UserId: id,
+                DictionaryId: dictionaryId,
                 Mode: mapGameModeToBackend(gameMode),
             }
             axiosInstance.get<StartGameResponseDto>("/api/v1/game/question", {

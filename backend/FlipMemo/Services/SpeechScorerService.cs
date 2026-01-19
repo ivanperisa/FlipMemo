@@ -1,42 +1,40 @@
-﻿using FlipMemo.Interfaces.External;
-using System.Net.Http.Headers;
-using System.Text.Json;
+﻿using FlipMemo.Interfaces;
 
-namespace FlipMemo.Services.External;
+namespace FlipMemo.Services;
 
-public class SpeechScorerService(HttpClient httpClient) : ISpeechScorerService
+public class SpeechScorerService() : ISpeechScorerService
 {
-    public async Task<int> GetSpeechScoreAsync(byte[] audioFile, string expectedText, string language, CancellationToken cancellationToken = default)
+    public async Task<int> GetSpeechScoreAsync(string? recognizedText, string expectedText)
     {
-        using var content = new MultipartFormDataContent();
-        var audioContent = new ByteArrayContent(audioFile);
+        //using var content = new MultipartFormDataContent();
+        //var audioContent = new ByteArrayContent(audioFile);
 
-        audioContent.Headers.ContentType = new MediaTypeHeaderValue("audio/mpeg");
-        audioContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
-        {
-            Name = "\"file\"",
-            FileName = "\"audio.mp3\""
-        };
+        //audioContent.Headers.ContentType = new MediaTypeHeaderValue("audio/mpeg");
+        //audioContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
+        //{
+        //    Name = "\"file\"",
+        //    FileName = "\"audio.mp3\""
+        //};
 
-        content.Add(audioContent);
+        //content.Add(audioContent);
 
-        var langParam = string.IsNullOrWhiteSpace(language) ? "en" : language;
-        var request = new HttpRequestMessage(HttpMethod.Post, $"transcribe?lang={langParam}&task=transcribe")
-        {
-            Content = content
-        };
+        //var langParam = string.IsNullOrWhiteSpace(language) ? "en" : language;
+        //var request = new HttpRequestMessage(HttpMethod.Post, $"transcribe?lang={langParam}&task=transcribe")
+        //{
+        //    Content = content
+        //};
 
-        var response = await httpClient.SendAsync(request, cancellationToken);
-        response.EnsureSuccessStatusCode();
+        //var response = await httpClient.SendAsync(request);
+        //response.EnsureSuccessStatusCode();
 
-        var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
-        using var document = JsonDocument.Parse(responseString);
+        //var responseString = await response.Content.ReadAsStringAsync();
+        //using var document = JsonDocument.Parse(responseString);
 
-        var recognizedText = string.Empty;
-        if (document.RootElement.TryGetProperty("text", out var textElement))
-        {
-            recognizedText = textElement.GetString() ?? string.Empty;
-        }
+        //var recognizedText = string.Empty;
+        //if (document.RootElement.TryGetProperty("text", out var textElement))
+        //{
+        //    recognizedText = textElement.GetString() ?? string.Empty;
+        //}
 
         return CalculateScore(recognizedText, expectedText);
     }

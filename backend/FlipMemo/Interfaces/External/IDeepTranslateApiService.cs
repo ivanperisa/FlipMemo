@@ -4,5 +4,5 @@ namespace FlipMemo.Interfaces.External;
 
 public interface IDeepTranslateApiService
 {
-    Task<TextTranslationResponseDto> GetTranslationAsync(TextTranslationRequestDto requestDto, CancellationToken cancellationToken = default);
+    Task<TextTranslationResponseDto> GetTranslationAsync(TextTranslationRequestDto requestDto);
 }

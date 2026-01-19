@@ -7,6 +7,5 @@ public class Dictionary
     public string Language { get; set; } = null!;
 
     public ICollection<Word> Words { get; set; } = [];
-    public ICollection<UserWord> UserWords { get; set; } = [];
-    public ICollection<Voice> Voices { get; set; } = [];
+    public ICollection<StudyProgress> StudyProgresses { get; set; } = [];
 }
