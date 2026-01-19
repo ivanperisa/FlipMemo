@@ -521,7 +521,7 @@ namespace FlipMemo.Tests
                 .Setup(x => x.GetSpeechScoreAsync(
                     It.IsAny<string>(),
                     It.IsAny<string>()))
-                .ReturnsAsync(70);
+                .Returns(70);
 
             var dto = new SpeakingAnswerRequestDto
             {
@@ -552,7 +552,7 @@ namespace FlipMemo.Tests
                 .Setup(x => x.GetSpeechScoreAsync(
                     It.IsAny<string>(),
                     It.IsAny<string>()))
-                .ReturnsAsync(45);
+                .Returns(45);
 
             var dto = new SpeakingAnswerRequestDto
             {

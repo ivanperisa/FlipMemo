@@ -10,7 +10,7 @@ namespace FlipMemo.Controllers;
 public class GameController(IGameService gameService) : ControllerBase
 {
     [HttpGet("question")]
-    //[Authorize(Policy = "UserOrAdmin")]
+    [Authorize(Policy = "UserOrAdmin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -22,7 +22,7 @@ public class GameController(IGameService gameService) : ControllerBase
     }
 
     [HttpPut("check-choice")]
-    //[Authorize(Policy = "UserOrAdmin")]
+    [Authorize(Policy = "UserOrAdmin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -34,7 +34,7 @@ public class GameController(IGameService gameService) : ControllerBase
     }
 
     [HttpGet("listening/question")]
-    //[Authorize(Policy = "UserOrAdmin")]
+    [Authorize(Policy = "UserOrAdmin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -48,7 +48,7 @@ public class GameController(IGameService gameService) : ControllerBase
     }
 
     [HttpPut("listening/check-answer")]
-    //[Authorize(Policy = "UserOrAdmin")]
+    [Authorize(Policy = "UserOrAdmin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -60,7 +60,7 @@ public class GameController(IGameService gameService) : ControllerBase
     }
 
     [HttpGet("speaking/question")]
-    //[Authorize(Policy = "UserOrAdmin")]
+    [Authorize(Policy = "UserOrAdmin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -72,7 +72,7 @@ public class GameController(IGameService gameService) : ControllerBase
     }
 
     [HttpPut("speaking/check-answer")]
-    //[Authorize(Policy = "UserOrAdmin")]
+    [Authorize(Policy = "UserOrAdmin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
