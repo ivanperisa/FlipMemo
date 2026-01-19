@@ -5,7 +5,7 @@ public class GetWordsFromDictionaryResponseDto
     public List<WordDto> Words { get; set; }
 }
 
-public record WordDto
+public class WordDto
 {
     public int Id { get; set; }
     public string SourceWord { get; set; } = null!;

@@ -12,7 +12,7 @@ public class WordController(IWordService wordsService, IWordsApiService wordsApi
     [HttpGet]
     public async Task<IActionResult> SearchWords([FromQuery] SearchWordsRequestDto dto)
     {
-        var words = await wordsApiService.SearchWordsAsync(dto);
+        var words = await wordsApiService.SearchWordsAsync(dto.StartingLetters);
 
         return Ok(words);
     }
@@ -23,5 +23,19 @@ public class WordController(IWordService wordsService, IWordsApiService wordsApi
         var response = await wordsService.CreateWordAsync(dto);
 
         return Ok(response);
+    }
+
+    [HttpGet("allWords")]
+    public async Task<IActionResult> GetAllWords()
+    {
+        var words = await wordsService.GetAllWordsAsync();
+        return Ok(words);
+    }
+
+    [HttpDelete("{wordId}")]
+    public async Task<IActionResult> DeleteWord(int wordId)
+    {
+        await wordsService.DeleteWordAsync(wordId);
+        return Ok(new { message = "Word deleted successfully." });
     }
 }

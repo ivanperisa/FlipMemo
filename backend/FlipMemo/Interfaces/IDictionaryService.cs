@@ -6,5 +6,8 @@ public interface IDictionaryService
 {
     Task<GetAllDictionariesResponseDto> GetAllDictionariesAsync();
     Task<GetWordsFromDictionaryResponseDto> GetWordsFromDictionaryAsync(int DictionaryId);
+    Task<GetWordUsageInDictionariesResponseDto> GetWordUsageInDictionariesAsync(int wordId);
     Task CreateDictionaryAsync(CreateDictionaryRequestDto dto);
+    Task AddWordToDictionariesAsync(int wordId, AddWordToDictionariesRequestDto dto);
+    Task RemoveWordFromDictionaryAsync(int dictionaryId, int wordId);
 }

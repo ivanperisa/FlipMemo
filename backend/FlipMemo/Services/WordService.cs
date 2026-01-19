@@ -1,13 +1,14 @@
-﻿using System.Globalization;
-using System.Text;
-using System.Text.RegularExpressions;
-using FlipMemo.Data;
+﻿using FlipMemo.Data;
 using FlipMemo.DTOs.External;
+using FlipMemo.DTOs.WordAndDictionary;
 using FlipMemo.Interfaces;
 using FlipMemo.Interfaces.External;
 using FlipMemo.Models;
 using FlipMemo.Utils;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace FlipMemo.Services;
 
@@ -253,5 +254,43 @@ public class WordService(
 
         context.StudyProgresses.AddRange(newRows);
         await context.SaveChangesAsync();
+    }
+
+    public async Task<GetAllWordsResponseDto> GetAllWordsAsync()
+    {
+        var words = await context.Words
+            .Select(w => new WordDto
+            {
+                Id = w.Id,
+                SourceWord = w.SourceWord,
+                SourcePhrases = w.SourcePhrases,
+                TargetWord = w.TargetWord,
+                TargetPhrases = w.TargetPhrases
+            })
+            .ToListAsync();
+        return new GetAllWordsResponseDto
+        {
+            Words = words
+        };
+    }
+
+    public async Task DeleteWordAsync(int wordId)
+    {
+        var word = await context.Words
+            .Include(w => w.Dictionaries)
+            .SingleOrDefaultAsync(w => w.Id == wordId)
+            ?? throw new NotFoundException("Word doesn't exist.");
+
+        word.Dictionaries.Clear();
+
+        var studyProgresses = await context.StudyProgresses
+            .Where(sp => sp.WordId == wordId)
+            .ToListAsync();
+        context.StudyProgresses.RemoveRange(studyProgresses);
+
+        context.Words.Remove(word);
+
+        await context.SaveChangesAsync();
+
     }
 }
