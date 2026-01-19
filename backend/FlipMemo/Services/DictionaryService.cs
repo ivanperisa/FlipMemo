@@ -44,9 +44,9 @@ public class DictionaryService(ApplicationDbContext context) : IDictionaryServic
             {
                 Id = w.Id,
                 SourceWord = w.SourceWord,
-                SourcePhrases = w.SourcePhrases,
-                TargetWord = w.TargetWord,
-                TargetPhrases = w.TargetPhrases
+                SourcePhrases = w.SourcePhrases!,
+                TargetWord = w.TargetWord!,
+                TargetPhrases = w.TargetPhrases!
             });
         }
 
@@ -63,7 +63,7 @@ public class DictionaryService(ApplicationDbContext context) : IDictionaryServic
             .SingleOrDefaultAsync(w => w.Id == wordId)
             ?? throw new NotFoundException("Word doesn't exist.");
 
-        if (!word.Dictionaries.Any())
+        if (word.Dictionaries.Count == 0)
             throw new NotFoundException("Word is not used in any dictionaries.");
 
         var dictionaries = word.Dictionaries
@@ -111,15 +111,23 @@ public class DictionaryService(ApplicationDbContext context) : IDictionaryServic
         if (dictionaries.Count != dto.DictionaryIds.Count)
             throw new NotFoundException("One or more specified dictionaries don't exist.");
 
+        var newDictionaryIds = new List<int>();
+
         foreach (var dictionary in dictionaries)
         {
             if (!word.Dictionaries.Contains(dictionary))
             {
                 word.Dictionaries.Add(dictionary);
+                newDictionaryIds.Add(dictionary.Id);
             }
         }
 
         await context.SaveChangesAsync();
+
+        if (newDictionaryIds.Count > 0)
+        {
+            await CreateStudyProgressRecordsAsync(wordId, newDictionaryIds);
+        }
     }
 
     public async Task RemoveWordFromDictionaryAsync(int dictionaryId, int wordId)
@@ -143,6 +151,52 @@ public class DictionaryService(ApplicationDbContext context) : IDictionaryServic
             .ToListAsync();
         context.StudyProgresses.RemoveRange(studyProgresses);
 
+        await context.SaveChangesAsync();
+    }
+
+    private static GameModes[] AllGameModes => GameModesHelper.GetAllGameModes;
+
+    private async Task CreateStudyProgressRecordsAsync(int wordId, List<int> dictionaryIds)
+    {
+        var allUserIds = await context.Users
+            .Select(u => u.Id)
+            .ToListAsync();
+
+        if (allUserIds.Count == 0)
+            return;
+
+        var desired = allUserIds
+            .SelectMany(userId => dictionaryIds.SelectMany(dictId =>
+                AllGameModes.Select(mode => new { UserId = userId, DictionaryId = dictId, Mode = mode })))
+            .ToList();
+
+        var existing = await context.StudyProgresses
+            .Where(sp => sp.WordId == wordId && dictionaryIds.Contains(sp.DictionaryId))
+            .Select(sp => new { sp.UserId, sp.DictionaryId, sp.Mode })
+            .ToListAsync();
+
+        var existingSet = existing
+            .Select(x => (x.UserId, x.DictionaryId, x.Mode))
+            .ToHashSet();
+
+        var newRows = desired
+            .Where(x => !existingSet.Contains((x.UserId, x.DictionaryId, x.Mode)))
+            .Select(x => new StudyProgress
+            {
+                UserId = x.UserId,
+                DictionaryId = x.DictionaryId,
+                WordId = wordId,
+                Mode = x.Mode,
+                Box = 0,
+                Learned = false,
+                Score = null
+            })
+            .ToList();
+
+        if (newRows.Count == 0)
+            return;
+
+        context.StudyProgresses.AddRange(newRows);
         await context.SaveChangesAsync();
     }
 }

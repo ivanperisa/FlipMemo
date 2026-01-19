@@ -5,7 +5,7 @@ namespace FlipMemo.Interfaces;
 
 public interface IWordService
 {
+    Task<GetAllWordsResponseDto> GetAllWordsAsync();
     Task<CreateWordResponseDto> CreateWordAsync(CreateWordRequestDto dto);
     Task DeleteWordAsync(int wordId);
-    Task<GetAllWordsResponseDto> GetAllWordsAsync();
 }

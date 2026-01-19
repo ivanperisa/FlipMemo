@@ -1,7 +1,6 @@
-﻿namespace FlipMemo.DTOs.WordAndDictionary
+﻿namespace FlipMemo.DTOs.WordAndDictionary;
+
+public class GetAllWordsResponseDto
 {
-    public class GetAllWordsResponseDto
-    {
-        public List<WordDto> Words { get; set; }
-    }
+    public List<WordDto>? Words { get; set; }
 }

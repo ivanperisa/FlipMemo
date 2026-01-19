@@ -4,6 +4,6 @@ namespace FlipMemo.DTOs.Game;
 
 public class StartGameResponseDto
 {
-    public WordDto? SourceWord {get; set; }
-    public List<WordDto>? Answers { get; set; }
+    public WordDto SourceWord {get; set; } = null!;
+    public List<WordDto> Answers { get; set; } = null!;
 }

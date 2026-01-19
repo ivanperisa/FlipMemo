@@ -1,5 +1,6 @@
 ﻿using FlipMemo.DTOs.WordAndDictionary;
 using FlipMemo.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FlipMemo.Controllers;
@@ -9,6 +10,7 @@ namespace FlipMemo.Controllers;
 public class DictionaryController(IDictionaryService dictionariesService) : ControllerBase
 {
     [HttpGet]
+    [Authorize(Policy = "UserOrAdmin")]
     public async Task<IActionResult> GetAllDictionaries()
     {
         var dictionaries = await dictionariesService.GetAllDictionariesAsync();
@@ -17,6 +19,7 @@ public class DictionaryController(IDictionaryService dictionariesService) : Cont
     }
 
     [HttpGet("{id}/words")]
+    [Authorize(Policy = "UserOrAdmin")]
     public async Task<IActionResult> GetWordsFromDictionary(int id)
     {
         var words = await dictionariesService.GetWordsFromDictionaryAsync(id);
@@ -25,6 +28,7 @@ public class DictionaryController(IDictionaryService dictionariesService) : Cont
     }
 
     [HttpGet("{wordId}/usage")]
+    [Authorize(Policy = "UserOrAdmin")]
     public async Task<IActionResult> GetWordUsageInDictionaries(int wordId)
     {
         var usage = await dictionariesService.GetWordUsageInDictionariesAsync(wordId);
@@ -32,6 +36,7 @@ public class DictionaryController(IDictionaryService dictionariesService) : Cont
     }
 
     [HttpPost]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> CreateDictionary(CreateDictionaryRequestDto dto)
     {
         await dictionariesService.CreateDictionaryAsync(dto);
@@ -40,6 +45,7 @@ public class DictionaryController(IDictionaryService dictionariesService) : Cont
     }
 
     [HttpPost("{wordId}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> AddWordsToDictionaries(int wordId, AddWordToDictionariesRequestDto dto)
     {
         await dictionariesService.AddWordToDictionariesAsync(wordId, dto);
@@ -47,6 +53,7 @@ public class DictionaryController(IDictionaryService dictionariesService) : Cont
     }
 
     [HttpDelete("{dictionaryId}/{wordId}")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> RemoveWordFromDictionary(int dictionaryId, int wordId)
     {
         await dictionariesService.RemoveWordFromDictionaryAsync(dictionaryId, wordId);
