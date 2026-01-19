@@ -128,12 +128,21 @@ public class DictionaryService(ApplicationDbContext context) : IDictionaryServic
             .Include(d => d.Words)
             .SingleOrDefaultAsync(d => d.Id == dictionaryId)
             ?? throw new NotFoundException("Dictionary doesn't exist.");
+
         var word = await context.Words
             .SingleOrDefaultAsync(w => w.Id == wordId)
             ?? throw new NotFoundException("Word doesn't exist.");
+
         if (!dictionary.Words.Contains(word))
             throw new NotFoundException("The dictionary doesn't contain the specified word.");
+
         dictionary.Words.Remove(word);
+
+        var studyProgresses = await context.StudyProgresses
+            .Where(sp => sp.DictionaryId == dictionaryId && sp.WordId == wordId)
+            .ToListAsync();
+        context.StudyProgresses.RemoveRange(studyProgresses);
+
         await context.SaveChangesAsync();
     }
 }
