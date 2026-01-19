@@ -2,7 +2,7 @@
 
 namespace FlipMemo.Services;
 
-public class SpeechScorerService() : ISpeechScorerService
+public class SpeechScorerService : ISpeechScorerService
 {
     public async Task<int> GetSpeechScoreAsync(string? recognizedText, string expectedText)
     {
