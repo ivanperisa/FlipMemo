@@ -16,3 +16,4 @@ export { default as AdminAddWord} from "./AdminAddWord.tsx";
 export { default as TranslateFromQuestion} from "./TranslateQuestion.tsx";
 export { default as ListeningQuestion} from "./ListeningQuestion.tsx";
 export { default as SpeakingQuestion} from "./SpeakingQuestion.tsx";
+export { default as AdminDictionaryWords } from "./AdminDictionaryWords.tsx"

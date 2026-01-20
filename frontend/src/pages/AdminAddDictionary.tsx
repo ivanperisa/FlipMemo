@@ -6,31 +6,32 @@ import { useEffect, useState } from "react"
 import axiosInstance from "../api/axiosInstance"
 import { Form, Input, Select } from "antd"
 import { useForm } from "antd/es/form/Form"
-import { div, tr } from "framer-motion/client"
 import { Mosaic } from "react-loading-indicators"
 
 const AdminAddDictionary = () => {
 
     const [Loading, setLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+    const [showErrorMessage, setShowErrorMessage] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false);
     const [form] = useForm();
 
         useEffect(() => {
-            if (successMessage) {
+            if (showSuccessMessage) {
                 const timeoutId = setTimeout(() => {
-                    setSuccessMessage("");
+                    setShowSuccessMessage(false);
                 }, 5000)
 
                 return () => {
                     if (timeoutId) clearTimeout(timeoutId);
                 }
             }
-        }, [successMessage]);
+        }, [showSuccessMessage]);
 
         const onFinish = (values: { dictionaryName: string; dictionaryLanguage: string; }) => {
-            setErrorMessage("");
-            setSuccessMessage("");
+            setShowErrorMessage(false);
+            setShowSuccessMessage(false);
             setLoading(true);
             console.log("Adding dictionary");
 
@@ -39,15 +40,17 @@ const AdminAddDictionary = () => {
             axiosInstance.post('api/v1/Dictionary', body)
             .then((response) => {
                 console.log("Dictionary added successfuly: ", response.data);
-                setErrorMessage("");
+                setShowErrorMessage(false);
                 setSuccessMessage("Rječnik uspješno dodan!");
+                setShowSuccessMessage(true);
                 form.resetFields();
                 setLoading(false);
             }).catch((error) => {
                 console.error("Dictionary adding failed", error.response?.data || error.message);
                 const errorMsg = error.response?.data?.message || error.response?.data || "Greška pri dodavanju rječnika!";
-                setSuccessMessage("");
+                setShowSuccessMessage(false);
                 setErrorMessage(errorMsg);
+                setShowErrorMessage(true);
                 setLoading(false);
             });
         }
@@ -77,23 +80,26 @@ const AdminAddDictionary = () => {
 
                 <div className="mt-20 w-full max-w-[400px] flex flex-col gap-4 relative">
 
-                    {errorMessage && (
-                        <div 
-                            className="flex flex-row items-center justify-between w-full bg-red-50 border-2 border-red-300 rounded-2xl p-3 z-10 transition-all duration-500 transform"
+                    <div
+                        className={`
+                        overflow-hidden transition-all duration-500 ease-out
+                        ${showErrorMessage ? "max-h-40" : "max-h-0"}
+                        `}
+                    >
+                        <div className="flex flex-row items-center justify-between w-full bg-red-50 border-2 border-red-300 rounded-2xl p-3 z-10">
+                        <p className="font-space text-sm text-red-600 text-center">
+                            {errorMessage}
+                        </p>
+                        <button
+                            className="text-red-600" 
+                            onClick={() => setShowErrorMessage(false)}
                         >
-                            <p className="font-space text-sm text-red-600 text-center">
-                                {errorMessage}
-                            </p>
-                            <button
-                                className="text-red-600" 
-                                onClick={() => setErrorMessage("")}
-                            >
-                                <CloseCircleOutlined className="rounded cursor-pointer filter hover:brightness-90 transition-colors duration-200" />
-                            </button>
+                            <CloseCircleOutlined className="cursor-pointer" />
+                        </button>
                         </div>
-                    )}
+                    </div>
 
-                    {successMessage && !errorMessage && (
+                    {showSuccessMessage && !showErrorMessage && (
                         <div 
                             className="relative flex items-center justify-between w-full bg-green-50 border-2 border-green-300 rounded-2xl p-3 z-10 overflow-hidden"
                         >
@@ -102,7 +108,7 @@ const AdminAddDictionary = () => {
                             </p>
 
                             <button
-                                onClick={() => setSuccessMessage("")}
+                                onClick={() => setShowSuccessMessage(false)}
                                 className="text-green-600"
                             >
                                 <CloseCircleOutlined className="cursor-pointer" />

@@ -10,7 +10,7 @@ interface AuthContextType {
     setToken: (newToken: string | null, userId?: string | null, userRole?: string | null, rememberMe?: boolean) => void;
     logout: () => void;
     isAuthenticated: boolean;
-}
+}  
 
 
 interface AuthProviderProps {

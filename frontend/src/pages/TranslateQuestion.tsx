@@ -150,15 +150,15 @@ export const TranslateFromQuestion = () => {
     const wrongSoundRef = useRef<HTMLAudioElement>(null);
 
     // PROVJERE
-    if (gameMode !== "translate-from" && gameMode !== "translate-to") {
-        navigate("/*");
-        return;
-    }
+    useEffect(() => {
+        if (gameMode !== "translate-from" && gameMode !== "translate-to") {
+            navigate("/*", {replace: true});
+        }
 
-    if (id === null) {
-        navigate("/login");
-        return;
-    }
+        if (id === null) {
+            navigate("/login", {replace: true});
+        }
+    }, [gameMode, id]);
 
     // FUNKCIJE
     const fetchNextQuestion = async () => {
@@ -376,7 +376,7 @@ export const TranslateFromQuestion = () => {
                     {/* Header - always visible */}
                     <Header />
 
-                    {Loading ? (
+                    {Loading || (gameMode !== 'translate-from' && gameMode !== 'translate-to') || id === null ? (
                         <div className="flex-1 flex items-center justify-center">
                             <Mosaic 
                                 color="var(--color-primary-dark)" 

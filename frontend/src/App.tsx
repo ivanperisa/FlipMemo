@@ -1,8 +1,8 @@
 import './styles/styles.css'
-import { BrowserRouter, Route, Routes } from "react-router";
+import { BrowserRouter, Outlet, Route, Routes } from "react-router";
 import { Home, Login, Logout, Missing, Welcome, ForgotPassword, Register,
     ChangePassword, ChooseStyle,ChooseWordSet, AdminDictionary, AdminPage, 
-    AdminAddDictionary,
+    AdminAddDictionary, AdminDictionaryWords,
     AdminAddWord, UserControl,TranslateFromQuestion,ListeningQuestion,SpeakingQuestion} from './pages/PagesImport.ts';
 import AuthProvider from "./context/AuthProvider.tsx";
 import ProtectedRoutes from "./routes/ProtectedRoutes.tsx";
@@ -10,6 +10,7 @@ import AdminProtectedRoute from "./routes/AdminProtectedRoute.tsx";
 import { AnimatePresence } from 'framer-motion';
 import ResetPassword from './pages/ResetPassword.tsx';
 import { GameTemplate } from './layouts/GameTemplate.tsx';
+import AdminProvider from './context/AdminContext.tsx';
 
 const AnimatedRoutes = () => {
     return (
@@ -34,12 +35,19 @@ const AnimatedRoutes = () => {
             </Route>
 
                 {/* admin zasticene rute */}
-                <Route element={<AdminProtectedRoute />}>
-                <Route path="/admin" element={<AdminPage />} />
-                <Route path="/userControl" element={<UserControl/>}/>
-                <Route path="/admin/dictionary" element={<AdminDictionary/>} />
-                <Route path="/admin/dictionary/add" element={<AdminAddDictionary />}/>
-                <Route path="/admin/addWord" element={<AdminAddWord />} />
+                <Route 
+                    element={
+                        <AdminProvider>
+                            <AdminProtectedRoute />
+                        </AdminProvider>
+                    }
+                >
+                    <Route path="/admin" element={<AdminPage />} />
+                    <Route path="/userControl" element={<UserControl/>}/>
+                    <Route path="/admin/dictionary" element={<AdminDictionary/>} />
+                    <Route path="/admin/dictionary/add" element={<AdminAddDictionary />}/>
+                    <Route path="/admin/addWord" element={<AdminAddWord />} />
+                    <Route path="/admin/dictionary/words" element={<AdminDictionaryWords />} />
                 </Route>
 
                 {/* nezasticene rute */}
