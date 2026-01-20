@@ -73,7 +73,7 @@ const AdminPage = () => {
 
                     {/* Add Words to Dictionary Card */}
                     <button
-                        onClick={() => navigate('/admin/addWord')}
+                        onClick={() => navigate('/admin/word')}
                         className="w-full bg-white/90 rounded-3xl shadow-xl p-8 hover:shadow-2xl transition-all hover:scale-105 cursor-pointer"
                     >
                         <div className="flex items-center gap-6">
@@ -85,7 +85,7 @@ const AdminPage = () => {
                                     Upravljanje riječima
                                 </h3>
                                 <p className="font-space text-[#8B6B7A]/70">
-                                    Dodaj nove riječi u postojeći rječnik
+                                    Dodaj postojeće ili nove riječi u postojeći rječnik
                                 </p>
                             </div>
                         </div>

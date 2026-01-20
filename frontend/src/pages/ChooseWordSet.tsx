@@ -90,33 +90,38 @@ const Home = () => {
                         <div className="space-y-4">
                 {WordSets.map(set => (
                     <button
-                    key={set.id}
-                    onClick={() => setCurrentWordSet(set)}
-                    type="button"
-        className={`
-            w-full flex items-center gap-4 px-6 py-4 
-            bg-white rounded-full shadow-md
-            transition-all cursor-pointer
-            ${currentWordSet === set
-                ? 'ring-4 ring-[var(--color-primary-dark)] ' 
-                : 'hover:shadow-lg hover:scale-105'
-            }
-        `}
-    >
-        {/* Pink circle indicator */}
-        <div className={`
-            w-6 h-6 rounded-full border-2 
-            ${currentWordSet === set
-                ? 'bg-[var(--color-primary-dark)] border-[var(--color-primary-dark)]' 
-                : 'bg-white border-gray-300'
-            }
-        `} />
-        
-        {/* Label */}
-        <span className="font-space text-[#8B6B7A]">
-            {set.name}
-        </span>
-    </button>
+                        key={set.id}
+                        onClick={() => setCurrentWordSet(set)}
+                        type="button"
+                        className={`
+                            w-full flex items-center gap-4 px-6 py-4 
+                            bg-white rounded-full shadow-md
+                            transition-all cursor-pointer
+                            ${currentWordSet === set
+                                ? 'ring-4 ring-[var(--color-primary-dark)] ' 
+                                : 'hover:shadow-lg hover:scale-105'
+                            }
+                        `}
+                    >
+                        {/* Pink circle indicator */}
+                        <div className={`
+                            w-6 h-6 rounded-full border-2 
+                            ${currentWordSet === set
+                                ? 'bg-[var(--color-primary-dark)] border-[var(--color-primary-dark)]' 
+                                : 'bg-white border-gray-300'
+                            }
+                            `} 
+                        />
+                    
+                        {/* Label */}
+                        <span className="font-space text-[#8B6B7A]">
+                            {set.name}
+                        </span>
+
+                        <div className="ml-auto text-[var(--color-primary-extra-dark)]">
+                            {set.language}
+                        </div>
+                    </button>
                 ))}
             </div>
             
@@ -130,7 +135,7 @@ const Home = () => {
                     setDictionaryLanguage((currentWordSet.language || '').toLowerCase() || null);
                     navigate('/chooseStyle');
                 }}
-                className="mt-8 w-full py-4 bg-(--color-primary-dark) text-on-dark font-space rounded-full disabled:opacity-30"
+                className={`mt-8 w-full py-4 bg-(--color-primary-dark) text-on-dark font-space rounded-full disabled:opacity-30 ${currentWordSet && 'cursor-pointer'}`}
             >
                 Dalje
             </button>

@@ -38,6 +38,8 @@ export const ListeningQuestion = () => {
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [answerError, setAnswerError] = useState<string | null>(null);
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+
   // KONTEKSTI
   const navigate = useNavigate();
   const { id } = useAuth();
@@ -213,35 +215,48 @@ export const ListeningQuestion = () => {
         { params: answerRequest }
       );
 
+      if (response.data.isCorrect)
+        playCorrect();
+      else
+        playWrong();
+
       setIsCorrect(response.data.isCorrect);
       setCorrectAnswer(response.data.correctAnswer);
-      setTargetBowlIndex(response.data.box);
       setHasAnswered(true);
 
-      if (response.data.isCorrect) {
-        playCorrect();
-        const targetBowl = bowlRefs.current[response.data.box];
-        const startElement = answerInputRef.current;
-        if (targetBowl && startElement) {
-          setTimeout(() => {
-            const startRect = startElement.getBoundingClientRect();
-            const bowlRect = targetBowl.getBoundingClientRect();
+      if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(min-width: 768px)').matches) {
+        setTimeout(() => {
+            if (scrollRef.current) {
+              console.log("Scrolling");
+              scrollRef.current.scrollTo({
+                  top: scrollRef.current.scrollHeight,
+                  behavior: 'smooth'
+              });
+            }
 
-            setFlyingWord(response.data.correctAnswer);
-            setFlyingStartPos({
-              x: startRect.left + startRect.width / 2,
-              y: startRect.top + startRect.height / 2,
-            });
-            setAnimationTarget({
-              x: bowlRect.left + bowlRect.width / 2,
-              y: bowlRect.top + bowlRect.height / 2,
-            });
-            setIsAnimating(true);
-          }, 200);
-        }
-      } else {
-        playWrong();
+            const targetBowl = bowlRefs.current[response.data.box];
+            const startElement = answerInputRef.current;
+            if (targetBowl && startElement) {
+              setTimeout(() => {
+                setTargetBowlIndex(response.data.box);
+                const startRect = startElement.getBoundingClientRect();
+                const bowlRect = targetBowl.getBoundingClientRect();
+
+                setFlyingWord(response.data.correctAnswer);
+                setFlyingStartPos({
+                  x: startRect.left + startRect.width / 2,
+                  y: startRect.top + startRect.height / 2,
+                });
+                setAnimationTarget({
+                  x: bowlRect.left + bowlRect.width / 2,
+                  y: bowlRect.top + bowlRect.height / 2,
+                });
+                setIsAnimating(true);
+              }, 600);
+          }
+        }, 300);
       }
+
     } catch (error: any) {
       setAnswerError(
         error.response?.data?.message || "Doslo je do greske pri slanju odgovora."
@@ -290,7 +305,7 @@ export const ListeningQuestion = () => {
         </div>
 
         {/* Main Layout */}
-        <div className="h-[100vh] w-full flex flex-col items-center justify-between relative z-10 overflow-y-auto">
+        <div ref={scrollRef} className="h-[100vh] w-full flex flex-col items-center justify-between relative z-10 overflow-y-auto">
           {/* Header */}
           <Header />
 
@@ -498,7 +513,8 @@ export const ListeningQuestion = () => {
                         bowlRefs.current[0] = el;
                       }}
                       animate={{ scale: targetBowlIndex === 0 ? 1.5 : 1 }}
-                      transition={{ duration: 0.3 }}
+                      transition={{ duration: 0.3, ease: "linear" }}
+                      style={{ transformOrigin: 'bottom center' }}
                       className="w-28 h-28 bg-[var(--color-primary-dark)] rounded-t-3xl flex flex-col items-center justify-center shadow-lg hover:cursor-pointer hover:opacity-90 transition-all"
                     >
                       <span className="font-space text-sm text-white">sad</span>
@@ -510,7 +526,8 @@ export const ListeningQuestion = () => {
                         bowlRefs.current[1] = el;
                       }}
                       animate={{ scale: targetBowlIndex === 1 ? 1.5 : 1 }}
-                      transition={{ duration: 0.3 }}
+                      transition={{ duration: 0.3, ease: "linear" }}
+                      style={{ transformOrigin: 'bottom center' }}
                       className="w-28 h-28 bg-[var(--color-primary-dark)] rounded-t-3xl flex flex-col items-center justify-center shadow-lg hover:cursor-pointer hover:opacity-90 transition-all"
                     >
                       <span className="font-space text-sm text-white">
@@ -524,7 +541,8 @@ export const ListeningQuestion = () => {
                         bowlRefs.current[2] = el;
                       }}
                       animate={{ scale: targetBowlIndex === 2 ? 1.5 : 1 }}
-                      transition={{ duration: 0.3 }}
+                      transition={{ duration: 0.3, ease: "linear" }}
+                      style={{ transformOrigin: 'bottom center' }}
                       className="w-28 h-28 bg-[var(--color-primary-dark)] rounded-t-3xl flex flex-col items-center justify-center shadow-lg hover:cursor-pointer hover:opacity-90 transition-all"
                     >
                       <span className="font-space text-sm text-white">sat</span>
@@ -536,7 +554,8 @@ export const ListeningQuestion = () => {
                         bowlRefs.current[3] = el;
                       }}
                       animate={{ scale: targetBowlIndex === 3 ? 1.5 : 1 }}
-                      transition={{ duration: 0.3 }}
+                      transition={{ duration: 0.3, ease: "linear" }}
+                      style={{ transformOrigin: 'bottom center' }}
                       className="w-28 h-28 bg-[var(--color-primary-dark)] rounded-t-3xl flex flex-col items-center justify-center shadow-lg hover:cursor-pointer hover:opacity-90 transition-all"
                     >
                       <span className="font-space text-sm text-white">dan</span>
@@ -548,7 +567,8 @@ export const ListeningQuestion = () => {
                         bowlRefs.current[4] = el;
                       }}
                       animate={{ scale: targetBowlIndex === 4 ? 1.5 : 1 }}
-                      transition={{ duration: 0.3 }}
+                      transition={{ duration: 0.3, ease: "linear" }}
+                      style={{ transformOrigin: 'bottom center' }}
                       className="w-28 h-28 bg-[var(--color-primary-dark)] rounded-t-3xl flex flex-col items-center justify-center shadow-lg hover:cursor-pointer hover:opacity-90 transition-all"
                     >
                       <span className="font-space text-sm text-white">

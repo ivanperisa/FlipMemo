@@ -4,17 +4,21 @@ import Particles from "../styles/Particles"
 import { useNavigate } from "react-router"
 import { useEffect, useState } from "react"
 import axiosInstance from "../api/axiosInstance"
-import { Table } from "antd"
+import { Table, Input, Typography, type TableProps } from "antd"
 import { Mosaic } from "react-loading-indicators"
-
-
+import debounce from "lodash/debounce";
+import { useAdminContext } from "../context/AdminContext"
+    
 const AdminDictionary = () => {
     const navigate = useNavigate();
 
+    const { setSelectedDictionary } = useAdminContext();
+
     const [Loading, setLoading] = useState(true);
+    const [searchText, setSearchText] = useState("");
     type Dictionary = { id: number; name: string; language: string };
     const [dictArray, setDictArray] = useState<Dictionary[]>([]);
-    const columns = [
+    const columns: TableProps<Dictionary>['columns'] = [
         {
             title: 'Id',
             dataIndex: 'id',
@@ -29,8 +33,29 @@ const AdminDictionary = () => {
             title: 'Language',
             dataIndex: 'language',
             key: 'language'
-        }
-    ]
+        },
+        {
+            title: "Words",
+            key: "words",
+            render: (_, record) => (
+            <Typography.Link style={{color:'blue'}} onClick={() => { 
+                    setSelectedDictionary(record);
+                    navigate("/admin/dictionary/words");
+                }}
+            >
+                View Words</Typography.Link>
+            ),
+        },
+    ];
+
+    const handleSearch = debounce((value) => {
+        setSearchText(value);
+    }, 200);
+
+    const filteredData = dictArray.filter((item) =>
+        [item.id, item.name, item.language]
+            .some(field => String(field).toLowerCase().includes(searchText.toLowerCase()))
+    );
 
     useEffect(() => {
         axiosInstance.get('/api/v1/Dictionary')
@@ -38,6 +63,9 @@ const AdminDictionary = () => {
             setDictArray(response.data.dictionaries);
             setLoading(false);
         })
+        .catch((error) => {
+            console.log(error);
+        });
     }, [])
 
     return (
@@ -59,10 +87,25 @@ const AdminDictionary = () => {
                 <Header />
 
                 {Loading ? (
-                    <Mosaic color="var(--color-primary-dark)" size="medium" text="" textColor="" />
+                    <div className="flex flex-col items-center justify-center flex-1 w-full mb-20">
+                        <Mosaic color="var(--color-primary-dark)" size="medium" text="" textColor="" />
+                    </div>
                 ) : (
-                    <>
-                        <Table dataSource={dictArray} columns={columns} bordered={true} className="w-[70%] mt-6" pagination={ { pageSize: 5} } />
+                    <div className="w-[70%]">
+                        <Input
+                            placeholder="Pretraži..."
+                            onChange={(e) => handleSearch(e.target.value)}
+                            style={{ width: "30%" }}
+                        />
+                        <Table
+                            // title={() => <h2 className="text-lg font-semibold">Riječnici</h2>}
+                            dataSource={filteredData} 
+                            columns={columns} 
+                            bordered={true} 
+                            className="w-full mt-6" 
+                            pagination={ { pageSize: 5} } 
+                            rowKey="id"
+                        />
                         <div className="flex flex-col items-center g-4 mt-6">
                             <button
                                 onClick={() => navigate("/admin/dictionary/add")}
@@ -73,7 +116,7 @@ const AdminDictionary = () => {
                                 Dodaj novi rječnik
                             </button>
                         </div>
-                    </>
+                    </div>
                 )}
 
             </div>

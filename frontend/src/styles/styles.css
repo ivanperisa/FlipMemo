@@ -73,4 +73,17 @@
     scrollbar-color: var(--color-primary) var(--color-gradient-end);
 }
 
+@keyframes success-timer {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+.animate-success-timer {
+  animation: success-timer 5s linear forwards;
+}
+
 
