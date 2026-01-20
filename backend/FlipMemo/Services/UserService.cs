@@ -8,7 +8,7 @@ namespace FlipMemo.Services;
 
 public class UserService(ApplicationDbContext context) : IUserService
 {
-    public async Task<IEnumerable<UserResponseDto>> GetAllUsersAsync()
+    public async Task<IEnumerable<UserResponseDto>> GetAllUsersAsync(int id)
     {
         var users = await context.Users
             .Select(u => new UserResponseDto
@@ -17,6 +17,7 @@ public class UserService(ApplicationDbContext context) : IUserService
                 Email = u.Email,
                 Role = u.Role
             })
+            .Where(u => u.Id !=  id)
             .ToListAsync();
 
         return users;
@@ -42,7 +43,6 @@ public class UserService(ApplicationDbContext context) : IUserService
             ?? throw new NotFoundException("Account doesn't exist.");
 
         context.Users.Remove(user);
-
         await context.SaveChangesAsync();
     }
 
@@ -66,5 +66,35 @@ public class UserService(ApplicationDbContext context) : IUserService
                 break;
         }
         await context.SaveChangesAsync();
+    }
+
+    public async Task<UserStatsDto> GetUserStats(int id)
+    {
+
+        var boxCounts = await context.StudyProgresses
+            .Where(sp => sp.UserId == id)
+            .GroupBy(sp => sp.Box)
+            .ToDictionaryAsync(g => g.Key, g => g.Count());
+
+        var numOfReadyWords = await context.StudyProgresses
+            .Where(sp =>
+                sp.UserId == id &&
+                !sp.Learned &&
+                (sp.Box == 0 || (sp.NextReview.HasValue && sp.NextReview <= DateTime.UtcNow)))
+            .CountAsync();
+
+        var numOfLearnedWords = await context.StudyProgresses
+            .Where(sp => sp.UserId == id && sp.Learned)
+            .CountAsync();
+
+        return new UserStatsDto
+        {
+            FirstBox = boxCounts.GetValueOrDefault(0),
+            SecondBox = boxCounts.GetValueOrDefault(1),
+            ThirdBox = boxCounts.GetValueOrDefault(2),
+            FourthBox = boxCounts.GetValueOrDefault(3),
+            Learned = boxCounts.GetValueOrDefault(4),
+            ReadyForReview = numOfReadyWords
+        };
     }
 }
