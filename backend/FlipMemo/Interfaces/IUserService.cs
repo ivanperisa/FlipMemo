@@ -8,5 +8,5 @@ public interface IUserService
     Task<UserResponseDto> GetUserByIdAsync(int id);
     Task DeleteUserAsync(int id);
     Task ChangeRole(int id, string operation);
-    Task<UserStatsDto> GetUserStats(int id);
+    Task<UserStatsDto> GetUserStatsAsync(int id);
 }

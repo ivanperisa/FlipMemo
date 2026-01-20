@@ -98,7 +98,7 @@ public class UserController(IUserService userService) : ControllerBase
         var userIdClaim = User.FindFirst("userId")?.Value;
         var currentUserId = int.Parse(userIdClaim!);
 
-        var stats = await userService.GetUserStats(currentUserId);
+        var stats = await userService.GetUserStatsAsync(currentUserId);
 
         return Ok(stats);
     }
