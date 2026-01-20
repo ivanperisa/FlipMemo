@@ -17,7 +17,10 @@ public class UserController(IUserService userService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAllUsers()
     {
-        var users = await userService.GetAllUsersAsync();
+        var userIdClaim = User.FindFirst("userId")?.Value;
+        var currentUserId = int.Parse(userIdClaim!);
+
+        var users = await userService.GetAllUsersAsync(currentUserId);
         return Ok(users);
     }
 
@@ -45,14 +48,9 @@ public class UserController(IUserService userService) : ControllerBase
         var currentUserId = int.Parse(userIdClaim!);
         var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
-        if (userRole == Roles.User && currentUserId != id)
-            throw new ForbiddenException("You can only delete your own account.");
-
-        if (userRole == Roles.Admin && currentUserId == id)
-            throw new ForbiddenException("You can't delete your own account.");
-
         await userService.DeleteUserAsync(id);
-        return Ok(new { message = "User deleted successfully." });
+
+        return Ok(new { message = "Account deleted successfully." });
     }
 
     [HttpPut("{id}/promote")]
@@ -65,9 +63,6 @@ public class UserController(IUserService userService) : ControllerBase
     {
         var userIdClaim = User.FindFirst("userId")?.Value;
         var currentUserId = int.Parse(userIdClaim!);
-
-        if (currentUserId == id)
-            throw new ForbiddenException("You can't change your own role.");
 
         await userService.ChangeRole(id, "Promote");
 
@@ -86,11 +81,26 @@ public class UserController(IUserService userService) : ControllerBase
         var userIdClaim = User.FindFirst("userId")?.Value;
         var currentUserId = int.Parse(userIdClaim!);
 
-        if (currentUserId == id)
-            throw new ForbiddenException("You can't change your own role.");
-
         await userService.ChangeRole(id, "Demote");
 
         return Ok(new { message = "User demoted successfully." });
     }
+
+    [HttpPut("stats")]
+    [Authorize(Policy = "AdminOnly")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+
+    public async Task<IActionResult> GetUserStats()
+    {
+        var userIdClaim = User.FindFirst("userId")?.Value;
+        var currentUserId = int.Parse(userIdClaim!);
+
+        var stats = await userService.GetUserStatsAsync(currentUserId);
+
+        return Ok(stats);
+    }
+
 }

@@ -1,4 +1,5 @@
 ﻿using FlipMemo.DTOs.External;
+using FlipMemo.DTOs.WordAndDictionary;
 using FlipMemo.Interfaces;
 using FlipMemo.Interfaces.External;
 using Microsoft.AspNetCore.Authorization;
@@ -24,6 +25,13 @@ public class WordController(IWordService wordsService, IWordsApiService wordsApi
     {
         var response = await wordsService.CreateWordAsync(dto);
 
+        return Ok(response);
+    }
+    [HttpPost("changePhrases")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> ChangeWordPrases([FromQuery] ChangeWordPhrasesDto dto)
+    {
+        var response =  await wordsService.ChangeWordPhrasesAsync(dto);
         return Ok(response);
     }
 

@@ -60,6 +60,24 @@ public class WordService(
         };
     }
 
+    public async Task<WordDto> ChangeWordPhrasesAsync(ChangeWordPhrasesDto dto)
+    {
+        var selectedWord = await context.Words.FindAsync(dto.Id)
+                ?? throw new NotFoundException("Word not found");
+
+        selectedWord.SourcePhrases = dto.SourcePhrases;
+        selectedWord.TargetPhrases = dto.TargetPhrases;
+
+        await context.SaveChangesAsync();
+        return new WordDto
+        {
+            Id = dto.Id,
+            SourceWord = selectedWord.SourceWord,
+            TargetWord = selectedWord.TargetWord,
+            SourcePhrases = selectedWord.SourcePhrases,
+            TargetPhrases = selectedWord.TargetPhrases
+        };
+    }
     public async Task DeleteWordAsync(int wordId)
     {
         var word = await context.Words
