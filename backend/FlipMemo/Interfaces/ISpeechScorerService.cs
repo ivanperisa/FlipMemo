@@ -2,5 +2,5 @@
 
 public interface ISpeechScorerService
 {
-    Task<int> GetSpeechScoreAsync(string? recognizedText, string expectedText);
+    int GetSpeechScoreAsync(string? recognizedText, string expectedText);
 }

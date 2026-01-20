@@ -7,3 +7,10 @@ public enum GameModes
     Listening = 3,
     Speaking = 4
 }
+
+public static class GameModesHelper
+{
+    private static GameModes[] AllGameModes => Enum.GetValues<GameModes>();
+
+    public static GameModes[] GetAllGameModes => AllGameModes;
+}

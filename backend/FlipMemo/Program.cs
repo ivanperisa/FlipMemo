@@ -150,12 +150,12 @@ builder.Services.AddHttpClient<ITextToSpeechApiService, TextToSpeechApiService>(
     client.DefaultRequestHeaders.Add("X-RapidAPI-Host", "text-to-speach-api.p.rapidapi.com");
 });
 
-//builder.Services.AddHttpClient<ISpeechScorerService, SpeechScorerService>(client =>
-//{
-//    client.BaseAddress = new Uri("https://speech-to-text-ai.p.rapidapi.com/");
-//    client.DefaultRequestHeaders.Add("X-RapidAPI-Key", builder.Configuration["RapidApi:ApiKey"]);
-//    client.DefaultRequestHeaders.Add("X-RapidAPI-Host", "speech-to-text-ai.p.rapidapi.com");
-//});
+/* builder.Services.AddHttpClient<ISpeechScorerService, SpeechScorerService>(client =>
+{
+    client.BaseAddress = new Uri("https://speech-to-text-ai.p.rapidapi.com/");
+    client.DefaultRequestHeaders.Add("X-RapidAPI-Key", builder.Configuration["RapidApi:ApiKey"]);
+    client.DefaultRequestHeaders.Add("X-RapidAPI-Host", "speech-to-text-ai.p.rapidapi.com");
+}); */
 
 var app = builder.Build();
 

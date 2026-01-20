@@ -85,11 +85,13 @@ const AdminDictionary = () => {
                 <Header />
 
                 {Loading ? (
-                    <Mosaic color="var(--color-primary-dark)" size="large" text="" textColor="" />
+                    <div className="flex flex-col items-center justify-center flex-1 w-full mb-20">
+                        <Mosaic color="var(--color-primary-dark)" size="medium" text="" textColor="" />
+                    </div>
                 ) : (
                     <div className="w-[70%]">
                         <Input
-                            placeholder="Search..."
+                            placeholder="Pretraži..."
                             onChange={(e) => handleSearch(e.target.value)}
                             style={{ width: "30%" }}
                         />

@@ -30,15 +30,39 @@ const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
 const AdminProvider = ({ children }: AdminProviderProps) => {
 
-    const [selectedDictionary, setSelectedDictionary_] = useState<Dictionary | null>(null);
-    const [selectedWord, setSelectedWord_] = useState<Word | null>(null);
+    const getInitialSelectedDictionary = (): Dictionary | null => {
+        const saved = sessionStorage.getItem("adminDict");
+        if (!saved) return null;
+        try {
+            return JSON.parse(saved) as Dictionary
+        } catch {
+            console.log("Admin selected dictionary from session storage parsing failed");
+            return null;
+        }
+    };
+
+    const getInitialSelectedWord = (): Word | null => {
+        const saved = sessionStorage.getItem("adminWord");
+        if (!saved) return null;
+        try {
+            return JSON.parse(saved) as Word;
+        } catch {
+            console.log("Admin selected word from session storage parsing failed");
+            return null;
+        }
+    };
+
+    const [selectedDictionary, setSelectedDictionary_] = useState<Dictionary | null>(getInitialSelectedDictionary());
+    const [selectedWord, setSelectedWord_] = useState<Word | null>(getInitialSelectedWord());
 
     const setSelectedDictionary = (dictionary: Dictionary | null) => {
         setSelectedDictionary_(dictionary);
+        sessionStorage.setItem("adminDict", JSON.stringify(dictionary));
     }
 
     const setSelectedWord = (word: Word | null) => {
         setSelectedWord_(word);
+        sessionStorage.setItem("adminWord", JSON.stringify(word));
     }
 
     const contextValue = useMemo(

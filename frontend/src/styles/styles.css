@@ -86,49 +86,4 @@
   animation: success-timer 5s linear forwards;
 }
 
-/* Themed modal to match site colors and fonts */
-.confirm-modal .ant-modal-content {
-    background: linear-gradient(180deg, var(--color-gradient-start), var(--color-gradient-end));
-    color: var(--color-primary-extra-dark);
-    font-family: var(--font-space);
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-}
-
-.confirm-modal .ant-modal-header {
-    background: transparent;
-    border-bottom: none;
-    padding: 18px 24px 0 24px;
-}
-
-.confirm-modal .ant-modal-title {
-    color: var(--color-primary-extra-dark);
-    font-weight: 600;
-    font-family: var(--font-space);
-}
-
-.confirm-modal .ant-modal-body {
-    padding: 12px 24px 24px 24px;
-    color: var(--color-primary-extra-dark);
-    font-family: var(--font-space);
-    font-size: 16px;
-}
-
-.confirm-modal .ant-modal-footer {
-    border-top: none;
-    padding: 12px 24px 20px 24px;
-    background: transparent;
-}
-
-.confirm-modal .ant-btn-primary {
-    background: var(--color-primary-dark);
-    border: none;
-    color: var(--color-text-on-dark) !important;
-    font-family: var(--font-space);
-}
-
-.confirm-modal .ant-btn {
-    font-family: var(--font-space);
-}
-
 

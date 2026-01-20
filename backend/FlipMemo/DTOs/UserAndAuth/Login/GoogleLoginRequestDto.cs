@@ -2,5 +2,5 @@
 
 public class GoogleLoginRequestDto
 {
-    public string GoogleToken { get; set; }
+    public string GoogleToken { get; set; } = null!;
 }

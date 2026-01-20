@@ -172,15 +172,15 @@ const AdminAddWord = () => {
               `}
           >
               <div className="flex flex-row items-center justify-between w-full bg-red-50 border-2 border-red-300 rounded-2xl p-3 z-10">
-              <p className="font-space text-sm text-red-600 text-center">
-                  {errorMessage}
-              </p>
-              <button
-                  className="text-red-600" 
-                  onClick={() => setShowErrorMessage(false)}
-              >
-                  <CloseCircleOutlined className="cursor-pointer" />
-              </button>
+                <p className="font-space text-sm text-red-600 text-center">
+                    {errorMessage}
+                </p>
+                <button
+                    className="text-red-600" 
+                    onClick={() => setShowErrorMessage(false)}
+                >
+                    <CloseCircleOutlined className="cursor-pointer" />
+                </button>
               </div>
           </div>
 

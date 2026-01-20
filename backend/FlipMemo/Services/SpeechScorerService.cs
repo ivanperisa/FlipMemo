@@ -2,9 +2,9 @@
 
 namespace FlipMemo.Services;
 
-public class SpeechScorerService() : ISpeechScorerService
+public class SpeechScorerService : ISpeechScorerService
 {
-    public async Task<int> GetSpeechScoreAsync(string? recognizedText, string expectedText)
+    public int GetSpeechScoreAsync(string? recognizedText, string expectedText)
     {
         //using var content = new MultipartFormDataContent();
         //var audioContent = new ByteArrayContent(audioFile);
@@ -36,7 +36,7 @@ public class SpeechScorerService() : ISpeechScorerService
         //    recognizedText = textElement.GetString() ?? string.Empty;
         //}
 
-        return CalculateScore(recognizedText, expectedText);
+        return CalculateScore(recognizedText ?? string.Empty, expectedText);
     }
 
     private static int CalculateScore(string recognizedText, string expectedText)

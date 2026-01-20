@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import axiosInstance from "../api/axiosInstance";
-import { Input, Space, Table, Tag, Typography, Modal, Button, type TableProps } from "antd";
+import { Input, Space, Table, Typography, type TableProps } from "antd";
+import { CloseCircleOutlined } from '@ant-design/icons'
 import debounce from "lodash/debounce";
 import PageTransition from "../components/PageTransition";
 import Particles from "../styles/Particles";
@@ -31,6 +32,8 @@ const AdminDictionaryWords = () => {
 
     const [errorMessage, setErrorMessage] = useState("");
     const [showErrorMessage, setShowErrorMessage] = useState(false);
+    const [successMessage, setSuccessMessage] = useState("");
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false);
     const [searchText, setSearchText] = useState("");
     const [Loading, setLoading] = useState(false);
     const [wordArray, setWordArray] = useState<Word[]>([]);
@@ -80,8 +83,20 @@ const AdminDictionaryWords = () => {
     ];
 
     useEffect(() => {
+        if (showSuccessMessage) {
+            const timeoutId = setTimeout(() => {
+                setShowSuccessMessage(false);
+            }, 5000)
+
+            return () => {
+                if (timeoutId) clearTimeout(timeoutId);
+            }
+        }
+    }, [showSuccessMessage]);
+
+    useEffect(() => {
         if (selectedDictionary === null) {
-            navigate("/missing", {replace: true});
+            navigate("/admin/dictionary", {replace: true});
         }
         else {
             setLoading(true);
@@ -110,10 +125,28 @@ const AdminDictionaryWords = () => {
         setShowDeleteModule(true);
     }
 
-    const handleRemoveWord = async (wordId: number) => {
-        // Placeholder implementation — replace with your real remove logic.
-        console.warn("handleRemoveWord not implemented", wordId);
-        setShowDeleteModule(false);
+    const handleRemoveWord = async (wordId: number, dictionaryId: number | undefined) => {
+        if (dictionaryId !== null) {
+            setLoading(true);
+            setShowDeleteModule(false);
+            setSelectedRemoveWord(null);
+            axiosInstance.delete(`/api/v1/dictionary/${dictionaryId}/${wordId}`)
+            .then(() => {
+                setWordArray(prev => prev.filter(w => w.id !== wordId));
+                setSuccessMessage("Riječ uspješno izbrisana iz rječnika");
+                setShowSuccessMessage(true);
+            })
+            .catch((error) => {
+                const errorMsg = error.response?.data?.message
+                    || (typeof error.response?.data === 'string' ? error.response.data : JSON.stringify(error.response?.data))
+                    || "Greška pri dohvaćanju riječi!";
+                setErrorMessage(errorMsg);
+                setShowErrorMessage(true);
+            })
+            .finally(() => {
+                setLoading(false);
+            })
+        }
     }
 
     const handleSearch = debounce((value) => {
@@ -144,55 +177,121 @@ const AdminDictionaryWords = () => {
                 <Header />
 
                 {Loading || selectedDictionary?.id === null ? (
-                    <Mosaic color="var(--color-primary-dark)" size="medium" text="" textColor="" />
+                    <div className="flex flex-col items-center justify-center flex-1 w-full mb-20">
+                        <Mosaic color="var(--color-primary-dark)" size="medium" text="" textColor="" />
+                    </div>
                 ) : (
-                    <div className="w-[70%]">
-                        <Input
-                            placeholder="Search..."
-                            onChange={(e) => handleSearch(e.target.value)}
-                            style={{ width: "30%" }}
-                        />
-                        <Table
-                            // title={() => <h2 className="text-lg font-semibold">Riječnici</h2>}
-                            dataSource={filteredData} 
-                            columns={columns} 
-                            bordered={true} 
-                            className="w-full mt-6" 
-                            pagination={ { pageSize: 5} } 
-                            rowKey="id"
-                        />
-                        <div className="flex flex-col items-center g-4 mt-6">
-                            <button
-                                onClick={() => navigate("/admin/dictionary/add")}
-                                type="submit"
-                                className="rounded-full bg-(--color-primary-dark) w-[320px] sm:w-[360px] h-[56px] transition-all hover:opacity-90 hover:shadow-xl text-on-dark shadow-lg
-                                font-space text-[18px] tracking-wide hover:cursor-pointer z-1"
-                            >
-                                Dodaj novi rječnik
-                            </button>
+                    <>
+                        <div
+                            className={`relative overflow-hidden transition-all duration-500 ease-out ${showErrorMessage ? "max-h-40" : "max-h-0"}`}
+                        >
+                            <div className="flex flex-row items-center justify-between w-full bg-red-50 border-2 border-red-300 rounded-2xl p-3 z-10">
+                                <p>{errorMessage}</p>
+                                <button
+                                    className="text-red-600"
+                                    onClick={() => setShowErrorMessage(false)}
+                                >
+                                    <CloseCircleOutlined className="cursor-pointer" />
+                                </button>
+                            </div>
                         </div>
-                        {showDeleteModule && selectedRemoveWord && (
-                            <Modal
-                                open={showDeleteModule}
-                                centered
-                                className="confirm-modal"
-                                title="Confirm removal"
-                                onOk={() => {
-                                    handleRemoveWord(selectedRemoveWord.id);
-                                }}
-                                onCancel={() => setShowDeleteModule(false)}
-                                okText="Remove"
-                                cancelText="Cancel"
-                                okButtonProps={{ style: { background: 'var(--color-primary-dark)', border: 'none', color: 'var(--color-text-on-dark)', fontFamily: 'var(--font-space)' } }}
-                                cancelButtonProps={{ style: { background: 'transparent', border: '1px solid rgba(0,0,0,0.08)', color: 'var(--color-primary-extra-dark)', fontFamily: 'var(--font-space)' } }}
+
+                        {showSuccessMessage && !showErrorMessage && (
+                        <div 
+                            className="max-w-[400px] relative flex items-center justify-between w-full bg-green-50 border-2 border-green-300 rounded-2xl p-3 z-10 overflow-hidden"
+                        >
+                            <p className="font-space text-sm text-green-600 text-center">
+                                {successMessage}
+                            </p>
+
+                            <button
+                                onClick={() => setShowSuccessMessage(false)}
+                                className="text-green-600"
                             >
-                                <p style={{ margin: 0, textAlign: 'center' }}>
-                                    Are you sure you want to remove the word <strong>{selectedRemoveWord.sourceWord}</strong> from the dictionary <strong>{selectedDictionary?.name}</strong>?
-                                </p>
-                            </Modal>
+                                <CloseCircleOutlined className="cursor-pointer" />
+                            </button>
+
+                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-green-200">
+                                <div className="h-full bg-green-500 animate-success-timer" />
+                            </div>
+                        </div>
                         )}
 
-                    </div>
+                        {selectedDictionary && (
+                            <div className="w-[70%] mb-3">
+                                <h2 className="text-2xl font-semibold" style={{ fontFamily: 'var(--font-space)', color: 'var(--color-primary-extra-dark)' }}>
+                                    {selectedDictionary.name} ({selectedDictionary.language})
+                                </h2>
+                            </div>
+                        )}
+                        <div className="w-[70%]">
+                            <Input
+                                defaultValue={searchText}
+                                placeholder="Pretraži..."
+                                onChange={(e) => handleSearch(e.target.value)}
+                                style={{ width: "30%" }}
+                            />
+                            <Table
+                                dataSource={filteredData} 
+                                columns={columns} 
+                                bordered={true} 
+                                className="w-full mt-6" 
+                                pagination={ { pageSize: 6} } 
+                                rowKey="id"
+                            />
+                            {showDeleteModule && selectedRemoveWord && (
+                                <div
+                                    className="fixed inset-0 z-50 flex items-center justify-center"
+                                    style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}
+                                    onClick={() => setShowDeleteModule(false)}
+                                >
+                                        <div
+                                            className="w-[90%] max-w-md rounded-lg p-6 shadow-2xl"
+                                            style={{
+                                                backgroundColor: '#FFFFFF',
+                                                border: '2px solid var(--color-gradient-start)',
+                                                color: 'var(--color-gradient-start)',
+                                                fontFamily: 'var(--font-space)'
+                                            }}
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        <h3 className="text-lg font-semibold mb-3 text-center">
+                                            Potvrdite brisanje
+                                        </h3>
+                                        <p className="text-center mb-6" style={{ color: 'var(--color-gradient-start)' }}>
+                                            Jeste li sigurni da želite maknuti riječ <strong>{selectedRemoveWord.sourceWord}</strong> iz rječnika <strong>{selectedDictionary?.name}</strong>?
+                                        </p>
+                                        <div className="flex items-center justify-center space-x-4">
+                                            <button
+                                                onClick={() => handleRemoveWord(selectedRemoveWord.id, selectedDictionary?.id)}
+                                                className="px-6 py-2 rounded-full text-[16px] font-medium shadow cursor-pointer"
+                                                style={{
+                                                    backgroundColor: 'var(--color-gradient-start)',
+                                                    color: '#FFFFFF',
+                                                    fontFamily: 'var(--font-space)'
+                                                }}
+                                            >
+                                                Obriši
+                                            </button>
+                                            <button
+                                                onClick={() => setShowDeleteModule(false)}
+                                                className="px-6 py-2 rounded-full text-[16px] font-medium cursor-pointer"
+                                                style={{
+                                                    backgroundColor: 'transparent',
+                                                    border: '2px solid var(--color-gradient-start)',
+                                                    color: 'var(--color-gradient-start)',
+                                                    fontFamily: 'var(--font-space)'
+                                                }}
+                                            >
+                                                Odustani
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                        </div>
+                    </>
                 )}
 
             </div>

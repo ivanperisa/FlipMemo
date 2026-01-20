@@ -188,7 +188,7 @@ public class GameService(ApplicationDbContext context, ISpeechScorerService spee
                 p.Mode == mode)
             ?? throw new NotFoundException("Progress record not found.");
 
-        var score = await speechService.GetSpeechScoreAsync(dto.RecognizedText, progress.Word.SourceWord);
+        var score = speechService.GetSpeechScoreAsync(dto.RecognizedText, progress.Word.SourceWord);
         bool isCorrect = score >= _speakingScoreThreshold;
 
         progress.Score = score;
@@ -248,26 +248,29 @@ public class GameService(ApplicationDbContext context, ISpeechScorerService spee
             .Include(p => p.Word)
             .ToListAsync();
 
-        if (progress.Count != 0)
-            return progress;
+        var existingWordIds = progress.Select(p => p.WordId).ToHashSet();
+        var missingWords = dictionary.Words.Where(w => !existingWordIds.Contains(w.Id)).ToList();
 
-        var newRows = dictionary.Words.Select(w => new StudyProgress
+        if (missingWords.Count != 0)
         {
-            UserId = userId,
-            DictionaryId = dictionaryId,
-            WordId = w.Id,
-            Mode = mode,
-            Box = 0,
-            Learned = false
-        }).ToList();
+            var newRows = missingWords.Select(w => new StudyProgress
+            {
+                UserId = userId,
+                DictionaryId = dictionaryId,
+                WordId = w.Id,
+                Word = w,
+                Mode = mode,
+                Box = 0,
+                Learned = false
+            }).ToList();
 
-        context.StudyProgresses.AddRange(newRows);
-        await context.SaveChangesAsync();
+            context.StudyProgresses.AddRange(newRows);
+            await context.SaveChangesAsync();
 
-        return await context.StudyProgresses
-            .Where(p => p.UserId == userId && p.DictionaryId == dictionaryId && p.Mode == mode)
-            .Include(p => p.Word)
-            .ToListAsync();
+            progress.AddRange(newRows);
+        }
+
+        return progress;
     }
 
     private static DateTime CalculateNextReview(int box)

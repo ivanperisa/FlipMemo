@@ -152,7 +152,7 @@ export const TranslateFromQuestion = () => {
     // PROVJERE
     useEffect(() => {
         if (gameMode !== "translate-from" && gameMode !== "translate-to") {
-            navigate("/*", {replace: true});
+            navigate("/chooseWordSet", {replace: true});
         }
 
         if (id === null) {

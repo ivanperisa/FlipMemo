@@ -3,11 +3,15 @@ using System.Text;
 using System.Text.RegularExpressions;
 using FlipMemo.Data;
 using FlipMemo.DTOs.External;
+using FlipMemo.DTOs.WordAndDictionary;
 using FlipMemo.Interfaces;
 using FlipMemo.Interfaces.External;
 using FlipMemo.Models;
 using FlipMemo.Utils;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace FlipMemo.Services;
 
@@ -17,6 +21,25 @@ public class WordService(
     IDeepTranslateApiService deepTranslateApiService,
     ITextToSpeechApiService textToSpeechApiService) : IWordService
 {
+    public async Task<GetAllWordsResponseDto> GetAllWordsAsync()
+    {
+        var words = await context.Words
+            .Select(w => new WordDto
+            {
+                Id = w.Id,
+                SourceWord = w.SourceWord,
+                SourcePhrases = w.SourcePhrases!,
+                TargetWord = w.TargetWord!,
+                TargetPhrases = w.TargetPhrases!
+            })
+            .ToListAsync();
+
+        return new GetAllWordsResponseDto
+        {
+            Words = words
+        };
+    }
+
     public async Task<CreateWordResponseDto> CreateWordAsync(CreateWordRequestDto dto)
     {
         var dictionaries = await context.Dictionaries
@@ -26,7 +49,7 @@ public class WordService(
         var (word, targetDictionaryIds) = await GetOrCreateWordAsync(dto, dictionaries);
 
         await LinkWordToDictionariesAsync(word, dictionaries, targetDictionaryIds);
-        await CreateUserProgressRecordsAsync(word.Id, targetDictionaryIds);
+        await CreateStudyProgressRecordsAsync(word.Id, targetDictionaryIds);
 
         return new CreateWordResponseDto
         {
@@ -36,6 +59,27 @@ public class WordService(
             TranslatedPhrases = (word.TargetPhrases ?? []).Take(3).ToList()
         };
     }
+
+    public async Task DeleteWordAsync(int wordId)
+    {
+        var word = await context.Words
+            .Include(w => w.Dictionaries)
+            .SingleOrDefaultAsync(w => w.Id == wordId)
+            ?? throw new NotFoundException("Word doesn't exist.");
+
+        word.Dictionaries.Clear();
+
+        var studyProgresses = await context.StudyProgresses
+            .Where(sp => sp.WordId == wordId)
+            .ToListAsync();
+        context.StudyProgresses.RemoveRange(studyProgresses);
+
+        context.Words.Remove(word);
+
+        await context.SaveChangesAsync();
+    }
+
+    #region Helper Methods
 
     private async Task<(Word word, List<int> targetDictionaryIds)> GetOrCreateWordAsync(
         CreateWordRequestDto dto,
@@ -79,12 +123,18 @@ public class WordService(
 
         var translation = await deepTranslateApiService.GetTranslationAsync(translationRequest);
 
+        var targetWord = translation.TranslatedText?.Count > 0
+            ? translation.TranslatedText[0]
+            : string.Empty;
+
+        var targetPhrases = translation.TranslatedText?.Skip(1).ToList() ?? [];
+
         return new Word
         {
             SourceWord = dto.Word,
             SourcePhrases = sourcePhrases,
-            TargetWord = translation.TranslatedText[0],
-            TargetPhrases = [.. translation.TranslatedText.Skip(1)],
+            TargetWord = targetWord,
+            TargetPhrases = targetPhrases,
             AudioFile = audioFile
         };
     }
@@ -203,15 +253,9 @@ public class WordService(
         await context.SaveChangesAsync();
     }
 
-    private static readonly GameModes[] _allModes =
-    [
-        GameModes.TranslateSourceToTarget,
-        GameModes.TranslateTargetToSource,
-        GameModes.Listening,
-        GameModes.Speaking
-    ];
+    private static readonly GameModes[] _allGameModes = GameModesHelper.GetAllGameModes;
 
-    private async Task CreateUserProgressRecordsAsync(int wordId, List<int> dictionaryIds)
+    private async Task CreateStudyProgressRecordsAsync(int wordId, List<int> dictionaryIds)
     {
         var allUserIds = await context.Users
             .Select(u => u.Id)
@@ -222,7 +266,7 @@ public class WordService(
 
         var desired = allUserIds
             .SelectMany(userId => dictionaryIds.SelectMany(dictId =>
-                _allModes.Select(mode => new { UserId = userId, DictionaryId = dictId, Mode = mode })))
+                _allGameModes.Select(mode => new { UserId = userId, DictionaryId = dictId, Mode = mode })))
             .ToList();
 
         var existing = await context.StudyProgresses
@@ -254,4 +298,6 @@ public class WordService(
         context.StudyProgresses.AddRange(newRows);
         await context.SaveChangesAsync();
     }
+
+    #endregion
 }
