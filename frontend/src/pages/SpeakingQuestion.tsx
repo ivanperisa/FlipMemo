@@ -273,38 +273,39 @@ export const SpeakingQuestion = () => {
             setScore(response.data.score);
             setHasAnswered(true);
 
-            setTimeout(() => {
+            if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(min-width: 768px)').matches) {
+                setTimeout(() => {
 
-                if (scrollRef.current) {
-                    console.log("Scrolling");
-                    scrollRef.current.scrollTo({
-                        top: scrollRef.current.scrollHeight,
-                        behavior: 'smooth'
-                    });
-                }
-
-                
-                const targetBowl = bowlRefs.current[response.data.box];
-                const startElement = micButtonRef.current;
-                if (targetBowl && startElement) {
-                    setTimeout(() => {
-                        setTargetBowlIndex(response.data.box);
-                        const startRect = startElement.getBoundingClientRect();
-                        const bowlRect = targetBowl.getBoundingClientRect();
-
-                        setFlyingWord(questionWord.sourceWord);
-                        setFlyingStartPos({
-                            x: startRect.left + startRect.width / 2,
-                            y: startRect.top + startRect.height / 2,
+                    if (scrollRef.current) {
+                        console.log("Scrolling");
+                        scrollRef.current.scrollTo({
+                            top: scrollRef.current.scrollHeight,
+                            behavior: 'smooth'
                         });
-                        setAnimationTarget({
-                            x: bowlRect.left + bowlRect.width / 2,
-                            y: bowlRect.top + bowlRect.height / 2,
-                        });
-                        setIsAnimating(true);
-                    }, 600)
-                }
-            }, 300)
+                    }
+                    
+                    const targetBowl = bowlRefs.current[response.data.box];
+                    const startElement = micButtonRef.current;
+                    if (targetBowl && startElement) {
+                        setTimeout(() => {
+                            setTargetBowlIndex(response.data.box);
+                            const startRect = startElement.getBoundingClientRect();
+                            const bowlRect = targetBowl.getBoundingClientRect();
+
+                            setFlyingWord(questionWord.sourceWord);
+                            setFlyingStartPos({
+                                x: startRect.left + startRect.width / 2,
+                                y: startRect.top + startRect.height / 2,
+                            });
+                            setAnimationTarget({
+                                x: bowlRect.left + bowlRect.width / 2,
+                                y: bowlRect.top + bowlRect.height / 2,
+                            });
+                            setIsAnimating(true);
+                        }, 600)
+                    }
+                }, 300);
+            }
             
         } catch (error: any) {
             setAnswerError(

@@ -264,46 +264,48 @@ export const TranslateFromQuestion = () => {
 
                     setHasAnswered(true);
                 
+                    if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(min-width: 768px)').matches) {
                     // Scroll to bottom first, then start animation
-                    setTimeout(() => {
-                        //window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-                        if (scrollRef.current) {
-                            console.log("Scrolling");
-                            scrollRef.current.scrollTo({
-                                top: scrollRef.current.scrollHeight,
-                                behavior: 'smooth'
-                            });
-                        }
-                    
-                        // Wait for scroll to complete, then start animation
                         setTimeout(() => {
-                            setTargetBowlIndex(bowlIndex);
-                            const correctAnswerId = question.correctAnswerId;
-                            const correctAnswerElement = answerRefs.current.get(correctAnswerId);
-                            const targetBowl = bowlRefs.current[bowlIndex];
-                            
-                                if (correctAnswerElement && targetBowl) {
-                                    const answerRect = correctAnswerElement.getBoundingClientRect();
-                                    const bowlRect = targetBowl.getBoundingClientRect();
-                                    
-                                    // Get the correct answer's word
-                                    const correctAnswer = question.answerWords.find(a => a.id === correctAnswerId);
-                                    if (correctAnswer) {
-                                        setFlyingWord(correctAnswer.displayWord);
-                                        setFlyingStartPos({
-                                            x: answerRect.left + answerRect.width / 2,
-                                            y: answerRect.top + answerRect.height / 2
-                                        });
-                                        setAnimationTarget({
-                                            x: bowlRect.left + bowlRect.width / 2,
-                                            y: bowlRect.top + bowlRect.height / 2
-                                        });
-                                        setIsAnimating(true);
+                            //window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                            if (scrollRef.current) {
+                                console.log("Scrolling");
+                                scrollRef.current.scrollTo({
+                                    top: scrollRef.current.scrollHeight,
+                                    behavior: 'smooth'
+                                });
+                            }
+                        
+                            // Wait for scroll to complete, then start animation
+                            setTimeout(() => {
+                                setTargetBowlIndex(bowlIndex);
+                                const correctAnswerId = question.correctAnswerId;
+                                const correctAnswerElement = answerRefs.current.get(correctAnswerId);
+                                const targetBowl = bowlRefs.current[bowlIndex];
+                                
+                                    if (correctAnswerElement && targetBowl) {
+                                        const answerRect = correctAnswerElement.getBoundingClientRect();
+                                        const bowlRect = targetBowl.getBoundingClientRect();
+                                        
+                                        // Get the correct answer's word
+                                        const correctAnswer = question.answerWords.find(a => a.id === correctAnswerId);
+                                        if (correctAnswer) {
+                                            setFlyingWord(correctAnswer.displayWord);
+                                            setFlyingStartPos({
+                                                x: answerRect.left + answerRect.width / 2,
+                                                y: answerRect.top + answerRect.height / 2
+                                            });
+                                            setAnimationTarget({
+                                                x: bowlRect.left + bowlRect.width / 2,
+                                                y: bowlRect.top + bowlRect.height / 2
+                                            });
+                                            setIsAnimating(true);
+                                        }
                                     }
-                                }
-                            }, 600);
+                                }, 600);
 
-                    }, 300);
+                        }, 300);
+                    }
 
             } catch (error: any) {
                 setAnswerError(error.response?.data?.message || "Došlo je do greške pri slanju odgovora.");

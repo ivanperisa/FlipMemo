@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate } from "react-router";
 import axiosInstance from "../api/axiosInstance";
 import { Input, Space, Table, Typography, type TableProps } from "antd";
 import { CloseCircleOutlined } from '@ant-design/icons'
@@ -8,9 +8,7 @@ import PageTransition from "../components/PageTransition";
 import Particles from "../styles/Particles";
 import Header from "../components/Header";
 import { Mosaic } from "react-loading-indicators";
-import { tr } from "framer-motion/client";
 import { useAdminContext } from "../context/AdminContext";
-import { replace } from "lodash";
 
 interface Word {
     id: number; 
@@ -256,7 +254,7 @@ const AdminDictionaryWords = () => {
                                         onClick={(e) => e.stopPropagation()}
                                     >
                                         <h3 className="text-lg font-semibold mb-3 text-center">
-                                            Potvrdite brisanje
+                                            Potvrdite brisanje iz rječnika
                                         </h3>
                                         <p className="text-center mb-6" style={{ color: 'var(--color-gradient-start)' }}>
                                             Jeste li sigurni da želite maknuti riječ <strong>{selectedRemoveWord.sourceWord}</strong> iz rječnika <strong>{selectedDictionary?.name}</strong>?

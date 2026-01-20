@@ -8,11 +8,9 @@ import {
   BookOutlined,
   CloseCircleOutlined,
   TranslationOutlined,
-  CheckOutlined,
 } from "@ant-design/icons";
 import axiosInstance from "../api/axiosInstance";
 import { Mosaic } from "react-loading-indicators";
-import { div, h2 } from "framer-motion/client";
 
 const AdminAddWord = () => {
   const [form] = useForm();
@@ -84,14 +82,15 @@ const AdminAddWord = () => {
   };
 
   const handleAddWord = () => {
+    setShowErrorMessage(false);
+    setBigLoading(true);
+
     if (selectedDihs.length === 0) {  
         console.log(selectedDihs.length);  
         setErrorMessage("Molimo odaberite barem jedan rječnik.");
         return;
     }
     
-    setShowErrorMessage(false);
-    setBigLoading(true);
     setShowDicts(false);
     form.resetFields();
     
@@ -228,7 +227,6 @@ const AdminAddWord = () => {
                   }
                 >
                   <Select.Option value="en">Engleski</Select.Option>
-                  <Select.Option value="hr">Hrvatski</Select.Option>
                 </Select>
               </Form.Item>
 

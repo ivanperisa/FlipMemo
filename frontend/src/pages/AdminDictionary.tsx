@@ -8,8 +8,7 @@ import { Table, Input, Typography, type TableProps } from "antd"
 import { Mosaic } from "react-loading-indicators"
 import debounce from "lodash/debounce";
 import { useAdminContext } from "../context/AdminContext"
-
-
+    
 const AdminDictionary = () => {
     const navigate = useNavigate();
 
@@ -64,6 +63,9 @@ const AdminDictionary = () => {
             setDictArray(response.data.dictionaries);
             setLoading(false);
         })
+        .catch((error) => {
+            console.log(error);
+        });
     }, [])
 
     return (

@@ -1,23 +1,51 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Header from "../components/Header";
 import PageTransition from "../components/PageTransition";
 import Particles from "../styles/Particles";
 import { useAdminContext } from "../context/AdminContext";
 import { useNavigate } from "react-router";
 import { CloseCircleOutlined, IdcardOutlined, MinusCircleOutlined, PlusOutlined, SwapOutlined, TranslationOutlined } from '@ant-design/icons'
-import { Button, Form, Input, Space } from "antd";
-import { div } from "framer-motion/client";
+import { Button, Form, Input } from "antd";
+import axiosInstance from "../api/axiosInstance";
+import { Mosaic } from "react-loading-indicators";
+import qs from "qs";
+
+interface Word {
+    id: number;
+    sourceWord: string;
+    targetWord: string;
+    sourcePhrases: string[];
+    targetPhrases: string[];
+}
+
+interface UsageServerResponse {
+    dictionaries: DictionaryDTO[];
+}
+
+interface DictionaryDTO {
+    dictionaryId: number;
+    dictionaryName: string;
+}
 
 const AdminEditWord = () => {
     const navigate = useNavigate();
     const [form] = Form.useForm();
     
-    const { selectedWord } = useAdminContext();
+    const scrollRef = useRef<HTMLDivElement>(null);
+    const cardRef = useRef<HTMLDivElement>(null);
+    const timersRef = useRef<number[]>([]);
+    const userScrolledRef = useRef(false);
+    const [Loading, setLoading] = useState(false);
+
+    const { selectedWord, setSelectedWord } = useAdminContext();
     // const [editedWord, setEditedWord] = useState(selectedWord);
-    const [errorMessage] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
     const [showErrorMessage, setShowErrorMessage] = useState(false);
-    const [successMessage] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+
+    const [dictArray, setDictArray] = useState<DictionaryDTO[]>([]);
+    const [showDictArray, setShowDictArray] = useState(false);
 
     useEffect(() => {
         console.log(selectedWord);
@@ -25,6 +53,91 @@ const AdminEditWord = () => {
             navigate("/admin", {replace: true});
         }
     }, [selectedWord, navigate]);
+
+        useEffect(() => {
+            if (showSuccessMessage) {
+                const timeoutId = setTimeout(() => {
+                    setShowSuccessMessage(false);
+                }, 5000)
+
+                return () => {
+                    if (timeoutId) clearTimeout(timeoutId);
+                }
+            }
+        }, [showSuccessMessage]);
+
+    // Robustly scroll the viewport and the scrollable container to top,
+    // but only when the error/success is opened (not closed) or when selectedWord changes.
+    const prevShowErrorRef = useRef<boolean>(false);
+    const prevShowSuccessRef = useRef<boolean>(false);
+    const prevSelectedWordRef = useRef<typeof selectedWord | null>(null);
+
+    useEffect(() => {
+        const scrollAllToTop = () => {
+            try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch {};
+            try { document.documentElement.scrollTop = 0; } catch {};
+            try { document.body.scrollTop = 0; } catch {};
+            if (scrollRef.current) {
+                try { scrollRef.current.scrollTop = 0; } catch {}
+                try { scrollRef.current.scrollTo({ top: 0, behavior: 'auto' }); } catch {}
+            }
+        };
+
+        const clearTimers = () => {
+            timersRef.current.forEach(t => clearTimeout(t));
+            timersRef.current = [];
+        };
+
+        const onUserScroll = () => {
+            userScrolledRef.current = true;
+            clearTimers();
+        };
+
+        // Determine whether we should trigger auto-scroll:
+        const openedError = showErrorMessage && !prevShowErrorRef.current;
+        const openedSuccess = showSuccessMessage && !prevShowSuccessRef.current;
+        const changedSelected = selectedWord !== prevSelectedWordRef.current;
+
+        // Update prev refs for next run
+        prevShowErrorRef.current = showErrorMessage;
+        prevShowSuccessRef.current = showSuccessMessage;
+        prevSelectedWordRef.current = selectedWord;
+
+        // Only proceed if an error/success opened or the selected word changed
+        if (!openedError && !openedSuccess && !changedSelected) return;
+
+        // attach user scroll listeners to cancel auto-scroll attempts
+        window.addEventListener('scroll', onUserScroll, { passive: true });
+        if (scrollRef.current) scrollRef.current.addEventListener('scroll', onUserScroll, { passive: true });
+
+        // immediate attempt
+        scrollAllToTop();
+
+        // Run multiple delayed attempts to handle layout/animation timing.
+        const delays = [40, 120, 250, 500, 900];
+        delays.forEach((d) => {
+            const t = window.setTimeout(() => {
+                if (userScrolledRef.current) return;
+                scrollAllToTop();
+                // also try to bring the card into view explicitly
+                if (cardRef.current) {
+                    try { cardRef.current.scrollIntoView({ block: 'start', behavior: 'auto' }); } catch {}
+                }
+                // if already at top, clear remaining timers
+                const atTop = (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop) === 0
+                    && (!scrollRef.current || scrollRef.current.scrollTop === 0);
+                if (atTop) clearTimers();
+            }, d);
+            timersRef.current.push(t);
+        });
+
+        return () => {
+            clearTimers();
+            window.removeEventListener('scroll', onUserScroll);
+            if (scrollRef.current) scrollRef.current.removeEventListener('scroll', onUserScroll as EventListener);
+            userScrolledRef.current = false;
+        };
+    }, [showErrorMessage, showSuccessMessage, selectedWord]);
 
     const resetSourcePhrases = () => {
         if (!selectedWord) return;
@@ -42,8 +155,48 @@ const AdminEditWord = () => {
         });
     }
 
-    const onFinishEdit = () => {
+    const onFinishEdit = (values: { sourcePhrases: string[]; targetPhrases: string[]; }) => {
+        setShowErrorMessage(false);
+        setShowSuccessMessage(false);
+        setLoading(true);
         console.log("Submitano")
+        axiosInstance.post<Word>("/api/v1/word/changePhrases", { Polje: "vrijednost" }, {
+            params: {
+                Id: selectedWord?.id, 
+                SourcePhrases: values.sourcePhrases, 
+                TargetPhrases: values.targetPhrases
+            },
+            paramsSerializer: params => qs.stringify(params, { arrayFormat: 'repeat' })
+        })
+        .then((response) => {
+            setSelectedWord(response.data);
+            setSuccessMessage("Riječ uspješno ažurirana");
+            setShowSuccessMessage(true);
+        })
+        .catch((error) => {
+            const errorMsg = error.response?.data?.message
+                || (typeof error.response?.data === 'string' ? error.response.data : JSON.stringify(error.response?.data))
+                || "Greška pri ažuriranju riječi!";
+            setErrorMessage(errorMsg);
+            setShowErrorMessage(true);
+        })
+        .finally(() => {
+            setLoading(false);
+            
+        })
+    };
+
+    const fetchDictionaryUsage = () => {
+        if (!selectedWord) return;
+        setShowDictArray(false);
+        axiosInstance.get<UsageServerResponse>(`/api/v1/dictionary/${selectedWord.id}/usage`)
+        .then((response) => {
+            setDictArray(response.data.dictionaries);
+            setShowDictArray(true);
+        })
+        .catch((error) => {
+            console.log(error);
+        })
     }
 
     return (
@@ -65,26 +218,45 @@ const AdminEditWord = () => {
 
                 <Header />
 
-                <div className="w-full flex justify-center">
-                    <div className="w-full max-w-[700px] p-6 rounded-xl shadow-lg relative z-10" style={{ backgroundColor: '#FFFFFF', border: '2px solid var(--color-gradient-start)', fontFamily: 'var(--font-space)' }}>
+                <div ref={scrollRef} className="overflow-auto w-full flex justify-center">
+                    <div ref={cardRef} className="w-full max-w-[700px] p-6 rounded-xl shadow-lg relative z-10" style={{ backgroundColor: '#FFFFFF', border: '2px solid var(--color-gradient-start)', fontFamily: 'var(--font-space)' }}>
 
-                        <div className={`overflow-hidden transition-all duration-500 ease-out ${showErrorMessage ? "max-h-40" : "max-h-0"}`}>
-                            <div className="flex flex-row items-center justify-between w-full rounded-lg p-3 mb-3" style={{ backgroundColor: 'rgba(255,0,0,0.06)', border: '1px solid rgba(255,0,0,0.12)', color: 'var(--color-gradient-start)' }}>
-                                <p className="text-sm text-center" style={{ fontFamily: 'var(--font-space)' }}>{errorMessage}</p>
-                                <button className="text-sm" onClick={() => setShowErrorMessage(false)} style={{ color: 'var(--color-gradient-start)' }}>
-                                    <CloseCircleOutlined className="cursor-pointer" />
-                                </button>
+                        <div
+                            className={`
+                            overflow-hidden transition-all duration-500 ease-out
+                            ${showErrorMessage ? "max-h-40 mb-4" : "max-h-0 mb-0"}
+                            `}
+                        >
+                            <div className="flex flex-row items-center justify-between w-full bg-red-50 border-2 border-red-300 rounded-2xl p-3 z-10">
+                            <p className="font-space text-sm text-red-600 text-center">
+                                {errorMessage}
+                            </p>
+                            <button
+                                className="text-red-600" 
+                                onClick={() => setShowErrorMessage(false)}
+                            >
+                                <CloseCircleOutlined className="cursor-pointer" />
+                            </button>
                             </div>
                         </div>
-
+                        
                         {showSuccessMessage && !showErrorMessage && (
-                            <div className="relative flex items-center justify-between w-full rounded-lg p-3 mb-3" style={{ backgroundColor: 'rgba(0,128,0,0.05)', border: '1px solid rgba(0,128,0,0.12)', color: 'var(--color-primary-dark)' }}>
-                                <p className="text-sm text-center" style={{ fontFamily: 'var(--font-space)' }}>{successMessage}</p>
-                                <button onClick={() => setShowSuccessMessage(false)} className="text-sm" style={{ color: 'var(--color-primary-dark)' }}>
+                            <div 
+                                className="mb-4 relative flex items-center justify-between w-full bg-green-50 border-2 border-green-300 rounded-2xl p-3 z-10 overflow-hidden"
+                            >
+                                <p className="font-space text-sm text-green-600 text-center">
+                                    {successMessage}
+                                </p>
+
+                                <button
+                                    onClick={() => setShowSuccessMessage(false)}
+                                    className="text-green-600"
+                                >
                                     <CloseCircleOutlined className="cursor-pointer" />
                                 </button>
-                                <div className="absolute bottom-0 left-0 right-0 h-1" style={{ backgroundColor: 'var(--color-primary-light)' }}>
-                                    <div className="h-full bg-[var(--color-primary-dark)] animate-success-timer" />
+
+                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-green-200">
+                                    <div className="h-full bg-green-500 animate-success-timer" />
                                 </div>
                             </div>
                         )}
@@ -92,6 +264,28 @@ const AdminEditWord = () => {
                         <h2 className="text-xl font-semibold mb-4" style={{ fontFamily: 'var(--font-space)', color: 'var(--color-gradient-start)' }}>
                             Uredi riječ
                         </h2>
+
+                        <div className="mb-4">
+                            <p className="text-sm italic mb-2" style={{ fontFamily: 'var(--font-space)', color: 'var(--color-gradient-start)' }}>
+                                *Napomena: mijenjanje riječi će ju promijeniti za svaki riječnik u kojem se koristi
+                            </p>
+
+                            <div className="flex items-center gap-2 mb-2">
+                                <Button type="default" onClick={fetchDictionaryUsage} style={{ backgroundColor: 'var(--color-gradient-start)', color: 'var(--color-on-dark, #ffffff)', borderColor: 'transparent', fontFamily: 'var(--font-space)' }}>
+                                    Provjeri korištenje
+                                </Button>
+                            </div>
+
+                            {showDictArray && dictArray.length > 0 && (
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                    {dictArray.map(d => (
+                                        <div key={d.dictionaryId} className="px-3 py-1 rounded-full text-sm" style={{ border: '1px solid var(--color-gradient-start)', color: 'var(--color-gradient-start)', fontFamily: 'var(--font-space)', backgroundColor: 'transparent' }}>
+                                            {d.dictionaryName}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
 
                         <Form 
                             form={form}
@@ -139,7 +333,7 @@ const AdminEditWord = () => {
 
                         <div className="flex items-center justify-between mb-2">
                             <label className="text-sm" style={{ fontFamily: 'var(--font-space)', color: 'var(--color-gradient-start)' }}>Fraze na izvornom jeziku</label>
-                            <button type="button" onClick={resetSourcePhrases} className="text-sm px-2 py-1 rounded hover:bg-[rgba(0,0,0,0.03)]" style={{ color: 'var(--color-gradient-start)', fontFamily: 'var(--font-space)', textDecoration: 'underline' }}>
+                            <button type="button" onClick={resetSourcePhrases} className="cursor-pointer text-sm px-2 py-1 rounded hover:bg-[rgba(0,0,0,0.03)]" style={{ color: 'var(--color-gradient-start)', fontFamily: 'var(--font-space)', textDecoration: 'underline' }}>
                                 resetiraj vrijednosti
                             </button>
                         </div>
@@ -217,15 +411,23 @@ const AdminEditWord = () => {
                         </Form.List>
 
                         <div className="w-full flex justify-center mt-6">
-                            <div className="w-full max-w-[420px] flex justify-center">
-                                <button
-                                    type="submit"
-                                    onClick={() => onFinishEdit()}
-                                    className="rounded-full bg-(--color-primary-dark) w-[320px] sm:w-[360px] h-[56px] transition-all hover:opacity-90 hover:shadow-xl text-on-dark shadow-lg font-space text-[18px] tracking-wide hover:cursor-pointer z-1"
-                                >
-                                    Spremi
-                                </button>
-                            </div>
+                            {Loading ? (
+                                <Mosaic
+                                    color="var(--color-primary-dark)" 
+                                    size="small" 
+                                    text="" 
+                                    textColor="" 
+                                />
+                            ) : (
+                                <div className="w-full max-w-[420px] flex justify-center">
+                                    <button
+                                        type="submit"
+                                        className="rounded-full bg-(--color-primary-dark) w-[320px] sm:w-[360px] h-[56px] transition-all hover:opacity-90 hover:shadow-xl text-on-dark shadow-lg font-space text-[18px] tracking-wide hover:cursor-pointer z-1"
+                                    >
+                                        Spremi
+                                    </button>
+                                </div>  
+                            )}
                         </div>
 
                     </Form>
