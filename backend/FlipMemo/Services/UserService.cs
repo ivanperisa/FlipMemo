@@ -68,7 +68,7 @@ public class UserService(ApplicationDbContext context) : IUserService
         await context.SaveChangesAsync();
     }
 
-    public async Task<UserStatsDto> GetUserStats(int id)
+    public async Task<UserStatsDto> GetUserStatsAsync(int id)
     {
 
         var boxCounts = await context.StudyProgresses
@@ -81,10 +81,6 @@ public class UserService(ApplicationDbContext context) : IUserService
                 sp.UserId == id &&
                 !sp.Learned &&
                 (sp.Box == 0 || (sp.NextReview.HasValue && sp.NextReview <= DateTime.UtcNow)))
-            .CountAsync();
-
-        var numOfLearnedWords = await context.StudyProgresses
-            .Where(sp => sp.UserId == id && sp.Learned)
             .CountAsync();
 
         return new UserStatsDto
