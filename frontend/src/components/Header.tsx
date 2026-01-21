@@ -1,20 +1,11 @@
 
-import { DownOutlined, UserOutlined, LockOutlined, LogoutOutlined, SettingOutlined, DeleteOutlined, BookOutlined, CheckCircleOutlined, SyncOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import { Dropdown, type MenuProps, Modal, Spin, message, Button } from 'antd';
+import { DownOutlined, UserOutlined, LockOutlined, LogoutOutlined, SettingOutlined, DeleteOutlined, BarChartOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { Dropdown, type MenuProps, Modal, message, Button } from 'antd';
 import { Link, useNavigate } from 'react-router';
 import { useAuth } from '../context/AuthProvider';
 import ColorPicker from './ColorPicker';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import axiosInstance from '../api/axiosInstance';
-
-interface UserStats {
-    firstBox: number;
-    secondBox: number;
-    thirdBox: number;
-    fourthBox: number;
-    learned: number;
-    readyForReview: number;
-}
 
 const Header = () => {
 
@@ -22,33 +13,12 @@ const Header = () => {
     const { logout, role, id } = useAuth();
     const navigate = useNavigate();
     
-    // Stanje za statistiku
-    const [stats, setStats] = useState<UserStats | null>(null);
-    const [loadingStats, setLoadingStats] = useState(false);
+    // Stanje za dropdown
     const [dropdownOpen, setDropdownOpen] = useState(false);
     
     // Stanje za delete modal
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [deleteLoading, setDeleteLoading] = useState(false);
-
-    // Dohvati statistiku kada se dropdown otvori
-    useEffect(() => {
-        if (dropdownOpen && !stats) {
-            fetchStats();
-        }
-    }, [dropdownOpen]);
-
-    const fetchStats = async () => {
-        setLoadingStats(true);
-        try {
-            const response = await axiosInstance.put('/api/v1/User/stats');
-            setStats(response.data);
-        } catch (error) {
-            console.error('Greška pri dohvaćanju statistike:', error);
-        } finally {
-            setLoadingStats(false);
-        }
-    };
 
     const handleLogout = () => {
         logout();
@@ -57,6 +27,11 @@ const Header = () => {
 
     const handleChangePassword = () => {
         navigate("/changePassword");
+    };
+
+    const handleViewStats = () => {
+        setDropdownOpen(false);
+        navigate("/home");
     };
 
     const handleDeleteAccount = () => {
@@ -94,65 +69,14 @@ const Header = () => {
                 </div>
             ),
         },
-        // Statistika korisnika
-        {
-            key: 'stats',
-            label: (
-                <div onClick={(e) => e.stopPropagation()} className="px-4 py-3 min-w-[280px]">
-                    <div className="flex items-center gap-2 mb-3">
-                        <BookOutlined style={{ fontSize: '16px', color: '#8B6B7A' }} />
-                        <span className="font-space font-semibold text-[#8B6B7A] text-sm">
-                            Moja statistika
-                        </span>
-                    </div>
-                    {loadingStats ? (
-                        <div className="flex justify-center py-2">
-                            <Spin size="small" />
-                        </div>
-                    ) : stats ? (
-                        <div className="space-y-2">
-                            {/* Kutije za učenje */}
-                            <div className="grid grid-cols-4 gap-1 text-center">
-                                {[
-                                    { label: '1.', value: stats.firstBox },
-                                    { label: '2.', value: stats.secondBox },
-                                    { label: '3.', value: stats.thirdBox },
-                                    { label: '4.', value: stats.fourthBox },
-                                ].map((box, idx) => (
-                                    <div key={idx} className="bg-gray-100 rounded-lg p-1.5">
-                                        <div className="text-[10px] text-gray-500 font-space">{box.label} kutija</div>
-                                        <div className="text-sm font-bold text-[#8B6B7A] font-space">{box.value}</div>
-                                    </div>
-                                ))}
-                            </div>
-                            {/* Naučeno i za ponavljanje */}
-                            <div className="flex gap-2 mt-2">
-                                <div className="flex-1 flex items-center gap-2 bg-green-50 rounded-lg px-2 py-1.5">
-                                    <CheckCircleOutlined className="text-green-500 text-sm" />
-                                    <div>
-                                        <div className="text-[10px] text-gray-500 font-space">Naučeno</div>
-                                        <div className="text-sm font-bold text-green-600 font-space">{stats.learned}</div>
-                                    </div>
-                                </div>
-                                <div className="flex-1 flex items-center gap-2 bg-orange-50 rounded-lg px-2 py-1.5">
-                                    <SyncOutlined className="text-orange-500 text-sm" />
-                                    <div>
-                                        <div className="text-[10px] text-gray-500 font-space">Za ponavljanje</div>
-                                        <div className="text-sm font-bold text-orange-600 font-space">{stats.readyForReview}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="text-xs text-gray-400 font-space text-center py-2">
-                            Statistika nije dostupna
-                        </div>
-                    )}
-                </div>
-            ),
-        },
         {
             type: 'divider',
+        },
+        {
+            key: 'stats',
+            label: 'Moja statistika',
+            icon: <BarChartOutlined />,
+            onClick: handleViewStats,
         },
         {
             key: 'changePassword',
