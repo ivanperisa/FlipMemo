@@ -1,9 +1,10 @@
 ﻿using FlipMemo.Data;
+using FlipMemo.DTOs.WordAndDictionary;
 using FlipMemo.Interfaces;
+using FlipMemo.Models;
 using FlipMemo.Utils;
 using Microsoft.EntityFrameworkCore;
-using FlipMemo.Models;
-using FlipMemo.DTOs.WordAndDictionary;
+using System.Collections.Generic;
 
 namespace FlipMemo.Services;
 
@@ -94,6 +95,22 @@ public class DictionaryService(ApplicationDbContext context) : IDictionaryServic
         };
 
         context.Dictionaries.Add(dictionary);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task DeleteDictionaryAsync(int DictionaryId)
+    {
+        var dictionary = await context.Dictionaries
+           .FindAsync(DictionaryId)
+            ?? throw new NotFoundException("Account doesn't exist.");
+
+        var progresses = context.StudyProgresses
+         .Where(sp => sp.DictionaryId == DictionaryId);
+
+        context.StudyProgresses.RemoveRange(progresses);
+        context.Dictionaries.Remove(dictionary);
+        
+
         await context.SaveChangesAsync();
     }
 
