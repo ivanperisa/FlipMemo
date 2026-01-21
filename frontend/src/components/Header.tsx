@@ -1,6 +1,6 @@
 
-import { DownOutlined, UserOutlined, LockOutlined, LogoutOutlined, SettingOutlined, DeleteOutlined, BookOutlined, CheckCircleOutlined, SyncOutlined } from '@ant-design/icons';
-import { Dropdown, type MenuProps, Modal, Spin, message } from 'antd';
+import { DownOutlined, UserOutlined, LockOutlined, LogoutOutlined, SettingOutlined, DeleteOutlined, BookOutlined, CheckCircleOutlined, SyncOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { Dropdown, type MenuProps, Modal, Spin, message, Button } from 'antd';
 import { Link, useNavigate } from 'react-router';
 import { useAuth } from '../context/AuthProvider';
 import ColorPicker from './ColorPicker';
@@ -26,6 +26,10 @@ const Header = () => {
     const [stats, setStats] = useState<UserStats | null>(null);
     const [loadingStats, setLoadingStats] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    
+    // Stanje za delete modal
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [deleteLoading, setDeleteLoading] = useState(false);
 
     // Dohvati statistiku kada se dropdown otvori
     useEffect(() => {
@@ -56,24 +60,29 @@ const Header = () => {
     };
 
     const handleDeleteAccount = () => {
-        Modal.confirm({
-            title: 'Brisanje računa',
-            content: 'Jeste li sigurni da želite obrisati svoj račun? Ova radnja je nepovratna i svi vaši podaci će biti trajno izbrisani.',
-            okText: 'Da, obriši',
-            cancelText: 'Odustani',
-            okButtonProps: { danger: true },
-            onOk: async () => {
-                try {
-                    await axiosInstance.delete(`/api/v1/User/${id}`);
-                    message.success('Račun je uspješno obrisan.');
-                    logout();
-                    navigate("/login");
-                } catch (error) {
-                    console.error('Greška pri brisanju računa:', error);
-                    message.error('Došlo je do greške pri brisanju računa.');
-                }
-            },
-        });
+        setDropdownOpen(false);
+        setDeleteModalOpen(true);
+    };
+
+    const confirmDeleteAccount = async () => {
+        if (!id) {
+            message.error('Greška: Korisnik nije prijavljen.');
+            return;
+        }
+        
+        setDeleteLoading(true);
+        try {
+            await axiosInstance.delete(`/api/v1/User/${id}`);
+            message.success('Račun je uspješno obrisan.');
+            setDeleteModalOpen(false);
+            logout();
+            navigate("/login");
+        } catch (error) {
+            console.error('Greška pri brisanju računa:', error);
+            message.error('Došlo je do greške pri brisanju računa.');
+        } finally {
+            setDeleteLoading(false);
+        }
     };
 
     const menuItems: MenuProps['items'] = [
@@ -206,6 +215,39 @@ const Header = () => {
                             <DownOutlined style={{ fontSize: '12px' }} />
                         </button>
                     </Dropdown>
+
+                    {/* Delete Account Modal */}
+                    <Modal
+                        title={
+                            <div className="flex items-center gap-2 text-red-500">
+                                <ExclamationCircleOutlined />
+                                <span>Brisanje računa</span>
+                            </div>
+                        }
+                        open={deleteModalOpen}
+                        onCancel={() => setDeleteModalOpen(false)}
+                        centered
+                        footer={[
+                            <Button key="cancel" onClick={() => setDeleteModalOpen(false)}>
+                                Odustani
+                            </Button>,
+                            <Button 
+                                key="delete" 
+                                danger 
+                                type="primary" 
+                                loading={deleteLoading}
+                                onClick={confirmDeleteAccount}
+                            >
+                                Da, obriši
+                            </Button>,
+                        ]}
+                    >
+                        <p className="text-gray-600 py-4">
+                            Jeste li sigurni da želite obrisati svoj račun? 
+                            <br /><br />
+                            <strong className="text-red-500">Ova radnja je nepovratna</strong> i svi vaši podaci će biti trajno izbrisani.
+                        </p>
+                    </Modal>
                 </div>
     );
 }
