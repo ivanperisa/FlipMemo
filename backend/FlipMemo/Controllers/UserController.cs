@@ -48,6 +48,9 @@ public class UserController(IUserService userService) : ControllerBase
         var currentUserId = int.Parse(userIdClaim!);
         var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
+        if (userRole == "User" && currentUserId != id)
+            throw new ForbiddenException("You can only delete your own account.");
+
         await userService.DeleteUserAsync(id);
 
         return Ok(new { message = "Account deleted successfully." });
@@ -61,9 +64,6 @@ public class UserController(IUserService userService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Promote(int id)
     {
-        var userIdClaim = User.FindFirst("userId")?.Value;
-        var currentUserId = int.Parse(userIdClaim!);
-
         await userService.ChangeRole(id, "Promote");
 
         return Ok(new { message = "User promoted successfully." });
@@ -78,16 +78,13 @@ public class UserController(IUserService userService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Demote(int id)
     {
-        var userIdClaim = User.FindFirst("userId")?.Value;
-        var currentUserId = int.Parse(userIdClaim!);
-
         await userService.ChangeRole(id, "Demote");
 
         return Ok(new { message = "User demoted successfully." });
     }
 
     [HttpPut("stats")]
-    [Authorize(Policy = "AdminOnly")]
+    [Authorize(Policy = "UserOrAdmin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -102,5 +99,4 @@ public class UserController(IUserService userService) : ControllerBase
 
         return Ok(stats);
     }
-
 }
