@@ -92,7 +92,7 @@ const AdminWord = () => {
                             handleAddWordToDihs();
                         }}
                     >
-                        Dodaj u rječnike
+                        Add to Dictionaries
                     </Typography.Link>
                 </Space>
             ),

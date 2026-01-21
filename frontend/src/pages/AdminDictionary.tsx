@@ -4,10 +4,11 @@ import Particles from "../styles/Particles"
 import { useNavigate } from "react-router"
 import { useEffect, useState } from "react"
 import axiosInstance from "../api/axiosInstance"
-import { Table, Input, Typography, type TableProps } from "antd"
+import { Table, Input, Typography, type TableProps, Modal, Button, message } from "antd"
 import { Mosaic } from "react-loading-indicators"
 import debounce from "lodash/debounce";
 import { useAdminContext } from "../context/AdminContext"
+import { ExclamationCircleOutlined } from "@ant-design/icons"
     
 const AdminDictionary = () => {
     const navigate = useNavigate();
@@ -18,6 +19,35 @@ const AdminDictionary = () => {
     const [searchText, setSearchText] = useState("");
     type Dictionary = { id: number; name: string; language: string };
     const [dictArray, setDictArray] = useState<Dictionary[]>([]);
+    
+    // Delete modal state
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [deleteLoading, setDeleteLoading] = useState(false);
+    const [dictionaryToDelete, setDictionaryToDelete] = useState<Dictionary | null>(null);
+
+    const handleDeleteClick = (dictionary: Dictionary) => {
+        setDictionaryToDelete(dictionary);
+        setDeleteModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!dictionaryToDelete) return;
+        
+        setDeleteLoading(true);
+        try {
+            await axiosInstance.delete(`/api/v1/Dictionary/${dictionaryToDelete.id}`);
+            message.success(`Rječnik "${dictionaryToDelete.name}" je uspješno obrisan.`);
+            setDictArray(prev => prev.filter(d => d.id !== dictionaryToDelete.id));
+            setDeleteModalOpen(false);
+            setDictionaryToDelete(null);
+        } catch (error) {
+            console.error('Greška pri brisanju rječnika:', error);
+            message.error('Došlo je do greške pri brisanju rječnika.');
+        } finally {
+            setDeleteLoading(false);
+        }
+    };
+
     const columns: TableProps<Dictionary>['columns'] = [
         {
             title: 'Id',
@@ -44,6 +74,18 @@ const AdminDictionary = () => {
                 }}
             >
                 View Words</Typography.Link>
+            ),
+        },
+        {
+            title: "Akcije",
+            key: "actions",
+            render: (_, record) => (
+                <Typography.Link 
+                    style={{color:'red'}} 
+                    onClick={() => handleDeleteClick(record)}
+                >
+                    Delete
+                </Typography.Link>
             ),
         },
     ];
@@ -118,6 +160,45 @@ const AdminDictionary = () => {
                         </div>
                     </div>
                 )}
+
+                {/* Delete Dictionary Modal */}
+                <Modal
+                    title={
+                        <div className="flex items-center gap-2 text-red-500">
+                            <ExclamationCircleOutlined />
+                            <span>Brisanje rječnika</span>
+                        </div>
+                    }
+                    open={deleteModalOpen}
+                    onCancel={() => {
+                        setDeleteModalOpen(false);
+                        setDictionaryToDelete(null);
+                    }}
+                    centered
+                    footer={[
+                        <Button key="cancel" onClick={() => {
+                            setDeleteModalOpen(false);
+                            setDictionaryToDelete(null);
+                        }}>
+                            Odustani
+                        </Button>,
+                        <Button 
+                            key="delete" 
+                            danger 
+                            type="primary" 
+                            loading={deleteLoading}
+                            onClick={confirmDelete}
+                        >
+                            Da, obriši
+                        </Button>,
+                    ]}
+                >
+                    <p className="text-gray-600 py-4">
+                        Jeste li sigurni da želite obrisati rječnik <strong>"{dictionaryToDelete?.name}"</strong>?
+                        <br /><br />
+                        <strong className="text-red-500">Ova radnja je nepovratna</strong> i sve riječi u ovom rječniku će biti trajno izbrisane.
+                    </p>
+                </Modal>
 
             </div>
 
