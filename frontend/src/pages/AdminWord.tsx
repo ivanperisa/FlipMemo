@@ -386,12 +386,12 @@ const AdminWord = () => {
                             />
                             <div className="flex flex-col items-center g-4 mt-4">
                                 <button
-                                    onClick={() => navigate("/admin/dictionary/add")}
+                                    onClick={() => navigate("/admin/AddWord")}
                                     type="submit"
                                     className="rounded-full bg-(--color-primary-dark) w-[320px] sm:w-[360px] h-[56px] transition-all hover:opacity-90 hover:shadow-xl text-on-dark shadow-lg
                                     font-space text-[18px] tracking-wide hover:cursor-pointer z-1"
                                 >
-                                    Dodaj novi rječnik
+                                    Dodaj novu riječ
                                 </button>
                             </div>
                             {showDeleteWordModal && selectedDeleteWord && (
