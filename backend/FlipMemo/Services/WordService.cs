@@ -9,9 +9,6 @@ using FlipMemo.Interfaces.External;
 using FlipMemo.Models;
 using FlipMemo.Utils;
 using Microsoft.EntityFrameworkCore;
-using System.Globalization;
-using System.Text;
-using System.Text.RegularExpressions;
 
 namespace FlipMemo.Services;
 
@@ -49,7 +46,6 @@ public class WordService(
         var (word, targetDictionaryIds) = await GetOrCreateWordAsync(dto, dictionaries);
 
         await LinkWordToDictionariesAsync(word, dictionaries, targetDictionaryIds);
-        await CreateStudyProgressRecordsAsync(word.Id, targetDictionaryIds);
 
         return new CreateWordResponseDto
         {
@@ -78,6 +74,7 @@ public class WordService(
             TargetPhrases = selectedWord.TargetPhrases
         };
     }
+
     public async Task DeleteWordAsync(int wordId)
     {
         var word = await context.Words
@@ -268,52 +265,6 @@ public class WordService(
         foreach (var dictionary in dictionariesToUpdate)
             dictionary.Words.Add(word);
 
-        await context.SaveChangesAsync();
-    }
-
-    private static readonly GameModes[] _allGameModes = GameModesHelper.GetAllGameModes;
-
-    private async Task CreateStudyProgressRecordsAsync(int wordId, List<int> dictionaryIds)
-    {
-        var allUserIds = await context.Users
-            .Select(u => u.Id)
-            .ToListAsync();
-
-        if (allUserIds.Count == 0)
-            return;
-
-        var desired = allUserIds
-            .SelectMany(userId => dictionaryIds.SelectMany(dictId =>
-                _allGameModes.Select(mode => new { UserId = userId, DictionaryId = dictId, Mode = mode })))
-            .ToList();
-
-        var existing = await context.StudyProgresses
-            .Where(sp => sp.WordId == wordId && dictionaryIds.Contains(sp.DictionaryId))
-            .Select(sp => new { sp.UserId, sp.DictionaryId, sp.Mode })
-            .ToListAsync();
-
-        var existingSet = existing
-            .Select(x => (x.UserId, x.DictionaryId, x.Mode))
-            .ToHashSet();
-
-        var newRows = desired
-            .Where(x => !existingSet.Contains((x.UserId, x.DictionaryId, x.Mode)))
-            .Select(x => new StudyProgress
-            {
-                UserId = x.UserId,
-                DictionaryId = x.DictionaryId,
-                WordId = wordId,
-                Mode = x.Mode,
-                Box = 0,
-                Learned = false,
-                Score = null
-            })
-            .ToList();
-
-        if (newRows.Count == 0)
-            return;
-
-        context.StudyProgresses.AddRange(newRows);
         await context.SaveChangesAsync();
     }
 

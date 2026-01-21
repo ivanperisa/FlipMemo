@@ -70,7 +70,6 @@ public class UserService(ApplicationDbContext context) : IUserService
 
     public async Task<UserStatsDto> GetUserStatsAsync(int id)
     {
-
         var boxCounts = await context.StudyProgresses
             .Where(sp => sp.UserId == id)
             .GroupBy(sp => sp.Box)
@@ -83,13 +82,18 @@ public class UserService(ApplicationDbContext context) : IUserService
                 (sp.Box == 0 || (sp.NextReview.HasValue && sp.NextReview <= DateTime.UtcNow)))
             .CountAsync();
 
+        var learnedCount = await context.StudyProgresses
+            .Where(sp => sp.UserId == id && sp.Learned)
+            .CountAsync();
+
         return new UserStatsDto
         {
             FirstBox = boxCounts.GetValueOrDefault(0),
             SecondBox = boxCounts.GetValueOrDefault(1),
             ThirdBox = boxCounts.GetValueOrDefault(2),
             FourthBox = boxCounts.GetValueOrDefault(3),
-            Learned = boxCounts.GetValueOrDefault(4),
+            FifthBox = boxCounts.GetValueOrDefault(4),
+            Learned = learnedCount,
             ReadyForReview = numOfReadyWords
         };
     }

@@ -12,7 +12,7 @@ namespace FlipMemo.Controllers;
 public class WordController(IWordService wordsService, IWordsApiService wordsApiService) : ControllerBase
 {
     [HttpGet("allWords")]
-    [Authorize(Policy = "UserOrAdmin")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> GetAllWords()
     {
         var words = await wordsService.GetAllWordsAsync();
@@ -27,9 +27,10 @@ public class WordController(IWordService wordsService, IWordsApiService wordsApi
 
         return Ok(response);
     }
+
     [HttpPost("changePhrases")]
     [Authorize(Policy = "AdminOnly")]
-    public async Task<IActionResult> ChangeWordPrases([FromQuery] ChangeWordPhrasesDto dto)
+    public async Task<IActionResult> ChangeWordPhrases([FromQuery] ChangeWordPhrasesDto dto)
     {
         var response =  await wordsService.ChangeWordPhrasesAsync(dto);
         return Ok(response);
