@@ -9,7 +9,6 @@ import ProtectedRoutes from "./routes/ProtectedRoutes.tsx";
 import AdminProtectedRoute from "./routes/AdminProtectedRoute.tsx";
 import { AnimatePresence } from 'framer-motion';
 import ResetPassword from './pages/ResetPassword.tsx';
-import { GameTemplate } from './layouts/GameTemplate.tsx';
 import AdminProvider from './context/AdminContext.tsx';
 
 const AnimatedRoutes = () => {
@@ -53,7 +52,7 @@ const AnimatedRoutes = () => {
                 </Route>
 
                 {/* nezasticene rute */}
-                <Route path="/gameTemplate" element={<GameTemplate />} />
+            
                 <Route path="/" element={<Welcome />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/logout" element={<Logout />} />

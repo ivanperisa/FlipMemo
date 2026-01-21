@@ -35,12 +35,7 @@ interface SpeakingAnswerResponseDto {
     box: number;
 }
 
-interface SpeakingAnswerRequestDto {
-    UserId: number;
-    WordId: number;
-    DictionaryId: number;
-    RecognizedText: string;
-}
+
 
 const ASSEMBLYAI_API_KEY = import.meta.env.VITE_ASSEMBLYAI_API_KEY;
 const ASSEMBLYAI_BASE_URL = import.meta.env.VITE_ASSEMBLYAI_BASE_URL;
