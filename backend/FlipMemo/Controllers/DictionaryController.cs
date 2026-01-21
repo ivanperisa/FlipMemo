@@ -52,6 +52,14 @@ public class DictionaryController(IDictionaryService dictionariesService) : Cont
         return Ok(new { message = "Word added to dictionaries successfully" });
     }
 
+    [HttpDelete("{dictionaryId}")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> DeleteDictionary(int dictionaryId)
+    {
+        await dictionariesService.DeleteDictionaryAsync(dictionaryId);
+        return Ok(new { message = "Dictionary removed successfully" });
+    }
+
     [HttpDelete("{dictionaryId}/{wordId}")]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> RemoveWordFromDictionary(int dictionaryId, int wordId)
