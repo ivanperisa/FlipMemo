@@ -9,6 +9,7 @@ import { useAuth } from "../context/AuthProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLearning } from "../context/LearningContext";
 import mapGameModeToBackend from "../utils/gameModes";
+import axios from "axios";
 
 interface StartGameRequestDto {
     dictionaryId: string;
@@ -33,6 +34,63 @@ interface SpeakingAnswerResponseDto {
     score: number;
     box: number;
 }
+
+interface SpeakingAnswerRequestDto {
+    UserId: number;
+    WordId: number;
+    DictionaryId: number;
+    RecognizedText: string;
+}
+
+const ASSEMBLYAI_API_KEY = import.meta.env.VITE_ASSEMBLYAI_API_KEY;
+const ASSEMBLYAI_BASE_URL = import.meta.env.VITE_ASSEMBLYAI_BASE_URL;
+
+const transcribeAudio = async (audioBlob: Blob): Promise<string> => {
+    const headers = {
+        authorization: ASSEMBLYAI_API_KEY,
+    };
+
+    // Upload the audio blob to AssemblyAI
+    const uploadResponse = await axios.post(
+        `${ASSEMBLYAI_BASE_URL}/v2/upload`,
+        audioBlob,
+        {
+            headers: {
+                ...headers,
+                "Content-Type": "application/octet-stream",
+            },
+        }
+    );
+    const audioUrl = uploadResponse.data.upload_url;
+
+    // Start transcription
+    const transcriptResponse = await axios.post(
+        `${ASSEMBLYAI_BASE_URL}/v2/transcript`,
+        {
+            audio_url: audioUrl,
+            speech_model: "universal",
+        },
+        { headers }
+    );
+
+    const transcriptId = transcriptResponse.data.id;
+    const pollingEndpoint = `${ASSEMBLYAI_BASE_URL}/v2/transcript/${transcriptId}`;
+
+    // Poll for the result
+    while (true) {
+        const pollingResponse = await axios.get(pollingEndpoint, { headers });
+        const transcriptionResult = pollingResponse.data;
+
+        if (transcriptionResult.status === "completed") {
+            return transcriptionResult.text || "";
+        } else if (transcriptionResult.status === "error") {
+            throw new Error(`Transcription failed: ${transcriptionResult.error}`);
+        }
+
+        // Wait 1 second before polling again
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+};
 
 export const SpeakingQuestion = () => {
 
@@ -243,23 +301,39 @@ export const SpeakingQuestion = () => {
         setResultLoading(true);
 
         const language = dictionaryLanguage || "en";
-        const formData = new FormData();
-        formData.append("AudioFile", audioBlob, "recording.webm");
 
         try {
+            // First, transcribe the audio using AssemblyAI
+            const recognizedText = await transcribeAudio(audioBlob);
+
+            console.log("AssemblyAI prepoznao:", recognizedText);
+
+            if (!recognizedText || recognizedText.trim() === "") {
+                setAnswerError("Nije prepoznat govor. Pokušaj ponovno.");
+                setResultLoading(false);
+                return;
+            }
+
+            // Clean up the recognized text: lowercase and remove punctuation
+            const cleanedText = recognizedText
+                .toLowerCase()
+                .replace(/[^a-zA-ZčćžšđČĆŽŠĐäöüßÄÖÜáéíóúàèìòùâêîôûñ\s-]/g, '')
+                .trim();
+
+            console.log("Očišćeni tekst za slanje:", cleanedText);
+
+            // Send the recognized text to the backend with all original params
             const response = await axiosInstance.put<SpeakingAnswerResponseDto>(
                 "/api/v1/game/speaking/check-answer",
-                formData,
+                { RecognizedText: cleanedText },
                 {
                     params: {
+                        recognizedText: cleanedText,
                         UserId: Number(id),
                         WordId: questionWord.id,
                         DictionaryId: Number(dictionaryId),
                         Language: language,
                         Mode: mapGameModeToBackend(gameMode),
-                    },
-                    headers: {
-                        "Content-Type": "multipart/form-data",
                     },
                 }
             );
