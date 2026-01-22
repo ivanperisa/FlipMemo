@@ -1,120 +1,120 @@
 import { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
 
-// Interfaces
- interface Word{
-        id: number;
-        SourceWord: string|null;
-        SourcePhrases: string[];
-        TargetWord: string;
-        TargetPhrases: string[];
-        AudioFile: string;
+// Game mode type
+export type GameMode = 'translate-from' | 'translate-to' | 'listening' | 'speaking';
 
-        Dictionaries: WordSet[]|null;
-    }
-
-    interface WordSet {
-        id: number;
-        name: string;
-        language: string;
-        words: Word[];
-    }
-
-
-interface LearningMode {
-    id: 'translate-from' | 'translate-to' | 'listening' | 'speaking';
-    label: string;
-    completed: boolean;
-    score?: number;
-}
-
-interface ModeProgress {
-    [modeId: string]: {
-        wordsCompleted: string[];
-        score: number;
-    }
-}
+// Storage keys
+const STORAGE_KEYS = {
+    DICTIONARY_ID: 'flipmemo_dictionaryId',
+    DICTIONARY_LANGUAGE: 'flipmemo_dictionaryLanguage',
+    GAME_MODE: 'flipmemo_gameMode',
+} as const;
 
 interface LearningContextType {
-    // Word Set
-    selectedWordSet: WordSet | null;
-    setSelectedWordSet: (set: WordSet) => void;
+    // Dictionary ID
+    dictionaryId: string | null;
+    setDictionaryId: (id: string | null) => void;
+
+    // Dictionary Language
+    dictionaryLanguage: string | null;
+    setDictionaryLanguage: (language: string | null) => void;
     
-    // Current Mode
-    currentMode: LearningMode | null;
-    setCurrentMode: (mode: LearningMode) => void;
-    
-    // Progress tracking
-    modeProgress: ModeProgress;
-    
-    // Mark word as learned in current mode
-    markWordCompleted: (wordId: string) => void;
-    
-    // Check if word is completed in current mode
-    isWordCompleted: (wordId: string, modeId: string) => boolean;
-    
-    // Overall progress
-    getOverallProgress: () => number;
+    // Game Mode
+    gameMode: GameMode | null;
+    setGameMode: (mode: GameMode | null) => void;
 }
 
 interface LearningProviderProps {
     children: ReactNode;
 }
 
+// Helper functions for localStorage
+const getStoredDictionaryId = (): string | null => {
+    try {
+        return localStorage.getItem(STORAGE_KEYS.DICTIONARY_ID);
+    } catch {
+        return null;
+    }
+};
+
+const getStoredGameMode = (): GameMode | null => {
+    try {
+        const stored = localStorage.getItem(STORAGE_KEYS.GAME_MODE);
+        if (stored && ['translate-from', 'translate-to', 'listening', 'speaking'].includes(stored)) {
+            return stored as GameMode;
+        }
+        return null;
+    } catch {
+        return null;
+    }
+};
+
+const getStoredDictionaryLanguage = (): string | null => {
+    try {
+        return localStorage.getItem(STORAGE_KEYS.DICTIONARY_LANGUAGE);
+    } catch {
+        return null;
+    }
+};
+
 // Create Context
 const LearningContext = createContext<LearningContextType | undefined>(undefined);
 
 // Provider Component
 export const LearningProvider = ({ children }: LearningProviderProps) => {
-    const [selectedWordSet, setSelectedWordSet] = useState<WordSet | null>(null);
-    const [currentMode, setCurrentMode] = useState<LearningMode | null>(null);
-    const [modeProgress, setModeProgress] = useState<ModeProgress>({
-        'translate-from': { wordsCompleted: [], score: 0 },
-        'translate-to': { wordsCompleted: [], score: 0 },
-        'listening': { wordsCompleted: [], score: 0 },
-        'speaking': { wordsCompleted: [], score: 0 },
-    });
+    const [dictionaryId, setDictionaryIdState] = useState<string | null>(getStoredDictionaryId);
+    const [dictionaryLanguage, setDictionaryLanguageState] = useState<string | null>(getStoredDictionaryLanguage);
+    const [gameMode, setGameModeState] = useState<GameMode | null>(getStoredGameMode);
 
-    const markWordCompleted = (wordId: string) => {
-        if (!currentMode) return;
-        
-        setModeProgress(prev => ({
-            ...prev,
-            [currentMode.id]: {
-                ...prev[currentMode.id],
-                wordsCompleted: [...prev[currentMode.id].wordsCompleted, wordId]
+    // Wrapper for setDictionaryId that also persists to localStorage
+    const setDictionaryId = (id: string | null) => {
+        setDictionaryIdState(id);
+        try {
+            if (id) {
+                localStorage.setItem(STORAGE_KEYS.DICTIONARY_ID, id);
+            } else {
+                localStorage.removeItem(STORAGE_KEYS.DICTIONARY_ID);
             }
-        }));
+        } catch (e) {
+            console.error('Failed to save dictionaryId to localStorage:', e);
+        }
     };
 
-    const isWordCompleted = (wordId: string, modeId: string): boolean => {
-        return modeProgress[modeId]?.wordsCompleted.includes(wordId) || false;
+    const setDictionaryLanguage = (language: string | null) => {
+        setDictionaryLanguageState(language);
+        try {
+            if (language) {
+                localStorage.setItem(STORAGE_KEYS.DICTIONARY_LANGUAGE, language);
+            } else {
+                localStorage.removeItem(STORAGE_KEYS.DICTIONARY_LANGUAGE);
+            }
+        } catch (e) {
+            console.error('Failed to save dictionaryLanguage to localStorage:', e);
+        }
     };
 
-    const getOverallProgress = (): number => {
-        if (!selectedWordSet || selectedWordSet.words.length === 0) return 0;
-        
-        const totalWords = selectedWordSet.words.length;
-        const totalModes = 4;
-        const totalPossible = totalWords * totalModes;
-        
-        let totalCompleted = 0;
-        Object.values(modeProgress).forEach(progress => {
-            totalCompleted += progress.wordsCompleted.length;
-        });
-        
-        return Math.round((totalCompleted / totalPossible) * 100);
+    // Wrapper for setGameMode that also persists to localStorage
+    const setGameMode = (mode: GameMode | null) => {
+        setGameModeState(mode);
+        try {
+            if (mode) {
+                localStorage.setItem(STORAGE_KEYS.GAME_MODE, mode);
+            } else {
+                localStorage.removeItem(STORAGE_KEYS.GAME_MODE);
+            }
+        } catch (e) {
+            console.error('Failed to save gameMode to localStorage:', e);
+        }
     };
 
     const contextValue = {
-        selectedWordSet,
-        setSelectedWordSet,
-        currentMode,
-        setCurrentMode,
-        modeProgress,
-        markWordCompleted,
-        isWordCompleted,
-        getOverallProgress,
+        dictionaryId,
+        setDictionaryId,
+        dictionaryLanguage,
+        setDictionaryLanguage,
+        gameMode,
+        setGameMode,
     };
 
     return (

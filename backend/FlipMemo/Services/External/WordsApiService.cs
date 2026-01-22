@@ -1,19 +1,28 @@
 ﻿using FlipMemo.DTOs.External;
 using FlipMemo.Interfaces.External;
+using FlipMemo.Utils;
 using System.Text.Json;
 
 namespace FlipMemo.Services.External;
 
 public class WordsApiService(HttpClient httpClient) : IWordsApiService
 {
-    public async Task<SearchWordsResponseDto> SearchWordsAsync(string startingLetters)
+    public async Task<SearchWordsResponseDto> SearchWordsAsync(SearchWordsRequestDto dto)
     {
+        if (!dto.Language.Equals(LanguageCodes.English, StringComparison.Ordinal))
+        {
+            return new SearchWordsResponseDto
+            {
+                Words = [dto.StartingLetters]
+            };
+        }
+
         var options = new JsonSerializerOptions
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        var response = await httpClient.GetAsync($"/words/?letterPattern=^{startingLetters}[a-zA-Z]*$&lettersmin=4&limit=10&page=1&frequencymin=7&frequencymax=8");
+        var response = await httpClient.GetAsync($"/words/?letterPattern=^{dto.StartingLetters.ToLower()}[a-zA-Z]*$&lettersmin=4&limit=10&page=1&frequencymin=7&frequencymax=8");
         response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync();

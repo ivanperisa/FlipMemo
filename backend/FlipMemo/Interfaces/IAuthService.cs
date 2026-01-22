@@ -1,4 +1,7 @@
-﻿using FlipMemo.DTOs;
+﻿using FlipMemo.DTOs.Password;
+using FlipMemo.DTOs.UserAndAuth;
+using FlipMemo.DTOs.UserAndAuth.Login;
+using FlipMemo.DTOs.UserAndAuth.Registration;
 
 namespace FlipMemo.Interfaces;
 

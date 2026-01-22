@@ -13,7 +13,9 @@ export { default as AdminPage} from "./AdminPage.tsx";
 export { default as AdminDictionary} from "./AdminDictionary.tsx";
 export { default as AdminAddDictionary} from "./AdminAddDictionary.tsx";
 export { default as AdminAddWord} from "./AdminAddWord.tsx";
-export { default as TranslateToQuestion} from "./TranslateToQuestion.tsx";
-export { default as TranslateFromQuestion} from "./TranslateFromQuestion.tsx";
+export { default as TranslateFromQuestion} from "./TranslateQuestion.tsx";
 export { default as ListeningQuestion} from "./ListeningQuestion.tsx";
 export { default as SpeakingQuestion} from "./SpeakingQuestion.tsx";
+export { default as AdminDictionaryWords } from "./AdminDictionaryWords.tsx"
+export { default as AdminEditWord } from "./AdminEditWord.tsx";
+export { default as AdminWord } from "./AdminWord.tsx";

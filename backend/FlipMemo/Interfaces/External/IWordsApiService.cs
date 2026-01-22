@@ -4,5 +4,5 @@ namespace FlipMemo.Interfaces.External;
 
 public interface IWordsApiService
 {
-    Task<SearchWordsResponseDto> SearchWordsAsync(string startingLetters);
+    Task<SearchWordsResponseDto> SearchWordsAsync(SearchWordsRequestDto dto);
 }

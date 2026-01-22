@@ -1,9 +1,10 @@
 ﻿using FlipMemo.Data;
-using FlipMemo.DTOs;
+using FlipMemo.DTOs.WordAndDictionary;
 using FlipMemo.Interfaces;
+using FlipMemo.Models;
 using FlipMemo.Utils;
 using Microsoft.EntityFrameworkCore;
-using FlipMemo.Models;
+using System.Collections.Generic;
 
 namespace FlipMemo.Services;
 
@@ -33,7 +34,7 @@ public class DictionaryService(ApplicationDbContext context) : IDictionaryServic
             .SingleOrDefaultAsync(d => d.Id == DictionaryId)
             ?? throw new NotFoundException("Dictionary doesn't exist.");
 
-        if (dictionary.Words is null)
+        if (dictionary.Words.Count == 0)
             throw new NotFoundException("Dictionary doesn't have any words.");
 
         var words = new List<WordDto>();
@@ -44,15 +45,39 @@ public class DictionaryService(ApplicationDbContext context) : IDictionaryServic
             {
                 Id = w.Id,
                 SourceWord = w.SourceWord,
-                SourcePhrases = w.SourcePhrases,
-                TargetWord = w.TargetWord,
-                TargetPhrases = w.TargetPhrases
+                SourcePhrases = w.SourcePhrases!,
+                TargetWord = w.TargetWord!,
+                TargetPhrases = w.TargetPhrases!
             });
         }
 
         return new GetWordsFromDictionaryResponseDto
         {
             Words = words
+        };
+    }
+
+    public async Task<GetWordUsageInDictionariesResponseDto> GetWordUsageInDictionariesAsync(int wordId)
+    {
+        var word = await context.Words
+            .Include(w => w.Dictionaries)
+            .SingleOrDefaultAsync(w => w.Id == wordId)
+            ?? throw new NotFoundException("Word doesn't exist.");
+
+        if (word.Dictionaries.Count == 0)
+            throw new NotFoundException("Word is not used in any dictionaries.");
+
+        var dictionaries = word.Dictionaries
+            .Select(d => new WordDictionaryUsageDto
+            {
+                DictionaryId = d.Id,
+                DictionaryName = d.Name
+            })
+            .ToList();
+
+        return new GetWordUsageInDictionariesResponseDto
+        {
+            Dictionaries = dictionaries
         };
     }
 
@@ -70,6 +95,74 @@ public class DictionaryService(ApplicationDbContext context) : IDictionaryServic
         };
 
         context.Dictionaries.Add(dictionary);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task DeleteDictionaryAsync(int DictionaryId)
+    {
+        var dictionary = await context.Dictionaries
+           .FindAsync(DictionaryId)
+            ?? throw new NotFoundException("Account doesn't exist.");
+
+        var progresses = context.StudyProgresses
+         .Where(sp => sp.DictionaryId == DictionaryId);
+
+        context.StudyProgresses.RemoveRange(progresses);
+        context.Dictionaries.Remove(dictionary);
+        
+
+        await context.SaveChangesAsync();
+    }
+
+    public async Task AddWordToDictionariesAsync(int wordId, AddWordToDictionariesRequestDto dto)
+    {
+        var word = await context.Words
+            .Include(w => w.Dictionaries)
+            .SingleOrDefaultAsync(w => w.Id == wordId)
+            ?? throw new NotFoundException("Word doesn't exist.");
+
+        var dictionaries = await context.Dictionaries
+            .Where(d => dto.DictionaryIds.Contains(d.Id))
+            .ToListAsync();
+
+        if (dictionaries.Count != dto.DictionaryIds.Count)
+            throw new NotFoundException("One or more specified dictionaries don't exist.");
+
+        var newDictionaryIds = new List<int>();
+
+        foreach (var dictionary in dictionaries)
+        {
+            if (!word.Dictionaries.Contains(dictionary))
+            {
+                word.Dictionaries.Add(dictionary);
+                newDictionaryIds.Add(dictionary.Id);
+            }
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    public async Task RemoveWordFromDictionaryAsync(int dictionaryId, int wordId)
+    {
+        var dictionary = await context.Dictionaries
+            .Include(d => d.Words)
+            .SingleOrDefaultAsync(d => d.Id == dictionaryId)
+            ?? throw new NotFoundException("Dictionary doesn't exist.");
+
+        var word = await context.Words
+            .SingleOrDefaultAsync(w => w.Id == wordId)
+            ?? throw new NotFoundException("Word doesn't exist.");
+
+        if (!dictionary.Words.Contains(word))
+            throw new NotFoundException("The dictionary doesn't contain the specified word.");
+
+        dictionary.Words.Remove(word);
+
+        var studyProgresses = await context.StudyProgresses
+            .Where(sp => sp.DictionaryId == dictionaryId && sp.WordId == wordId)
+            .ToListAsync();
+        context.StudyProgresses.RemoveRange(studyProgresses);
+
         await context.SaveChangesAsync();
     }
 }

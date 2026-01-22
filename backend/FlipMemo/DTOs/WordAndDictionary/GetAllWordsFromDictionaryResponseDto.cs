@@ -1,0 +1,15 @@
+﻿namespace FlipMemo.DTOs.WordAndDictionary;
+
+public class GetWordsFromDictionaryResponseDto
+{
+    public List<WordDto>? Words { get; set; }
+}
+
+public class WordDto
+{
+    public int Id { get; set; }
+    public string? SourceWord { get; set; }
+    public List<string>? SourcePhrases { get; set; }
+    public string? TargetWord { get; set; }
+    public List<string>? TargetPhrases { get; set; }
+}

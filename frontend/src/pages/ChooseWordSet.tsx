@@ -34,7 +34,7 @@ const Home = () => {
 
     //KONTEKSTI
     const navigate = useNavigate();
-    const { setSelectedWordSet } = useLearning();
+    const { setDictionaryId, setDictionaryLanguage } = useLearning();
 
     //FUNKCIJE
     useEffect(() => {
@@ -81,56 +81,68 @@ const Home = () => {
                         <Header />
                         {/* Main Content */}
                         {/* PITANJE */}
-                        <div className="flex w-full items-start justify-start mb-8">
+                    <div className="flex flex-col w-full items-start justify-start mb-0 gap-3">
                         <div className="bg-[var(--color-primary-extra-dark)] z-10 rounded-r-full py-6 px-16 text-on-primary font-space text-2xl font-semibold">Odaberite rječnik:</div>
-                      </div>
+                        <button
+                            type="button"
+                            onClick={() => navigate(-1)}
+                            className="bg-[var(--color-primary-light)] z-10 rounded-r-full py-6 px-16 text-[var(--color-text-on-primary)] font-space text-2xl font-semibold cursor-pointer transition-all transform hover:bg-[var(--color-primary-dark)] hover:text-[var(--color-text-on-primary)] hover:scale-105 focus:outline-none"
+                        >
+                            Natrag
+                        </button>
+                    </div>
 
             {/* OPCIJE I GUMB */}
             <div className="w-full max-w-[600px] rounded-3xl  p-8 z-10 mx-5">
                         <div className="space-y-4">
                 {WordSets.map(set => (
                     <button
-                    key={set.id}
-                    onClick={() => setCurrentWordSet(set)}
-                    type="button"
-        className={`
-            w-full flex items-center gap-4 px-6 py-4 
-            bg-white rounded-full shadow-md
-            transition-all cursor-pointer
-            ${currentWordSet === set
-                ? 'ring-4 ring-[var(--color-primary-dark)] ' 
-                : 'hover:shadow-lg hover:scale-105'
-            }
-        `}
-    >
-        {/* Pink circle indicator */}
-        <div className={`
-            w-6 h-6 rounded-full border-2 
-            ${currentWordSet === set
-                ? 'bg-[var(--color-primary-dark)] border-[var(--color-primary-dark)]' 
-                : 'bg-white border-gray-300'
-            }
-        `} />
-        
-        {/* Label */}
-        <span className="font-space text-[#8B6B7A]">
-            {set.name}
-        </span>
-    </button>
+                        key={set.id}
+                        onClick={() => setCurrentWordSet(set)}
+                        type="button"
+                        className={`
+                            w-full flex items-center gap-4 px-6 py-4 
+                            bg-white rounded-full shadow-md
+                            transition-all cursor-pointer
+                            ${currentWordSet === set
+                                ? 'ring-4 ring-[var(--color-primary-dark)] ' 
+                                : 'hover:shadow-lg hover:scale-105'
+                            }
+                        `}
+                    >
+                        {/* Pink circle indicator */}
+                        <div className={`
+                            w-6 h-6 rounded-full border-2 
+                            ${currentWordSet === set
+                                ? 'bg-[var(--color-primary-dark)] border-[var(--color-primary-dark)]' 
+                                : 'bg-white border-gray-300'
+                            }
+                            `} 
+                        />
+                    
+                        {/* Label */}
+                        <span className="font-space text-[#8B6B7A]">
+                            {set.name}
+                        </span>
+
+                        <div className="ml-auto text-[var(--color-primary-extra-dark)]">
+                            {set.language}
+                        </div>
+                    </button>
                 ))}
             </div>
             
             {/* Gumb za nastavak */}
             <button 
                 disabled={!currentWordSet}
-                onClick={() => {
+                    onClick={() => {
                     if (!currentWordSet) return;
                     
-                    // Spremamo odabrani WordSet u context
-                    setSelectedWordSet(currentWordSet);
+                    setDictionaryId(String(currentWordSet.id));
+                    setDictionaryLanguage((currentWordSet.language || '').toLowerCase() || null);
                     navigate('/chooseStyle');
                 }}
-                className="mt-8 w-full py-4 bg-(--color-primary-dark) text-on-dark font-space rounded-full disabled:opacity-30"
+                className={`mt-8 w-full py-4 bg-(--color-primary-dark) text-on-dark font-space rounded-full disabled:opacity-30 ${currentWordSet && 'cursor-pointer'}`}
             >
                 Dalje
             </button>

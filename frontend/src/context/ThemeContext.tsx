@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
-import { darkenColor, lightenColor, generateGradientEnd, getContrastColor } from "../utils/colorUtils";
+import { darkenColor, lightenColor, generateGradientEnd, getContrastColor, hexToRgb } from "../utils/colorUtils";
 
 interface Theme {
     id: string;
@@ -67,6 +67,11 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
         const textOnDark = getContrastColor(darkerColor);
         root.style.setProperty('--color-text-on-primary', textOnPrimary);
         root.style.setProperty('--color-text-on-dark', textOnDark);
+
+        const rgb = hexToRgb(darkerColor);
+        if (rgb) {
+            root.style.setProperty('--color-primary-dark-rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
+        }
     };
 
     // Postavi boju i spremi u localStorage

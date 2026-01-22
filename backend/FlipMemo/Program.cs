@@ -12,6 +12,9 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("Email"));
+
 builder.Services.AddDbContext<ApplicationDbContext>(options => 
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -21,6 +24,8 @@ builder.Services.AddScoped<IDictionaryService, DictionaryService>();
 builder.Services.AddScoped<IWordService, WordService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IGameService, GameService>();
+builder.Services.AddScoped<ISpeechScorerService, SpeechScorerService>();
 
 builder.Services.AddCors(options =>
 {
@@ -31,7 +36,8 @@ builder.Services.AddCors(options =>
         policy.WithOrigins($"{url}")
               .AllowAnyMethod()
               .AllowAnyHeader()
-              .AllowCredentials();
+              .AllowCredentials()
+              .WithExposedHeaders("X-Word-Id");
     });
 });
 
@@ -112,9 +118,9 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("AdminOnly", policy =>
-        policy.RequireRole("Admin"))
+        policy.RequireRole(Roles.Admin))
     .AddPolicy("UserOrAdmin", policy =>
-        policy.RequireRole("User", "Admin"));
+        policy.RequireRole(Roles.User, Roles.Admin));
 
 builder.Services.AddHttpClient<IWordsApiService, WordsApiService>(client =>
 {
@@ -136,6 +142,20 @@ builder.Services.AddHttpClient<IDeepTranslateApiService, DeepTranslateApiService
     client.DefaultRequestHeaders.Add("X-RapidAPI-Key", builder.Configuration["RapidApi:ApiKey"]);
     client.DefaultRequestHeaders.Add("X-RapidAPI-Host", "deep-translate1.p.rapidapi.com");
 });
+
+builder.Services.AddHttpClient<ITextToSpeechApiService, TextToSpeechApiService>(client =>
+{
+    client.BaseAddress = new Uri("https://text-to-speach-api.p.rapidapi.com/");
+    client.DefaultRequestHeaders.Add("X-RapidAPI-Key", builder.Configuration["RapidApi:ApiKey"]);
+    client.DefaultRequestHeaders.Add("X-RapidAPI-Host", "text-to-speach-api.p.rapidapi.com");
+});
+
+/* builder.Services.AddHttpClient<ISpeechScorerService, SpeechScorerService>(client =>
+{
+    client.BaseAddress = new Uri("https://speech-to-text-ai.p.rapidapi.com/");
+    client.DefaultRequestHeaders.Add("X-RapidAPI-Key", builder.Configuration["RapidApi:ApiKey"]);
+    client.DefaultRequestHeaders.Add("X-RapidAPI-Host", "speech-to-text-ai.p.rapidapi.com");
+}); */
 
 var app = builder.Build();
 

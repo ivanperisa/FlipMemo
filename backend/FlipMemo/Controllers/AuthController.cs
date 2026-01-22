@@ -1,4 +1,6 @@
-﻿using FlipMemo.DTOs;
+﻿using FlipMemo.DTOs.Password;
+using FlipMemo.DTOs.UserAndAuth.Login;
+using FlipMemo.DTOs.UserAndAuth.Registration;
 using FlipMemo.Interfaces;
 using FlipMemo.Utils;
 using Microsoft.AspNetCore.Authorization;

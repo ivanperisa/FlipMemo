@@ -102,3 +102,4 @@ export const getContrastRatio = (color1: string, color2: string): number => {
     
     return (lighter + 0.05) / (darker + 0.05);
 };
+

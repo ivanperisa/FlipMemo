@@ -25,8 +25,15 @@ const AdminPage = () => {
 
                 {/* Header */}
                 <Header />
+                {/* Back button (themed) */}
+                <div className="w-full max-w-[800px] px-5 z-10 mb-4">
+                    <button className="cursor-pointer back-button"
+                        onClick={() => navigate("/home")}
+                    >
+                        Natrag
+                    </button>
+                </div>
 
-                
 
                 {/* Admin Action Cards */}
                 <div className="w-full max-w-[800px] px-5 z-10 flex flex-col gap-6">
@@ -37,8 +44,8 @@ const AdminPage = () => {
                         className="w-full bg-white/90 rounded-3xl shadow-xl p-8 hover:shadow-2xl transition-all hover:scale-105 cursor-pointer"
                     >
                         <div className="flex items-center gap-6">
-                            <div className="w-16 h-16 bg-[var(--color-primary-dark)] rounded-full flex items-center justify-center">
-                                <BookOutlined className="text-3xl text-white" />
+                            <div className="w-16 h-16 bg-[var(--color-primary-dark)] rounded-full flex items-center justify-center text-[var(--color-text-on-primary)]">
+                                <BookOutlined className="text-3xl" />
                             </div>
                             <div className="flex-1 text-left">
                                 <h3 className="font-space text-2xl font-bold text-[#8B6B7A] mb-2">
@@ -57,8 +64,8 @@ const AdminPage = () => {
                         className="w-full bg-white/90 rounded-3xl shadow-xl p-8 hover:shadow-2xl transition-all hover:scale-105 cursor-pointer"
                     >
                         <div className="flex items-center gap-6">
-                            <div className="w-16 h-16 bg-[var(--color-primary-dark)] rounded-full flex items-center justify-center">
-                                <PlusCircleOutlined className="text-3xl text-white" />
+                            <div className="w-16 h-16 bg-[var(--color-primary-dark)] rounded-full flex items-center justify-center text-[var(--color-text-on-primary)]">
+                                <PlusCircleOutlined className="text-3xl" />
                             </div>
                             <div className="flex-1 text-left">
                                 <h3 className="font-space text-2xl font-bold text-[#8B6B7A] mb-2">
@@ -73,19 +80,19 @@ const AdminPage = () => {
 
                     {/* Add Words to Dictionary Card */}
                     <button
-                        onClick={() => navigate('/admin/addWord')}
+                        onClick={() => navigate('/admin/word')}
                         className="w-full bg-white/90 rounded-3xl shadow-xl p-8 hover:shadow-2xl transition-all hover:scale-105 cursor-pointer"
                     >
                         <div className="flex items-center gap-6">
-                            <div className="w-16 h-16 bg-[var(--color-primary-dark)] rounded-full flex items-center justify-center">
-                                <PlusCircleOutlined className="text-3xl text-white" />
+                            <div className="w-16 h-16 bg-[var(--color-primary-dark)] rounded-full flex items-center justify-center text-[var(--color-text-on-primary)]">
+                                <PlusCircleOutlined className="text-3xl" />
                             </div>
                             <div className="flex-1 text-left">
                                 <h3 className="font-space text-2xl font-bold text-[#8B6B7A] mb-2">
                                     Upravljanje riječima
                                 </h3>
                                 <p className="font-space text-[#8B6B7A]/70">
-                                    Dodaj nove riječi u postojeći rječnik
+                                    Dodaj postojeće ili nove riječi u postojeći rječnik
                                 </p>
                             </div>
                         </div>

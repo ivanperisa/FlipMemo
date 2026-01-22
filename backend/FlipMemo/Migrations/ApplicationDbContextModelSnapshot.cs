@@ -61,6 +61,44 @@ namespace FlipMemo.Migrations
                     b.ToTable("Dictionaries");
                 });
 
+            modelBuilder.Entity("FlipMemo.Models.StudyProgress", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("WordId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DictionaryId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Mode")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Box")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("LastReviewed")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("Learned")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("NextReview")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("Score")
+                        .HasColumnType("integer");
+
+                    b.HasKey("UserId", "WordId", "DictionaryId", "Mode");
+
+                    b.HasIndex("DictionaryId");
+
+                    b.HasIndex("WordId");
+
+                    b.ToTable("StudyProgresses");
+                });
+
             modelBuilder.Entity("FlipMemo.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -109,62 +147,6 @@ namespace FlipMemo.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("FlipMemo.Models.UserWord", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("WordId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Box")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("LastReviewed")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("Learned")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime?>("NextReview")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("UserId", "WordId");
-
-                    b.HasIndex("WordId");
-
-                    b.ToTable("UserWords");
-                });
-
-            modelBuilder.Entity("FlipMemo.Models.Voice", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime?>("LastReviewed")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Score")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("WordId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("WordId");
-
-                    b.ToTable("Voices");
-                });
-
             modelBuilder.Entity("FlipMemo.Models.Word", b =>
                 {
                     b.Property<int>("Id")
@@ -173,8 +155,8 @@ namespace FlipMemo.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AudioFile")
-                        .HasColumnType("text");
+                    b.Property<byte[]>("AudioFile")
+                        .HasColumnType("bytea");
 
                     b.PrimitiveCollection<List<string>>("SourcePhrases")
                         .HasColumnType("text[]");
@@ -211,56 +193,46 @@ namespace FlipMemo.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("FlipMemo.Models.UserWord", b =>
+            modelBuilder.Entity("FlipMemo.Models.StudyProgress", b =>
                 {
+                    b.HasOne("FlipMemo.Models.Dictionary", "Dictionary")
+                        .WithMany("StudyProgresses")
+                        .HasForeignKey("DictionaryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("FlipMemo.Models.User", "User")
-                        .WithMany("UserWords")
+                        .WithMany("StudyProgresses")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FlipMemo.Models.Word", "Word")
-                        .WithMany("UserWords")
+                        .WithMany("StudyProgresses")
                         .HasForeignKey("WordId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Dictionary");
 
                     b.Navigation("User");
 
                     b.Navigation("Word");
                 });
 
-            modelBuilder.Entity("FlipMemo.Models.Voice", b =>
+            modelBuilder.Entity("FlipMemo.Models.Dictionary", b =>
                 {
-                    b.HasOne("FlipMemo.Models.User", "User")
-                        .WithMany("Voices")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FlipMemo.Models.Word", "Word")
-                        .WithMany("Voices")
-                        .HasForeignKey("WordId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-
-                    b.Navigation("Word");
+                    b.Navigation("StudyProgresses");
                 });
 
             modelBuilder.Entity("FlipMemo.Models.User", b =>
                 {
-                    b.Navigation("UserWords");
-
-                    b.Navigation("Voices");
+                    b.Navigation("StudyProgresses");
                 });
 
             modelBuilder.Entity("FlipMemo.Models.Word", b =>
                 {
-                    b.Navigation("UserWords");
-
-                    b.Navigation("Voices");
+                    b.Navigation("StudyProgresses");
                 });
 #pragma warning restore 612, 618
         }
