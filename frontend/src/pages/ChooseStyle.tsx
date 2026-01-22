@@ -44,9 +44,16 @@ const Home = () => {
 
                 {/* Main Content */}
                 {/* PITANJE */}
-                <div className="flex w-full items-start justify-start mb-8 lg:mb-4">
-                <div className="bg-[var(--color-primary-extra-dark)] z-10 rounded-r-full py-6 lg:py-4 px-16 lg:px-12 text-on-primary font-space text-2xl lg:text-xl font-semibold">Odaberite način učenja:</div>
-              </div>
+            <div className="flex flex-col w-full items-start justify-start mb-5 gap-3">
+                <div className="bg-[var(--color-primary-extra-dark)] z-10 rounded-r-full py-6 px-16 text-on-primary font-space text-2xl font-semibold">Odaberite način učenja:</div>
+                <button
+                    type="button"
+                    onClick={() => navigate(-1)}
+                    className="bg-[var(--color-primary-light)] z-10 rounded-r-full py-6 px-16 text-[var(--color-text-on-primary)] font-space text-2xl font-semibold cursor-pointer transition-all transform hover:bg-[var(--color-primary-dark)] hover:text-[var(--color-text-on-primary)] hover:scale-105 focus:outline-none"
+                >
+                    Natrag
+                </button>
+            </div>
 
     {/* OPCIJE I GUMB */}
     <div className="w-full max-w-[600px] rounded-3xl px-8 z-10 mx-5 my-0 flex flex-col justify-center lg:h-auto">

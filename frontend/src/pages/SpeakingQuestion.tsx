@@ -495,6 +495,16 @@ export const SpeakingQuestion = () => {
                     {/* Header */}
                     <Header />
 
+                    <div className="w-full flex justify-start max-w-[900px] px-4 z-10 mb-3">
+                        <button
+                            type="button"
+                            onClick={() => navigate('/home')}
+                            className="back-button cursor-pointer"
+                        >
+                            Završi učenje
+                        </button>
+                    </div>
+
                     {Loading ? (
                         <div className="flex-1 flex items-center justify-center">
                             <Mosaic

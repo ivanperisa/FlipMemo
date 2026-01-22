@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import axiosInstance from "../api/axiosInstance";
-import { Input, Space, Table, Typography, type TableProps } from "antd";
-import { CloseCircleOutlined } from '@ant-design/icons'
+import { Button, Empty, Input, Space, Table, Tag, type TableProps } from "antd";
+import { ArrowLeftOutlined, CloseCircleOutlined, SearchOutlined } from '@ant-design/icons'
 import debounce from "lodash/debounce";
 import PageTransition from "../components/PageTransition";
 import Particles from "../styles/Particles";
@@ -46,39 +46,44 @@ const AdminDictionaryWords = () => {
             key: 'id',
         },
         {
-            title: 'Source Word',
+            title: 'Izvorna riječ',
             dataIndex: 'sourceWord',
             key: 'sourceWord',
         },
         {
-            title: 'Target Word',
+            title: 'Ciljna riječ',
             dataIndex: 'targetWord',
             key: 'targetWord',
         },
         {
-            title: 'Actions',
+            title: 'Akcije',
             key: 'actions',
             render: (_, record) => (
                 <Space size="middle">  
-                    <Typography.Link 
-                        style={{color: "blue"}} 
+                    <Button 
+                        type="link"
+                        style={{ color: 'var(--color-primary-dark)', padding: 0 }} 
                         onClick={() => {
                             setSelectedWord(record);
                             navigate("/admin/word/edit");
                         }}
                     >
                         Edit
-                    </Typography.Link>
-                    <Typography.Link 
-                        style={{color: "red"}} 
+                    </Button>
+                    <Button 
+                        type="link"
+                        danger
+                        style={{ padding: 0 }} 
                         onClick={() => handleDeleteWordClick(record)}
                     >
                         Remove
-                    </Typography.Link>
+                    </Button>
                 </Space>
             ),
         }
     ];
+
+    const tableColumns = columns.map((item) => ({ ...item, ellipsis: {showTitle: false} }));
 
     useEffect(() => {
         if (showSuccessMessage) {
@@ -156,6 +161,8 @@ const AdminDictionaryWords = () => {
             .some(field => String(field).toLowerCase().includes(searchText.toLowerCase()))
     );
 
+    const rowClassName = (_record: Word, index: number) => (index % 2 === 0 ? 'table-row-even' : 'table-row-odd');
+
     return (
         <PageTransition>
             <div className="min-h-screen flex flex-col items-center justify-start w-screen">
@@ -216,27 +223,46 @@ const AdminDictionaryWords = () => {
                         )}
 
                         {selectedDictionary && (
+
                             <div className="w-[70%] mb-3">
-                                <h2 className="text-2xl font-semibold" style={{ fontFamily: 'var(--font-space)', color: 'var(--color-primary-extra-dark)' }}>
-                                    {selectedDictionary.name} ({selectedDictionary.language})
-                                </h2>
+                                <div className="flex items-center gap-4">
+                                    <Button type="default" icon={<ArrowLeftOutlined />} className="back-button" 
+                                        onClick={() => navigate("/admin/dictionary")}
+                                    />
+                                    <h2 className="text-2xl font-semibold m-0" style={{ fontFamily: 'var(--font-space)', color: 'var(--color-text-on-primary)' }}>
+                                        {selectedDictionary.name} ({selectedDictionary.language})
+                                    </h2>
+                                </div>
                             </div>
                         )}
                         <div className="w-[70%]">
-                            <Input
-                                defaultValue={searchText}
-                                placeholder="Pretraži..."
-                                onChange={(e) => handleSearch(e.target.value)}
-                                style={{ width: "30%" }}
-                            />
-                            <Table
-                                dataSource={filteredData} 
-                                columns={columns} 
-                                bordered={true} 
-                                className="w-full mt-6" 
-                                pagination={ { pageSize: 6} } 
-                                rowKey="id"
-                            />
+                            <div className="flex items-center gap-4 mb-3">
+                                <Input
+                                    defaultValue={searchText}
+                                    placeholder="Pretraži..."
+                                    onChange={(e) => handleSearch(e.target.value)}
+                                    prefix={<SearchOutlined style={{ color: 'var(--color-primary-dark)' }} />}
+                                    className="custom-search-input"
+                                    style={{ width: '320px' }}
+                                />
+                                <Tag color="var(--color-primary-light)" style={{ color: 'var(--color-primary-extra-dark)', fontFamily: 'var(--font-space)' }}>{filteredData.length} riječi</Tag>
+                            </div>
+                            <div className="admin-table-container">
+                                <Table
+                                    virtual
+                                    dataSource={filteredData} 
+                                    columns={tableColumns} 
+                                    bordered={false} 
+                                    className="w-full mt-6 mb-3 custom-admin-table" 
+                                    pagination={ false }
+                                    scroll={{ y: 321, x: 800 }} 
+                                    rowKey="id"
+                                    rowClassName={rowClassName}
+                                    locale={{
+                                        emptyText: <Empty description="Nema podataka" />,
+                                    }}
+                                />
+                            </div>
                             {showDeleteModule && selectedRemoveWord && (
                                 <div
                                     className="fixed inset-0 z-50 flex items-center justify-center"

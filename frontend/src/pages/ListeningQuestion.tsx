@@ -309,6 +309,12 @@ export const ListeningQuestion = () => {
           {/* Header */}
           <Header />
 
+          <div className="w-full flex justify-start max-w-[900px] px-4 z-10 mb-3">
+            <button type="button" onClick={() => navigate('/home')} className="back-button cursor-pointer">
+              Završi učenje
+            </button>
+          </div>
+
           {Loading ? (
             <div className="flex-1 flex items-center justify-center">
               <Mosaic
@@ -324,10 +330,10 @@ export const ListeningQuestion = () => {
                 <div className="flex flex-col items-center justify-center w-full flex-1 gap-6">
                   <div className="z-10 w-[90vw] md:w-[70vw] lg:w-[60vw] flex flex-col items-center justify-center gap-6 bg-white/80 rounded-lg shadow-lg backdrop-blur-lg border-2 border-[var(--color-primary-dark)] min-w-[350px] max-w-[900px] p-8">
                     <h2 className="font-space text-2xl font-bold text-[var(--color-primary-dark)] text-center">
-                      Nema vise rijeci
+                      Nema više riječi
                     </h2>
                     <p className="font-space text-base text-[#8B6B7A] text-center max-w-sm">
-                      Izgleda da nemate vise rijeci za ovaj rijecnik. Vratite se
+                      Izgleda da nemate više riječi za ovaj riječnik. Vratite se
                       kasnije za nove izazove!
                     </p>
                     <div className="w-12 h-1 bg-[var(--color-primary)] rounded-full mt-2"></div>
@@ -340,7 +346,7 @@ export const ListeningQuestion = () => {
                       <span className="text-3xl">!</span>
                     </div>
                     <h2 className="font-space text-2xl font-bold text-[#dc2626] text-center">
-                      Greska
+                      Greška
                     </h2>
                     <p className="font-space text-base text-[#dc2626] text-center max-w-sm">
                       {fetchError}

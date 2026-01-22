@@ -378,6 +378,16 @@ export const TranslateFromQuestion = () => {
                     {/* Header - always visible */}
                     <Header />
 
+                    <div className="w-full flex justify-start max-w-[900px] px-4 z-10 mb-3">
+                        <button
+                            type="button"
+                            onClick={() => navigate('/home')}
+                            className="back-button cursor-pointer"
+                        >
+                            Završi učenje
+                        </button>
+                    </div>
+
                     {Loading || (gameMode !== 'translate-from' && gameMode !== 'translate-to') || id === null ? (
                         <div className="flex-1 flex items-center justify-center">
                             <Mosaic 
@@ -641,7 +651,7 @@ export const TranslateFromQuestion = () => {
                                             style={{ transformOrigin: 'bottom center' }}
                                             className="w-28 h-28 bg-[var(--color-primary-dark)] rounded-t-3xl flex flex-col items-center justify-center shadow-lg hover:cursor-pointer hover:opacity-90 transition-all"
                                         >
-                                            <span className="font-space text-sm text-white">sat</span>
+                                            <span className="font-space text-sm text-white">dvije minute</span>
                                             <span className="font-space text-lg text-white font-bold mt-1"></span>
                                         </motion.div>
 
@@ -653,7 +663,7 @@ export const TranslateFromQuestion = () => {
                                             style={{ transformOrigin: 'bottom center' }}
                                             className="w-28 h-28 bg-[var(--color-primary-dark)] rounded-t-3xl flex flex-col items-center justify-center shadow-lg hover:cursor-pointer hover:opacity-90 transition-all"
                                         >
-                                            <span className="font-space text-sm text-white">dan</span>
+                                            <span className="font-space text-sm text-white">četiri minute</span>
                                             <span className="font-space text-lg text-white font-bold mt-1"></span>
                                         </motion.div>
 

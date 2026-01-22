@@ -4,11 +4,11 @@ import Particles from "../styles/Particles"
 import { useNavigate } from "react-router"
 import { useEffect, useState } from "react"
 import axiosInstance from "../api/axiosInstance"
-import { Table, Input, Typography, type TableProps, Modal, Button, message } from "antd"
+import { Table, Input, type TableProps, Modal, Button, message, Tag, Space, Empty } from "antd"
 import { Mosaic } from "react-loading-indicators"
 import debounce from "lodash/debounce";
 import { useAdminContext } from "../context/AdminContext"
-import { ExclamationCircleOutlined } from "@ant-design/icons"
+import { ArrowLeftOutlined, ExclamationCircleOutlined, SearchOutlined } from "@ant-design/icons"
     
 const AdminDictionary = () => {
     const navigate = useNavigate();
@@ -55,37 +55,37 @@ const AdminDictionary = () => {
             key: 'id',
         },
         {
-            title: 'Name',
+            title: 'Naziv',
             dataIndex: 'name',
             key: 'name',
+            sorter: (a,b) => a.name.localeCompare(b.name),
         },
         {
-            title: 'Language',
+            title: 'Jezik',
             dataIndex: 'language',
             key: 'language'
-        },
-        {
-            title: "Words",
-            key: "words",
-            render: (_, record) => (
-            <Typography.Link style={{color:'blue'}} onClick={() => { 
-                    setSelectedDictionary(record);
-                    navigate("/admin/dictionary/words");
-                }}
-            >
-                View Words</Typography.Link>
-            ),
         },
         {
             title: "Akcije",
             key: "actions",
             render: (_, record) => (
-                <Typography.Link 
-                    style={{color:'red'}} 
-                    onClick={() => handleDeleteClick(record)}
-                >
-                    Delete
-                </Typography.Link>
+                <Space size="middle">
+                    <Button type="link"
+                        onClick={() => {
+                            setSelectedDictionary(record);
+                            navigate("/admin/dictionary/words");
+                        }}
+                        style={{ color: 'var(--color-primary-dark)', padding: 0 }}
+                    >
+                        Pregled riječi
+                    </Button>
+                    <Button type="link" danger
+                        onClick={() => handleDeleteClick(record)}
+                        style={{ padding: 0 }}
+                    >
+                        Izbriši
+                    </Button>
+                </Space>
             ),
         },
     ];
@@ -98,6 +98,8 @@ const AdminDictionary = () => {
         [item.id, item.name, item.language]
             .some(field => String(field).toLowerCase().includes(searchText.toLowerCase()))
     );
+
+    const rowClassName = (_record: Dictionary, index: number) => (index % 2 === 0 ? 'table-row-even' : 'table-row-odd');
 
     useEffect(() => {
         axiosInstance.get('/api/v1/Dictionary')
@@ -133,32 +135,59 @@ const AdminDictionary = () => {
                         <Mosaic color="var(--color-primary-dark)" size="medium" text="" textColor="" />
                     </div>
                 ) : (
-                    <div className="w-[70%]">
-                        <Input
-                            placeholder="Pretraži..."
-                            onChange={(e) => handleSearch(e.target.value)}
-                            style={{ width: "30%" }}
-                        />
-                        <Table
-                            // title={() => <h2 className="text-lg font-semibold">Riječnici</h2>}
-                            dataSource={filteredData} 
-                            columns={columns} 
-                            bordered={true} 
-                            className="w-full mt-6" 
-                            pagination={ { pageSize: 5} } 
-                            rowKey="id"
-                        />
-                        <div className="flex flex-col items-center g-4 mt-6">
-                            <button
-                                onClick={() => navigate("/admin/dictionary/add")}
-                                type="submit"
-                                className="rounded-full bg-(--color-primary-dark) w-[320px] sm:w-[360px] h-[56px] transition-all hover:opacity-90 hover:shadow-xl text-on-dark shadow-lg
-                                font-space text-[18px] tracking-wide hover:cursor-pointer z-1"
-                            >
-                                Dodaj novi rječnik
-                            </button>
+                    <>
+                        <div className="w-[70%] mb-3">
+                            <div className="flex items-center gap-4">
+                                <Button type="default" icon={<ArrowLeftOutlined />} className="back-button"
+                                    onClick={() => navigate("/admin")}
+                                />
+                                <h2 className="text-2xl font-semibold m-0" style={{ fontFamily: 'var(--font-space)', color: 'var(--color-text-on-primary)' }}>
+                                    Spremljeni rječnici
+                                </h2>
+                            </div>
                         </div>
-                    </div>
+
+                        <div className="w-[70%]">
+                            <div className="flex items-center gap-4 mb-3">
+                                <Input
+                                    defaultValue={searchText}
+                                    placeholder="Pretraži..."
+                                    onChange={(e) => handleSearch(e.target.value)}
+                                    style={{ width: "320px" }}
+                                    prefix={<SearchOutlined style={{ color: 'var(--color-primary-dark)' }} />}
+                                    className="custom-search-input"
+                                />
+                                <Tag color="var(--color-primary-light)" style={{ color: 'var(--color-primary-extra-dark)', fontFamily: 'var(--font-space)' }}>{filteredData.length} rječnika</Tag>
+                            </div>
+                            <div className="admin-table-container">
+                                <Table
+                                    // title={() => <h2 className="text-lg font-semibold">Riječnici</h2>}
+                                    virtual
+                                    dataSource={filteredData}
+                                    columns={columns}
+                                    bordered={false}
+                                    className="w-full mt-6 mb-3 custom-admin-table"
+                                    pagination={false}
+                                    scroll={{ y: 260, x: 800 }}
+                                    rowKey="id"
+                                    rowClassName={rowClassName}
+                                    locale={{
+                                        emptyText: <Empty description="Nema podataka" />,
+                                    }}
+                                />
+                            </div>
+                            <div className="flex flex-col items-center g-4 mt-6">
+                                <button
+                                    onClick={() => navigate("/admin/dictionary/add")}
+                                    type="submit"
+                                    className="rounded-full bg-(--color-primary-dark) w-[320px] sm:w-[360px] h-[56px] transition-all hover:opacity-90 hover:shadow-xl text-on-dark shadow-lg
+                                    font-space text-[18px] tracking-wide hover:cursor-pointer z-1"
+                                >
+                                    Dodaj novi rječnik
+                                </button>
+                            </div>
+                        </div>
+                    </>
                 )}
 
                 {/* Delete Dictionary Modal */}
