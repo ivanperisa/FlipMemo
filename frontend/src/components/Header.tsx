@@ -13,8 +13,8 @@ const Header = () => {
     const { logout, role, id } = useAuth();
     const navigate = useNavigate();
     
-    // Stanje za dropdown
-    const [dropdownOpen, setDropdownOpen] = useState(false);
+    // Stanje za dropdown (samo setter se koristi)
+    const [, setDropdownOpen] = useState(false);
     
     // Stanje za delete modal
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);

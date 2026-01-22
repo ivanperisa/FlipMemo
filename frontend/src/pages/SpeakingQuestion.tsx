@@ -118,7 +118,7 @@ export const SpeakingQuestion = () => {
     const [isRecording, setIsRecording] = useState(false);
     const [hasRecorded, setHasRecorded] = useState(false);
     const [audioUrl, setAudioUrl] = useState<string | null>(null);
-    const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+    const [, setAudioBlob] = useState<Blob | null>(null);
     const [recognizedText, setRecognizedText] = useState<string>("");
     const [hasAnswered, setHasAnswered] = useState(false);
     const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
