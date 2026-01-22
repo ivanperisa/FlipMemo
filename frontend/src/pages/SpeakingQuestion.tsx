@@ -9,7 +9,6 @@ import { useAuth } from "../context/AuthProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLearning } from "../context/LearningContext";
 import mapGameModeToBackend from "../utils/gameModes";
-import axios from "axios";
 
 interface StartGameRequestDto {
     dictionaryId: string;
@@ -35,56 +34,67 @@ interface SpeakingAnswerResponseDto {
     box: number;
 }
 
+// Web Speech API types
+interface SpeechRecognitionEvent extends Event {
+    results: SpeechRecognitionResultList;
+}
 
+interface SpeechRecognitionResultList {
+    length: number;
+    item(index: number): SpeechRecognitionResult;
+    [index: number]: SpeechRecognitionResult;
+}
 
-const ASSEMBLYAI_API_KEY = import.meta.env.VITE_ASSEMBLYAI_API_KEY;
-const ASSEMBLYAI_BASE_URL = import.meta.env.VITE_ASSEMBLYAI_BASE_URL;
+interface SpeechRecognitionResult {
+    isFinal: boolean;
+    length: number;
+    item(index: number): SpeechRecognitionAlternative;
+    [index: number]: SpeechRecognitionAlternative;
+}
 
-const transcribeAudio = async (audioBlob: Blob): Promise<string> => {
-    const headers = {
-        authorization: ASSEMBLYAI_API_KEY,
-    };
+interface SpeechRecognitionAlternative {
+    transcript: string;
+    confidence: number;
+}
 
-    // Upload the audio blob to AssemblyAI
-    const uploadResponse = await axios.post(
-        `${ASSEMBLYAI_BASE_URL}/v2/upload`,
-        audioBlob,
-        {
-            headers: {
-                ...headers,
-                "Content-Type": "application/octet-stream",
-            },
-        }
-    );
-    const audioUrl = uploadResponse.data.upload_url;
+interface SpeechRecognition extends EventTarget {
+    continuous: boolean;
+    interimResults: boolean;
+    lang: string;
+    start(): void;
+    stop(): void;
+    abort(): void;
+    onresult: ((event: SpeechRecognitionEvent) => void) | null;
+    onerror: ((event: Event & { error: string }) => void) | null;
+    onend: (() => void) | null;
+    onspeechend: (() => void) | null;
+}
 
-    // Start transcription
-    const transcriptResponse = await axios.post(
-        `${ASSEMBLYAI_BASE_URL}/v2/transcript`,
-        {
-            audio_url: audioUrl,
-            speech_model: "universal",
-        },
-        { headers }
-    );
-
-    const transcriptId = transcriptResponse.data.id;
-    const pollingEndpoint = `${ASSEMBLYAI_BASE_URL}/v2/transcript/${transcriptId}`;
-
-    // Poll for the result
-    while (true) {
-        const pollingResponse = await axios.get(pollingEndpoint, { headers });
-        const transcriptionResult = pollingResponse.data;
-
-        if (transcriptionResult.status === "completed") {
-            return transcriptionResult.text || "";
-        } else if (transcriptionResult.status === "error") {
-            throw new Error(`Transcription failed: ${transcriptionResult.error}`);
-        }
-
-        // Wait 1 second before polling again
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+declare global {
+    interface Window {
+        SpeechRecognition: new () => SpeechRecognition;
+        webkitSpeechRecognition: new () => SpeechRecognition;
     }
+}
+
+// Language code mapping for Web Speech API
+const getLanguageCode = (lang: string | null): string => {
+    const langMap: Record<string, string> = {
+        'en': 'en-US',
+        'de': 'de-DE',
+        'fr': 'fr-FR',
+        'es': 'es-ES',
+        'it': 'it-IT',
+        'hr': 'hr-HR',
+        'pl': 'pl-PL',
+        'pt': 'pt-PT',
+        'nl': 'nl-NL',
+        'ru': 'ru-RU',
+        'ja': 'ja-JP',
+        'zh': 'zh-CN',
+        'ko': 'ko-KR',
+    };
+    return langMap[lang || 'en'] || 'en-US';
 };
 
 export const SpeakingQuestion = () => {
@@ -108,7 +118,8 @@ export const SpeakingQuestion = () => {
     const [isRecording, setIsRecording] = useState(false);
     const [hasRecorded, setHasRecorded] = useState(false);
     const [audioUrl, setAudioUrl] = useState<string | null>(null);
-    const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+    const [, setAudioBlob] = useState<Blob | null>(null);
+    const [recognizedText, setRecognizedText] = useState<string>("");
     const [hasAnswered, setHasAnswered] = useState(false);
     const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
     const [score, setScore] = useState<number | null>(null);
@@ -122,6 +133,8 @@ export const SpeakingQuestion = () => {
 
     // Refs
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const speechRecognitionRef = useRef<SpeechRecognition | null>(null);
+    const recognizedTextRef = useRef<string>("");
     const chunksRef = useRef<BlobPart[]>([]);
     const micButtonRef = useRef<HTMLButtonElement>(null);
     const bowlRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -144,6 +157,8 @@ export const SpeakingQuestion = () => {
         setIsRecording(false);
         setHasRecorded(false);
         setAudioBlob(null);
+        setRecognizedText("");
+        recognizedTextRef.current = "";
         setHasAnswered(false);
         setIsCorrect(null);
         setScore(null);
@@ -222,9 +237,18 @@ export const SpeakingQuestion = () => {
         setAnswerError(null);
         setHasRecorded(false);
         setAudioBlob(null);
+        setRecognizedText("");
+        recognizedTextRef.current = "";
         if (audioUrl) {
             URL.revokeObjectURL(audioUrl);
             setAudioUrl(null);
+        }
+
+        // Check if Web Speech API is supported
+        const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognitionAPI) {
+            setAnswerError("Vaš preglednik ne podržava prepoznavanje govora. Koristite Chrome ili Edge.");
+            return;
         }
 
         try {
@@ -251,8 +275,52 @@ export const SpeakingQuestion = () => {
                 stream.getTracks().forEach((track) => track.stop());
             };
 
+            // Initialize Web Speech API
+            const recognition = new SpeechRecognitionAPI();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = getLanguageCode(dictionaryLanguage);
+
+            recognition.onresult = (event: SpeechRecognitionEvent) => {
+                let finalTranscript = "";
+                let interimTranscript = "";
+                
+                for (let i = 0; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript;
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+                
+                // Use final transcript if available, otherwise use interim
+                const textToSave = finalTranscript || interimTranscript;
+                if (textToSave) {
+                    console.log("Speech recognized:", textToSave, "(final:", !!finalTranscript, ")");
+                    recognizedTextRef.current = textToSave;
+                    setRecognizedText(textToSave);
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.log("Speech recognition error:", event.error);
+                // Don't show error for common non-critical errors
+                if (event.error !== 'no-speech' && event.error !== 'aborted') {
+                    setAnswerError("Greška pri prepoznavanju govora: " + event.error);
+                }
+            };
+
+            recognition.onend = () => {
+                // Speech recognition ended - this is normal when user stops talking
+                console.log("Speech recognition ended. Text:", recognizedTextRef.current);
+            };
+
+            speechRecognitionRef.current = recognition;
             mediaRecorderRef.current = recorder;
+            
             recorder.start();
+            recognition.start();
             setIsRecording(true);
         } catch (error) {
             console.log("RecordingError:", error);
@@ -261,9 +329,16 @@ export const SpeakingQuestion = () => {
     };
 
     const stopRecording = () => {
-        if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
-            mediaRecorderRef.current.stop();
+        // Stop speech recognition first to get final results
+        if (speechRecognitionRef.current) {
+            speechRecognitionRef.current.stop();
         }
+        // Small delay to allow final results to be processed
+        setTimeout(() => {
+            if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+                mediaRecorderRef.current.stop();
+            }
+        }, 300);
     };
 
     const playCorrect = () => {
@@ -288,8 +363,16 @@ export const SpeakingQuestion = () => {
             return;
         }
 
-        if (!audioBlob) {
+        if (!hasRecorded) {
             setAnswerError("Prvo snimi odgovor.");
+            return;
+        }
+
+        // Use the text from ref (most up-to-date) or state
+        const textToUse = recognizedTextRef.current || recognizedText;
+
+        if (!textToUse || textToUse.trim() === "") {
+            setAnswerError("Nije prepoznat govor. Pokušaj ponovno i govori jasnije.");
             return;
         }
 
@@ -298,19 +381,10 @@ export const SpeakingQuestion = () => {
         const language = dictionaryLanguage || "en";
 
         try {
-            // First, transcribe the audio using AssemblyAI
-            const recognizedText = await transcribeAudio(audioBlob);
-
-            console.log("AssemblyAI prepoznao:", recognizedText);
-
-            if (!recognizedText || recognizedText.trim() === "") {
-                setAnswerError("Nije prepoznat govor. Pokušaj ponovno.");
-                setResultLoading(false);
-                return;
-            }
+            console.log("Web Speech API prepoznao:", textToUse);
 
             // Clean up the recognized text: lowercase and remove punctuation
-            const cleanedText = recognizedText
+            const cleanedText = textToUse
                 .toLowerCase()
                 .replace(/[^a-zA-ZčćžšđČĆŽŠĐäöüßÄÖÜáéíóúàèìòùâêîôûñ\s-]/g, '')
                 .trim();
