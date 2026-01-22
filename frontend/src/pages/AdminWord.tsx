@@ -1,11 +1,11 @@
 import PageTransition from "../components/PageTransition"
 import Header from "../components/Header"
 import Particles from "../styles/Particles"
-import { BookOutlined, CloseCircleOutlined } from '@ant-design/icons'
+import { BookOutlined, CloseCircleOutlined, SearchOutlined, ArrowLeftOutlined } from '@ant-design/icons'
 import { useNavigate } from "react-router"
 import { useEffect, useState } from "react"
 import axiosInstance from "../api/axiosInstance"
-import { Table, Input, Typography, type TableProps, Space } from "antd"
+import { Table, Input, type TableProps, Space, Button, Tag, Empty } from "antd"
 import { Mosaic } from "react-loading-indicators"
 import debounce from "lodash/debounce";
 import { useAdminContext } from "../context/AdminContext"
@@ -56,49 +56,42 @@ const AdminWord = () => {
             key: 'id',
         },
         {
-            title: 'Source Word',
+            title: 'Izvorna riječ',
             dataIndex: 'sourceWord',
             key: 'sourceWord',
+            sorter: (a, b) => a.sourceWord.localeCompare(b.sourceWord),
         },
         {
-            title: 'Target Word',
+            title: 'Ciljna riječ',
             dataIndex: 'targetWord',
             key: 'targetWord',
+            render: (text: string) => (
+                <div title={text} style={{ maxWidth: 260, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{text}</div>
+            )
         },
         {
-            title: 'Actions',
+            title: 'Akcije',
             key: 'actions',
             render: (_, record) => (
-                <Space size="middle">  
-                    <Typography.Link 
-                        style={{color: "blue"}} 
-                        onClick={() => {
-                            setSelectedWord(record);
-                            navigate("/admin/word/edit");
-                        }}
-                    >
-                        Edit
-                    </Typography.Link>
-                    <Typography.Link 
-                        style={{color: "red"}} 
-                        onClick={() => handleDeleteWordClick(record)}
-                    >
-                        Delete
-                    </Typography.Link>
-                    <Typography.Link
-                        style={{color: "green"}}
-                        onClick={() => {
-                            setSelectedAddWord(record);
-                            handleAddWordToDihs();
-                        }}
-                    >
-                        Add to Dictionaries
-                    </Typography.Link>
+                <Space size="middle">
+                    <Button type="link" onClick={() => { setSelectedWord(record); navigate("/admin/word/edit"); }}
+                        style={{ color: 'var(--color-primary-dark)', padding: 0 }}>
+                        Uredi
+                    </Button>
+                    <Button type="link" danger onClick={() => handleDeleteWordClick(record)} style={{ padding: 0 }}>
+                        Izbriši
+                    </Button>
+                    <Button type="link" onClick={() => { setSelectedAddWord(record); handleAddWordToDihs(); }}
+                        style={{ color: 'var(--color-primary-extra-dark)', padding: 0 }}>
+                        Dodaj u rječnike
+                    </Button>
                 </Space>
             ),
         },
     ];
 
+    const tableColumns = columns.map((item) => ({ ...item, ellipsis: {showTitle: false} }));
+ 
     useEffect(() => {
         if (showSuccessMessage) {
             const timeoutId = setTimeout(() => {
@@ -227,6 +220,8 @@ const AdminWord = () => {
             .some(field => String(field).toLowerCase().includes(searchText.toLowerCase()))
     );
 
+    const rowClassName = (_record: Word, index: number) => (index % 2 === 0 ? 'table-row-even' : 'table-row-odd');
+
     return (
         <PageTransition>
             <div className="min-h-screen flex flex-col items-center justify-start w-screen">
@@ -314,12 +309,22 @@ const AdminWord = () => {
                             </div>
                             
                             {/* Bottom button - now normal flow, not fixed */}
-                            <div className="w-full flex justify-center items-center">
+                            <div className="w-full flex justify-center items-center gap-3">
                                 <button
                                     onClick={handleAddWord}
-                                    className="cursor-pointer rounded-full px-8 py-3 bg-[var(--color-primary-dark)] text-[var(--color-text-on-dark)] shadow-xl font-space text-lg hover:opacity-95 transition-colors"
+                                    className="cursor-pointer rounded-full px-8 py-3 bg-[var(--color-primary-dark)] text-[var(--color-text-on-dark)] font-space text-lg hover:opacity-90 transition-colors"
                                 >
                                     Dodaj riječ
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setSelectedAddWord(null);
+                                        setShowAddToDictionaryModal(false);
+                                        setSelectedDihs([]);
+                                    }}
+                                    className="cursor-pointer rounded-full px-8 py-3 bg-white text-[var(--color-primary-extra-dark)] border-2 border-[var(--color-primary-extra-dark)] font-space text-lg hover:bg-[var(--color-primary-light)] transition-colors focus:outline-none"
+                                >
+                                    Odustani
                                 </button>
                             </div>
                         </div>
@@ -364,26 +369,44 @@ const AdminWord = () => {
                         )}
 
                         <div className="w-[70%] mb-3">
-                            <h2 className="text-2xl font-semibold" style={{ fontFamily: 'var(--font-space)', color: 'var(--color-primary-extra-dark)' }}>
-                                Spremljene riječi
-                            </h2>
+                            <div className="flex items-center gap-4">
+                                <Button type="default" icon={<ArrowLeftOutlined />} className="back-button" 
+                                    onClick={() => navigate("/admin")}
+                                />
+                                <h2 className="text-2xl font-semibold m-0" style={{ fontFamily: 'var(--font-space)', color: 'var(--color-text-on-primary)' }}>
+                                    Spremljene riječi
+                                </h2>
+                            </div>
                         </div>
                     
                         <div className="w-[70%]">
-                            <Input
-                                defaultValue={searchText}
-                                placeholder="Pretraži..."
-                                onChange={(e) => handleSearch(e.target.value)}
-                                style={{ width: "30%" }}
-                            />
-                            <Table
-                                dataSource={filteredData} 
-                                columns={columns} 
-                                bordered={true} 
-                                className="w-full mt-6" 
-                                pagination={ { pageSize: 5} } 
-                                rowKey="id"
-                            />
+                            <div className="flex items-center gap-4 mb-3">
+                                <Input
+                                    defaultValue={searchText}
+                                    placeholder="Pretraži..."
+                                    onChange={(e) => handleSearch(e.target.value)}
+                                    prefix={<SearchOutlined style={{ color: 'var(--color-primary-dark)' }} />}
+                                    className="custom-search-input"
+                                    style={{ width: '320px' }}
+                                />
+                                <Tag color="var(--color-primary-light)" style={{ color: 'var(--color-primary-extra-dark)', fontFamily: 'var(--font-space)' }}>{filteredData.length} riječi</Tag>
+                            </div>
+                            <div className="admin-table-container">
+                                <Table
+                                    virtual
+                                    dataSource={filteredData} 
+                                    columns={tableColumns} 
+                                    bordered={false}
+                                    className="w-full mt-6 mb-3 custom-admin-table" 
+                                    pagination={ false } 
+                                    scroll={{ y: 260, x: 800 }}
+                                    rowKey="id"
+                                    rowClassName={rowClassName}
+                                    locale={{
+                                        emptyText: <Empty description="Nema podataka" />,
+                                    }}
+                                />
+                            </div>
                             <div className="flex flex-col items-center g-4 mt-4">
                                 <button
                                     onClick={() => navigate("/admin/AddWord")}
