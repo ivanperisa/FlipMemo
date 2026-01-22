@@ -270,7 +270,7 @@ const AdminAddWord = () => {
               <div className="w-full bg-white/90 rounded-2xl shadow-md p-4 mt-4">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="font-space text-lg text-[var(--color-primary-dark)]">
-                    {suggestedWords.length > 0 ? 'Predlozene riječi' : 'Nema predloženih riječi'}
+                    {suggestedWords.length > 0 ? 'Predložene riječi' : 'Nema predloženih riječi'}
                   </h3>
                 </div>
                 <div className="flex flex-col gap-2">

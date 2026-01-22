@@ -22,7 +22,7 @@ public class WordsApiService(HttpClient httpClient) : IWordsApiService
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        var response = await httpClient.GetAsync($"/words/?letterPattern=^{dto.StartingLetters}[a-zA-Z]*$&lettersmin=4&limit=10&page=1&frequencymin=7&frequencymax=8");
+        var response = await httpClient.GetAsync($"/words/?letterPattern=^{dto.StartingLetters.ToLower()}[a-zA-Z]*$&lettersmin=4&limit=10&page=1&frequencymin=7&frequencymax=8");
         response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync();

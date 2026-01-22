@@ -17,7 +17,7 @@ public class UserService(ApplicationDbContext context) : IUserService
                 Email = u.Email,
                 Role = u.Role
             })
-            .Where(u => u.Id !=  id)
+            .Where(u => u.Id != id)
             .ToListAsync();
 
         return users;
@@ -29,7 +29,8 @@ public class UserService(ApplicationDbContext context) : IUserService
             .FindAsync(id)
             ?? throw new NotFoundException("Account doesn't exist.");
 
-        return new UserResponseDto {
+        return new UserResponseDto
+        {
             Id = user.Id,
             Email = user.Email,
             Role = user.Role
@@ -55,12 +56,12 @@ public class UserService(ApplicationDbContext context) : IUserService
         switch (operation)
         {
             case "Promote":
-                if (user.Role == Roles.Admin) 
+                if (user.Role == Roles.Admin)
                     throw new ConflictException("This user is already an admin.");
                 user.Role = Roles.Admin;
                 break;
             case "Demote":
-                if (user.Role == Roles.User) 
+                if (user.Role == Roles.User)
                     throw new ConflictException("You can only demote admins.");
                 user.Role = Roles.User;
                 break;
@@ -70,27 +71,45 @@ public class UserService(ApplicationDbContext context) : IUserService
 
     public async Task<UserStatsDto> GetUserStatsAsync(int id)
     {
-
-        var boxCounts = await context.StudyProgresses
+        var data = await context.StudyProgresses
             .Where(sp => sp.UserId == id)
-            .GroupBy(sp => sp.Box)
-            .ToDictionaryAsync(g => g.Key, g => g.Count());
+            .GroupBy(sp => new { sp.Mode, sp.Box })
+            .Select(g => new
+            {
+                g.Key.Mode,
+                g.Key.Box,
+                FirstBox = g.Count(x => x.Box == 0 && x.LastReviewed.HasValue),
+                Count = g.Count(),
+                Ready = g.Count(x => !x.Learned && (x.NextReview.HasValue && x.NextReview <= DateTime.UtcNow)),
+                Learned = g.Count(x => x.Learned)
+            })
+            .ToListAsync();
 
-        var numOfReadyWords = await context.StudyProgresses
-            .Where(sp =>
-                sp.UserId == id &&
-                !sp.Learned &&
-                (sp.Box == 0 || (sp.NextReview.HasValue && sp.NextReview <= DateTime.UtcNow)))
-            .CountAsync();
+        var result = data
+            .GroupBy(x => x.Mode)
+            .Select(modeGroup =>
+            {
+                var total = modeGroup.Sum(x => x.Count);
+                var learned = modeGroup.Sum(x => x.Learned);
+
+                return new ModeStatsDto
+                {
+                    Mode = modeGroup.Key,
+                    FirstBox = modeGroup.Sum(x => x.FirstBox),
+                    SecondBox = modeGroup.FirstOrDefault(x => x.Box == 1)?.Count ?? 0,
+                    ThirdBox = modeGroup.FirstOrDefault(x => x.Box == 2)?.Count ?? 0,
+                    FourthBox = modeGroup?.FirstOrDefault(x => x.Box == 3)?.Count ?? 0,
+                    Learned = learned,
+                    ReadyForReview = modeGroup!.Sum(x => x.Ready),
+                    Total = total,
+                    Remaining = total - learned
+                };
+            })
+            .ToList();
 
         return new UserStatsDto
         {
-            FirstBox = boxCounts.GetValueOrDefault(0),
-            SecondBox = boxCounts.GetValueOrDefault(1),
-            ThirdBox = boxCounts.GetValueOrDefault(2),
-            FourthBox = boxCounts.GetValueOrDefault(3),
-            Learned = boxCounts.GetValueOrDefault(4),
-            ReadyForReview = numOfReadyWords
+            UserStats = result
         };
     }
 }

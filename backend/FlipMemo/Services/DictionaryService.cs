@@ -1,9 +1,10 @@
 ﻿using FlipMemo.Data;
+using FlipMemo.DTOs.WordAndDictionary;
 using FlipMemo.Interfaces;
+using FlipMemo.Models;
 using FlipMemo.Utils;
 using Microsoft.EntityFrameworkCore;
-using FlipMemo.Models;
-using FlipMemo.DTOs.WordAndDictionary;
+using System.Collections.Generic;
 
 namespace FlipMemo.Services;
 
@@ -97,6 +98,22 @@ public class DictionaryService(ApplicationDbContext context) : IDictionaryServic
         await context.SaveChangesAsync();
     }
 
+    public async Task DeleteDictionaryAsync(int DictionaryId)
+    {
+        var dictionary = await context.Dictionaries
+           .FindAsync(DictionaryId)
+            ?? throw new NotFoundException("Account doesn't exist.");
+
+        var progresses = context.StudyProgresses
+         .Where(sp => sp.DictionaryId == DictionaryId);
+
+        context.StudyProgresses.RemoveRange(progresses);
+        context.Dictionaries.Remove(dictionary);
+        
+
+        await context.SaveChangesAsync();
+    }
+
     public async Task AddWordToDictionariesAsync(int wordId, AddWordToDictionariesRequestDto dto)
     {
         var word = await context.Words
@@ -123,11 +140,6 @@ public class DictionaryService(ApplicationDbContext context) : IDictionaryServic
         }
 
         await context.SaveChangesAsync();
-
-        if (newDictionaryIds.Count > 0)
-        {
-            await CreateStudyProgressRecordsAsync(wordId, newDictionaryIds);
-        }
     }
 
     public async Task RemoveWordFromDictionaryAsync(int dictionaryId, int wordId)
@@ -151,52 +163,6 @@ public class DictionaryService(ApplicationDbContext context) : IDictionaryServic
             .ToListAsync();
         context.StudyProgresses.RemoveRange(studyProgresses);
 
-        await context.SaveChangesAsync();
-    }
-
-    private static GameModes[] AllGameModes => GameModesHelper.GetAllGameModes;
-
-    private async Task CreateStudyProgressRecordsAsync(int wordId, List<int> dictionaryIds)
-    {
-        var allUserIds = await context.Users
-            .Select(u => u.Id)
-            .ToListAsync();
-
-        if (allUserIds.Count == 0)
-            return;
-
-        var desired = allUserIds
-            .SelectMany(userId => dictionaryIds.SelectMany(dictId =>
-                AllGameModes.Select(mode => new { UserId = userId, DictionaryId = dictId, Mode = mode })))
-            .ToList();
-
-        var existing = await context.StudyProgresses
-            .Where(sp => sp.WordId == wordId && dictionaryIds.Contains(sp.DictionaryId))
-            .Select(sp => new { sp.UserId, sp.DictionaryId, sp.Mode })
-            .ToListAsync();
-
-        var existingSet = existing
-            .Select(x => (x.UserId, x.DictionaryId, x.Mode))
-            .ToHashSet();
-
-        var newRows = desired
-            .Where(x => !existingSet.Contains((x.UserId, x.DictionaryId, x.Mode)))
-            .Select(x => new StudyProgress
-            {
-                UserId = x.UserId,
-                DictionaryId = x.DictionaryId,
-                WordId = wordId,
-                Mode = x.Mode,
-                Box = 0,
-                Learned = false,
-                Score = null
-            })
-            .ToList();
-
-        if (newRows.Count == 0)
-            return;
-
-        context.StudyProgresses.AddRange(newRows);
         await context.SaveChangesAsync();
     }
 }

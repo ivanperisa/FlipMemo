@@ -372,7 +372,7 @@ const AdminEditWord = () => {
 
                         <div className="w-full mt-6 mb-2" style={{ borderTop: '1px solid var(--color-gradient-end)' }} />
                         <div className="flex items-center justify-between mb-2">
-                            <label className="text-sm mt-4" style={{ fontFamily: 'var(--font-space)', color: 'var(--color-gradient-start)' }}>Fraze na hrvatskom jeziku</label>
+                            <label className="text-sm mt-4" style={{ fontFamily: 'var(--font-space)', color: 'var(--color-gradient-start)' }}>Fraze na ciljnom jeziku</label>
                             <button type="button" onClick={resetTargetPhrases} className="text-sm px-2 py-1 rounded hover:bg-[rgba(0,0,0,0.03)]" style={{ color: 'var(--color-gradient-start)', fontFamily: 'var(--font-space)', textDecoration: 'underline' }}>
                                 resetiraj vrijednosti
                             </button>
@@ -383,7 +383,7 @@ const AdminEditWord = () => {
                                     {fields.map(({ key, name, ...restField }) => (
                                         <div key={key} className="flex items-start gap-3">
                                             <Form.Item className="flex-1 m-0" {...restField} name={name} rules={[{ required:true, message: "Molimo upišite frazu" }]}>
-                                                <Input placeholder="Fraza na izvornom jeziku" className="w-full rounded-md" style={{ fontFamily: 'var(--font-space)', fontSize: 16, padding: '10px' }} />
+                                                <Input placeholder="Fraza na ciljnom jeziku" className="w-full rounded-md" style={{ fontFamily: 'var(--font-space)', fontSize: 16, padding: '10px' }} />
                                             </Form.Item>
                                             <button type="button" onClick={() => remove(name)} aria-label="Ukloni frazu" className="cursor-pointer p-2 rounded-full hover:bg-[rgba(0,0,0,0.04)]" style={{ color: 'var(--color-gradient-start)' }}>
                                                 <MinusCircleOutlined />
@@ -402,7 +402,7 @@ const AdminEditWord = () => {
                                             </div>
                                         ) : (
                                             <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />} style={{ borderColor: 'var(--color-gradient-start)', color: 'var(--color-gradient-start)', fontFamily: 'var(--font-space)' }}>
-                                                Dodaj frazu na hrvatskom jeziku
+                                                Dodaj frazu na ciljnom jeziku
                                             </Button>
                                         )}
                                     </div>
