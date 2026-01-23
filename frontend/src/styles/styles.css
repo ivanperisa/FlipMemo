@@ -94,6 +94,9 @@
     border-radius: 12px;
     padding: 12px;
     box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: auto;
 }
 
 .custom-admin-table .ant-table-thead > tr > th {

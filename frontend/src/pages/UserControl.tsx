@@ -82,7 +82,7 @@ const UserControl = () => {
         .then((response)=>{
             setLoading(false);
             console.log(response.data);
-            setUsers(response.data);
+            setUsers(response.data.sort((u1: User, u2: User) => u1.id - u2.id));
         }).catch((error)=>{
             setLoading(false);
             if(error.response.status=='401'){ logout()}
@@ -161,11 +161,12 @@ const UserControl = () => {
 
     const rowClassName = (_record: User, index: number) => (index % 2 === 0 ? 'table-row-even' : 'table-row-odd');
     const tableHeight = useResponsiveTableHeight(380, 260, '#app-header');
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
     
     return (
         <PageTransition>
             <div className="min-h-screen flex flex-col items-center justify-start w-screen">
-                <div className={"absolute z-0 w-screen h-screen"}>
+                <div className={"absolute z-0 w-screen h-screen pointer-events-none"}>
                     <Particles 
                         particleColors={['#ffffff', '#ffffff']}
                         particleCount={150}
@@ -229,7 +230,7 @@ const UserControl = () => {
                             </div>
                             <div className="admin-table-container">
                                 <Table
-                                    virtual
+                                    virtual={!isMobile}
                                     dataSource={filteredData} 
                                     columns={tableColumns} 
                                     bordered={false}
