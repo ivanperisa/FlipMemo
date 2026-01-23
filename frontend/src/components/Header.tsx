@@ -106,7 +106,7 @@ const Header = () => {
 
     return (
 
- <div className="w-full max-w-[1200px] flex justify-between items-center mt-8 mb-12 z-10 px-5">
+ <div id="app-header" className="w-full max-w-[1200px] flex justify-between items-center mt-8 mb-12 z-10 px-5">
     <div className="flex justify-between items-center gap-[10px]">
                    <Link to={'/home'}> <h1 className="font-space text-4xl font-bold text-[var(--color-text-on-primary)]">
                         FlipMemo
