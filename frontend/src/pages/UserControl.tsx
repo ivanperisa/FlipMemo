@@ -3,6 +3,7 @@ import PageTransition from "../components/PageTransition";
 import Particles from "../styles/Particles";
 import Header from "../components/Header";
 import { Button, Empty, Input, Space, Table, type TableProps,Tag, Typography } from "antd";
+import useResponsiveTableHeight from "../utils/useResponsiveTableHeight";
 import axiosInstance from "../api/axiosInstance";
 import { ArrowLeftOutlined, CloseCircleOutlined, SearchOutlined } from '@ant-design/icons';
 import { useEffect, useState } from "react";
@@ -35,16 +36,20 @@ const UserControl = () => {
             title: 'Id',
             dataIndex: 'id',
             key: 'id',
+            sorter: (a, b) => a.id - b.id,
+            sortDirections: ['descend', null],
         },
         {
             title: 'Email',
             dataIndex: 'email',
             key: 'email',
+            sorter: (a, b) => a.email.localeCompare(b.email),
         },
         {
             title: 'Uloga',
             key: 'role',
             dataIndex: 'role',
+            sorter: (a, b) => a.role.localeCompare(b.role),
             render: (_, { role }) => {
             const color = role === 'Admin' ? 'green' : 'geekblue';
             return <Tag color={color}>{role}</Tag>;
@@ -155,6 +160,7 @@ const UserControl = () => {
     );
 
     const rowClassName = (_record: User, index: number) => (index % 2 === 0 ? 'table-row-even' : 'table-row-odd');
+    const tableHeight = useResponsiveTableHeight(380, 260, '#app-header');
     
     return (
         <PageTransition>
@@ -202,7 +208,7 @@ const UserControl = () => {
                                     onClick={() => navigate("/admin")}
                                 />
                                 <h2 className="text-2xl font-semibold m-0" style={{ fontFamily: 'var(--font-space)', color: 'var(--color-text-on-primary)' }}>
-                                    Spremljene riječi
+                                    Prikaz korisnika
                                 </h2>
                             </div>
                         </div>
@@ -217,7 +223,9 @@ const UserControl = () => {
                                     className="custom-search-input"
                                     style={{ width: '320px' }}
                                 />
-                                <Tag color="var(--color-primary-light)" style={{ color: 'var(--color-primary-extra-dark)', fontFamily: 'var(--font-space)' }}>{filteredData.length} riječi</Tag>
+                                <Tag color="var(--color-primary-light)" style={{ color: 'var(--color-primary-extra-dark)', fontFamily: 'var(--font-space)' }}>
+                                    {`${filteredData.length} ${filteredData.length % 10 === 1 ? 'korisnik' : 'korisnika'}`}
+                                </Tag>
                             </div>
                             <div className="admin-table-container">
                                 <Table
@@ -227,9 +235,10 @@ const UserControl = () => {
                                     bordered={false}
                                     className="w-full mt-6 mb-3 custom-admin-table" 
                                     pagination={ false } 
-                                    scroll={{ y: 260, x: 800 }}
+                                    scroll={{ y: tableHeight, x: 800 }}
                                     rowKey="id"
                                     rowClassName={rowClassName}
+                                    showSorterTooltip={false}
                                     locale={{
                                         emptyText: <Empty description="Nema podataka" />,
                                     }}

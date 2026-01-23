@@ -119,7 +119,7 @@
 
 /* Smooth transition for hover */
 .custom-admin-table .ant-table-thead > tr > th {
-    transition: background-color 150ms ease, color 150ms ease;
+    transition: background-color 180ms ease;
 }
 
 /* Prevent inner sorter element from keeping its own background (avoid two-tone flicker) */
@@ -128,7 +128,7 @@
 .custom-admin-table .ant-table-thead > tr > th .ant-table-column-title {
     background: transparent !important;
     color: inherit !important;
-    transition: background-color 150ms ease, color 150ms ease;
+    transition: background-color 180ms ease;
 }
 
 /* Ensure when hovering the TH the inner sorter does not introduce its own background */
