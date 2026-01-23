@@ -5,6 +5,7 @@ import { useNavigate } from "react-router"
 import { useEffect, useState } from "react"
 import axiosInstance from "../api/axiosInstance"
 import { Table, Input, type TableProps, Modal, Button, message, Tag, Space, Empty } from "antd"
+import useResponsiveTableHeight from "../utils/useResponsiveTableHeight"
 import { Mosaic } from "react-loading-indicators"
 import debounce from "lodash/debounce";
 import { useAdminContext } from "../context/AdminContext"
@@ -53,17 +54,20 @@ const AdminDictionary = () => {
             title: 'Id',
             dataIndex: 'id',
             key: 'id',
+            sorter: (a, b) => a.id - b.id,
+            sortDirections: ['descend', null],
         },
         {
             title: 'Naziv',
             dataIndex: 'name',
             key: 'name',
-            sorter: (a,b) => a.name.localeCompare(b.name),
+            sorter: (a, b) => a.name.localeCompare(b.name),
         },
         {
             title: 'Jezik',
             dataIndex: 'language',
-            key: 'language'
+            key: 'language',
+            sorter: (a, b) => a.language.localeCompare(b.language),
         },
         {
             title: "Akcije",
@@ -99,12 +103,14 @@ const AdminDictionary = () => {
             .some(field => String(field).toLowerCase().includes(searchText.toLowerCase()))
     );
 
+    const tableHeight = useResponsiveTableHeight(380, 260, '#app-header');
+
     const rowClassName = (_record: Dictionary, index: number) => (index % 2 === 0 ? 'table-row-even' : 'table-row-odd');
 
     useEffect(() => {
         axiosInstance.get('/api/v1/Dictionary')
         .then((response) => {
-            setDictArray(response.data.dictionaries);
+            setDictArray(response.data.dictionaries.sort((d1: Dictionary, d2: Dictionary) => d1.id - d2.id));
             setLoading(false);
         })
         .catch((error) => {
@@ -157,7 +163,9 @@ const AdminDictionary = () => {
                                     prefix={<SearchOutlined style={{ color: 'var(--color-primary-dark)' }} />}
                                     className="custom-search-input"
                                 />
-                                <Tag color="var(--color-primary-light)" style={{ color: 'var(--color-primary-extra-dark)', fontFamily: 'var(--font-space)' }}>{filteredData.length} rječnika</Tag>
+                                <Tag color="var(--color-primary-light)" style={{ color: 'var(--color-primary-extra-dark)', fontFamily: 'var(--font-space)' }}>
+                                    {`${filteredData.length} ${filteredData.length % 10 === 1 ? 'rječnik' : 'rječnika'}`}
+                                </Tag>
                             </div>
                             <div className="admin-table-container">
                                 <Table
@@ -168,8 +176,9 @@ const AdminDictionary = () => {
                                     bordered={false}
                                     className="w-full mt-6 mb-3 custom-admin-table"
                                     pagination={false}
-                                    scroll={{ y: 260, x: 800 }}
+                                    scroll={{ y: tableHeight, x: 800 }}
                                     rowKey="id"
+                                    showSorterTooltip={false}
                                     rowClassName={rowClassName}
                                     locale={{
                                         emptyText: <Empty description="Nema podataka" />,

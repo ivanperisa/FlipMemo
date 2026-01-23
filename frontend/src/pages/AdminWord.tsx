@@ -6,6 +6,7 @@ import { useNavigate } from "react-router"
 import { useEffect, useState } from "react"
 import axiosInstance from "../api/axiosInstance"
 import { Table, Input, type TableProps, Space, Button, Tag, Empty } from "antd"
+import useResponsiveTableHeight from "../utils/useResponsiveTableHeight"
 import { Mosaic } from "react-loading-indicators"
 import debounce from "lodash/debounce";
 import { useAdminContext } from "../context/AdminContext"
@@ -54,6 +55,8 @@ const AdminWord = () => {
             title: 'Id',
             dataIndex: 'id',
             key: 'id',
+            sorter: (a, b) => a.id - b.id,
+            sortDirections: ['descend', null],
         },
         {
             title: 'Izvorna riječ',
@@ -65,9 +68,10 @@ const AdminWord = () => {
             title: 'Ciljna riječ',
             dataIndex: 'targetWord',
             key: 'targetWord',
+            sorter: (a, b) => a.targetWord.localeCompare(b.targetWord),
             render: (text: string) => (
                 <div title={text} style={{ maxWidth: 260, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{text}</div>
-            )
+            ),
         },
         {
             title: 'Akcije',
@@ -90,7 +94,7 @@ const AdminWord = () => {
         },
     ];
 
-    const tableColumns = columns.map((item) => ({ ...item, ellipsis: {showTitle: false} }));
+    const tableColumns = columns.map((item) => ({ ...item }));
  
     useEffect(() => {
         if (showSuccessMessage) {
@@ -110,7 +114,7 @@ const AdminWord = () => {
         .then((response) => {
             if (response.data.words) {
                 console.log(response.data.words);
-                setWordArray(response.data.words);
+                setWordArray(response.data.words.sort((w1, w2) => w1.id - w2.id));
             }
         })
         .catch((error) => {
@@ -221,6 +225,8 @@ const AdminWord = () => {
     );
 
     const rowClassName = (_record: Word, index: number) => (index % 2 === 0 ? 'table-row-even' : 'table-row-odd');
+
+    const tableHeight = useResponsiveTableHeight(380, 260, '#app-header');
 
     return (
         <PageTransition>
@@ -389,7 +395,9 @@ const AdminWord = () => {
                                     className="custom-search-input"
                                     style={{ width: '320px' }}
                                 />
-                                <Tag color="var(--color-primary-light)" style={{ color: 'var(--color-primary-extra-dark)', fontFamily: 'var(--font-space)' }}>{filteredData.length} riječi</Tag>
+                                <Tag color="var(--color-primary-light)" style={{ color: 'var(--color-primary-extra-dark)', fontFamily: 'var(--font-space)' }}>
+                                    {`${filteredData.length} ${filteredData.length % 10 === 1 ? 'riječ' : 'riječi'}`}
+                                </Tag>
                             </div>
                             <div className="admin-table-container">
                                 <Table
@@ -399,9 +407,10 @@ const AdminWord = () => {
                                     bordered={false}
                                     className="w-full mt-6 mb-3 custom-admin-table" 
                                     pagination={ false } 
-                                    scroll={{ y: 260, x: 800 }}
+                                    scroll={{ y: tableHeight, x: 800 }}
                                     rowKey="id"
                                     rowClassName={rowClassName}
+                                    showSorterTooltip={false}
                                     locale={{
                                         emptyText: <Empty description="Nema podataka" />,
                                     }}
