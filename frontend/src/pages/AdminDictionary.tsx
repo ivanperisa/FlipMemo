@@ -103,7 +103,8 @@ const AdminDictionary = () => {
             .some(field => String(field).toLowerCase().includes(searchText.toLowerCase()))
     );
 
-    const tableHeight = useResponsiveTableHeight(380, 260, '#app-header');
+        const tableHeight = useResponsiveTableHeight(380, 260, '#app-header');
+        const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
     const rowClassName = (_record: Dictionary, index: number) => (index % 2 === 0 ? 'table-row-even' : 'table-row-odd');
 
@@ -170,7 +171,7 @@ const AdminDictionary = () => {
                             <div className="admin-table-container">
                                 <Table
                                     // title={() => <h2 className="text-lg font-semibold">Riječnici</h2>}
-                                    virtual
+                                        virtual={!isMobile}
                                     dataSource={filteredData}
                                     columns={columns}
                                     bordered={false}

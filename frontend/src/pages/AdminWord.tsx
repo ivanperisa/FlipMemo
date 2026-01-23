@@ -227,11 +227,12 @@ const AdminWord = () => {
     const rowClassName = (_record: Word, index: number) => (index % 2 === 0 ? 'table-row-even' : 'table-row-odd');
 
     const tableHeight = useResponsiveTableHeight(380, 260, '#app-header');
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
     return (
         <PageTransition>
             <div className="min-h-screen flex flex-col items-center justify-start w-screen">
-                <div className={"absolute z-0 w-screen h-screen"}>
+                <div className={"absolute z-0 w-screen h-screen pointer-events-none"}>
                     <Particles
                         particleColors={['#ffffff', '#ffffff']}
                         particleCount={150}
@@ -401,7 +402,7 @@ const AdminWord = () => {
                             </div>
                             <div className="admin-table-container">
                                 <Table
-                                    virtual
+                                    virtual={!isMobile}
                                     dataSource={filteredData} 
                                     columns={tableColumns} 
                                     bordered={false}
