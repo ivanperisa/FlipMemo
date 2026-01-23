@@ -2,7 +2,7 @@ import { useNavigate } from "react-router";
 import PageTransition from "../components/PageTransition";
 import Particles from "../styles/Particles";
 import Header from "../components/Header";
-import { BookOutlined, PlusCircleOutlined } from '@ant-design/icons';
+import { BookOutlined, FileTextOutlined, UserOutlined } from '@ant-design/icons';
 
 const AdminPage = () => {
     const navigate = useNavigate();
@@ -45,7 +45,7 @@ const AdminPage = () => {
                     >
                         <div className="flex items-center gap-6">
                             <div className="w-16 h-16 bg-[var(--color-primary-dark)] rounded-full flex items-center justify-center text-[var(--color-text-on-primary)]">
-                                <BookOutlined className="text-3xl" />
+                                <UserOutlined className="text-3xl" />
                             </div>
                             <div className="flex-1 text-left">
                                 <h3 className="font-space text-2xl font-bold text-[#8B6B7A] mb-2">
@@ -65,7 +65,7 @@ const AdminPage = () => {
                     >
                         <div className="flex items-center gap-6">
                             <div className="w-16 h-16 bg-[var(--color-primary-dark)] rounded-full flex items-center justify-center text-[var(--color-text-on-primary)]">
-                                <PlusCircleOutlined className="text-3xl" />
+                                <BookOutlined className="text-3xl" />
                             </div>
                             <div className="flex-1 text-left">
                                 <h3 className="font-space text-2xl font-bold text-[#8B6B7A] mb-2">
@@ -85,7 +85,7 @@ const AdminPage = () => {
                     >
                         <div className="flex items-center gap-6">
                             <div className="w-16 h-16 bg-[var(--color-primary-dark)] rounded-full flex items-center justify-center text-[var(--color-text-on-primary)]">
-                                <PlusCircleOutlined className="text-3xl" />
+                                <FileTextOutlined className="text-3xl" />
                             </div>
                             <div className="flex-1 text-left">
                                 <h3 className="font-space text-2xl font-bold text-[#8B6B7A] mb-2">
